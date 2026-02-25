@@ -1,0 +1,585 @@
+package main
+
+import (
+	"fmt"
+	"math"
+	"sort"
+)
+
+// 704. 二分查找
+// 本质：通过收缩左右边界，缩小搜索范围
+// https://leetcode.cn/problems/binary-search/description/
+// 输入: nums = [-1,0,3,5,9,12], target = 9 输出: 4
+// 解释: 9 出现在 nums 中并且下标为 4
+func search(nums []int, target int) int {
+	left, right := 0, len(nums)-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if nums[mid] == target {
+			return mid
+		} else if nums[mid] < target {
+			left = mid + 1
+		} else {
+			right = mid - 1
+		}
+	}
+	return -1
+}
+
+// 34. 在排序数组中查找元素的第一个和最后一个位置
+// https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/description/
+// 给你一个按照非递减顺序排列的整数数组 nums，和一个目标值 target。请你找出给定目标值在数组中的开始位置和结束位置。
+// 如果数组中不存在目标值 target，返回 [-1, -1]。
+// 你必须设计并实现时间复杂度为 O(log n) 的算法解决此问题。
+// 输入：nums = [5,7,7,8,8,10], target = 8
+// 输出：[3,4]
+func searchRange(nums []int, target int) []int {
+	left := getLeftOrder(nums, target)
+	right := getRightOrder(nums, target)
+	if left < -1 || right > len(nums) {
+		return []int{-1, -1}
+	}
+	return []int{left + 1, right - 1}
+}
+
+func getLeftOrder(nums []int, target int) int {
+	left, right := 0, len(nums)-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if nums[mid] >= target {
+			right = mid - 1
+		} else {
+			left = mid + 1
+		}
+	}
+	return right
+}
+
+func getRightOrder(nums []int, target int) int {
+	left, right := 0, len(nums)-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if nums[mid] > target {
+			right = mid - 1
+		} else {
+			left = mid + 1
+		}
+	}
+	return left
+}
+
+// 35. 搜索插入位置
+// https://leetcode.cn/problems/search-insert-position/description/
+// 给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置。
+// 请必须使用时间复杂度为 O(log n) 的算法。
+// 输入: nums = [1,3,5,6], target = 2
+// 输出: 1
+// 输入: nums = [1,3,5,6], target = 5
+// 输出: 2
+func searchInsert(nums []int, target int) int {
+	left, right := 0, len(nums)-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if nums[mid] > target {
+			right = mid - 1
+		} else if nums[mid] < target {
+			left = mid + 1
+		} else if nums[mid] == target {
+			// 收缩右边界
+			right = mid - 1
+		}
+	}
+	// right指向第一个小于的位置，left指向后一个位置
+	// return right + 1
+	return left
+}
+
+// 162. 寻找峰值
+// 峰值元素是指其值严格大于左右相邻值的元素。
+// 给你一个整数数组 nums，找到峰值元素并返回其索引。数组可能包含多个峰值，在这种情况下，返回 任何一个峰值 所在位置即可。
+// 你可以假设 nums[-1] = nums[n] = -∞ 。
+// 你必须实现时间复杂度为 O(log n) 的算法来解决此问题。
+// 输入：nums = [1,2,3,1]
+// 输出：2
+// 解释：3 是峰值元素，你的函数应该返回其索引 2。
+// 输入：nums = [1,2,1,3,5,6,4]
+// 输出：1 或 5
+// 解释：你的函数可以返回索引 1，其峰值元素为 2；
+// 或者返回索引 5， 其峰值元素为 6。
+func findPeakElement(nums []int) int {
+	left, right := 0, len(nums)-2
+	for left <= right {
+		mid := left + (right-left)/2
+		if nums[mid] > nums[mid+1] { // 下坡，峰值在mid左边，收缩右边界
+			right = mid - 1
+		} else { // 上坡，峰值在mid上或右边，收缩左边界
+			left = mid + 1
+		}
+	}
+	return left
+}
+
+// 153. 寻找旋转排序数组中的最小值
+// https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/description/
+// 已知一个长度为 n 的数组，预先按照升序排列，经由 1 到 n 次 旋转 后，得到输入数组。例如，原数组 nums = [0,1,2,4,5,6,7] 在变化后可能得到：
+// 若旋转 4 次，则可以得到 [4,5,6,7,0,1,2]
+// 若旋转 7 次，则可以得到 [0,1,2,4,5,6,7]
+// 注意，数组 [a[0], a[1], a[2], ..., a[n-1]] 旋转一次 的结果为数组 [a[n-1], a[0], a[1], a[2], ..., a[n-2]] 。
+// 给你一个元素值 互不相同 的数组 nums ，它原来是一个升序排列的数组，并按上述情形进行了多次旋转。请你找出并返回数组中的 最小元素 。
+// 你必须设计一个时间复杂度为 O(log n) 的算法解决此问题。
+// 输入：nums = [3,4,5,1,2]
+// 输出：1
+// 解释：原数组为 [1,2,3,4,5] ，旋转 3 次得到输入数组。
+// 输入：nums = [4,5,6,7,0,1,2]
+// 输出：0
+// 解释：原数组为 [0,1,2,4,5,6,7] ，旋转 4 次得到输入数组。
+func findMin(nums []int) int {
+	n := len(nums)
+	left, right := 0, len(nums)-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if nums[mid] < nums[n-1] { // mid在第二段，收缩右边界，最小值在第二段第一个
+			right = mid - 1
+		} else if nums[mid] > nums[n-1] { // mid在第一段，收缩左边界，最小值在第二段第一个
+			left = mid + 1
+		}
+	}
+	return nums[left]
+}
+
+// 33.搜索旋转排序数组
+// https://leetcode.cn/problems/search-in-rotated-sorted-array/description/
+// 整数数组 nums 按升序排列，数组中的值 互不相同 。
+// 在传递给函数之前，nums 在预先未知的某个下标 k（0 <= k < nums.length）上进行了 向左旋转，使数组变为 [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]（下标 从 0 开始 计数）。例如， [0,1,2,4,5,6,7] 下标 3 上向左旋转后可能变为 [4,5,6,7,0,1,2] 。
+// 给你 旋转后 的数组 nums 和一个整数 target ，如果 nums 中存在这个目标值 target ，则返回它的下标，否则返回 -1 。
+// 你必须设计一个时间复杂度为 O(log n) 的算法解决此问题。
+// 输入：nums = [4,5,6,7,0,1,2], target = 0
+// 输出：4
+// 输入：nums = [4,5,6,7,0,1,2], target = 3
+// 输出：-1
+func search2(nums []int, target int) int {
+	// 2次二分：第一次找到最小值下标，第二次在有序数组中找值
+	n := len(nums)
+	left, right := 0, len(nums)-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if nums[mid] <= nums[n-1] { // mid在第二段
+			right = mid - 1
+		} else {
+			left = mid + 1
+		}
+	}
+	// fmt.Println(left)
+	l, r := 0, n-1
+	if nums[n-1] >= target {
+		l = left // 第二段
+	} else {
+		r = left - 1 // 第一段
+	}
+	for l <= r {
+		mid := l + (r-l)/2
+		if nums[mid] < target {
+			l = mid + 1
+		} else if nums[mid] > target {
+			r = mid - 1
+		} else {
+			return mid
+		}
+	}
+	return -1
+}
+
+// 74.搜索二维矩阵
+// 给你一个满足下述两条属性的 m x n 整数矩阵：
+// 每行中的整数从左到右按非严格递增顺序排列。
+// 每行的第一个整数大于前一行的最后一个整数。
+// 给你一个整数 target ，如果 target 在矩阵中，返回 true ；否则，返回 false 。
+// 输入：matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3
+// 输出：true
+func searchMatrix(matrix [][]int, target int) bool {
+	m, n := len(matrix), len(matrix[0])
+	// 纵向二分,找左边界
+	left, right := 0, m-1
+	for left <= right {
+		mid := (left + right) / 2
+		if matrix[mid][0] > target {
+			right = mid - 1
+		} else if matrix[mid][0] < target {
+			left = mid + 1
+		} else {
+			// 收缩右侧边界，目的是寻找左边界
+			// right = mid - 1
+			return true
+		}
+	}
+	// 第一列没找到：right指向的第一个小于target的位置
+	fmt.Println(left, right)
+	if right < 0 {
+		right++
+	}
+	// 横向二分
+	row := right
+	left, right = 0, n-1
+	for left <= right {
+		mid := (left + right) / 2
+		if matrix[row][mid] == target {
+			return true
+		} else if matrix[row][mid] < target {
+			left = mid + 1
+		} else {
+			right = mid - 1
+		}
+	}
+	return false
+}
+
+// 240.搜索二维矩阵 II
+// 编写一个高效的算法来搜索 m x n 矩阵 matrix 中的一个目标值 target 。该矩阵具有以下特性：
+// 每行的元素从左到右升序排列。
+// 每列的元素从上到下升序排列。
+// 输入：matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 5
+// 输出：true
+func searchMatrix2(matrix [][]int, target int) bool {
+	m, n := len(matrix), len(matrix[0])
+	i, j := m-1, 0
+	for i >= 0 && j < n {
+		if matrix[i][j] == target {
+			return true
+		} else if matrix[i][j] < target {
+			j++
+		} else if matrix[i][j] > target {
+			i--
+		}
+	}
+	return false
+}
+
+// 27. 移除元素
+// https://leetcode.cn/problems/remove-element/description/
+// nums = [3,2,2,3], val = 3
+// 输出: 2, nums = [2,2,_,_]
+func removeElement(nums []int, val int) int {
+	left := 0
+	for right := 0; right < len(nums); right++ {
+		if nums[right] != val {
+			nums[left] = nums[right]
+			left++
+		}
+	}
+	return left
+}
+
+// 80.删除有序数组中的重复项 II
+// 给你一个有序数组 nums ，请你 原地 删除重复出现的元素，使得出现次数超过两次的元素只出现两次 ，返回删除后数组的新长度。
+// 不要使用额外的数组空间，你必须在 原地 修改输入数组 并在使用 O(1) 额外空间的条件下完成。
+// 输入：nums = [1,1,1,2,2,3]
+// 输出：5, nums = [1,1,2,2,3]
+// 解释：函数应返回新长度 length = 5, 并且原数组的前五个元素被修改为 1, 1, 2, 2, 3。 不需要考虑数组中超出新长度后面的元素。
+
+// 977.有序数组的平方
+// https://leetcode.cn/problems/squares-of-a-sorted-array/description/
+// 输入：nums = [-4,-1,0,3,10]
+// 输出：[0,1,9,16,100]
+func sortedSquares(nums []int) []int {
+	n := len(nums)
+	results := make([]int, n)
+	left, right := 0, n-1
+	k := n - 1
+	for left <= right {
+		if nums[left]*nums[left] < nums[right]*nums[right] {
+			results[k] = nums[right] * nums[right]
+			right--
+		} else {
+			results[k] = nums[left] * nums[left]
+			left++
+		}
+		k--
+	}
+	return results
+}
+
+// 88.合并两个有序数组
+// 给你两个按 非递减顺序 排列的整数数组 nums1 和 nums2，另有两个整数 m 和 n ，分别表示 nums1 和 nums2 中的元素数目。
+// 请你 合并 nums2 到 nums1 中，使合并后的数组同样按 非递减顺序 排列。
+// 注意：最终，合并后数组不应由函数返回，而是存储在数组 nums1 中。为了应对这种情况，nums1 的初始长度为 m + n，其中前 m 个元素表示应合并的元素，后 n 个元素为 0 ，应忽略。nums2 的长度为 n 。
+// 输入：nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3
+// 输出：[1,2,2,3,5,6]
+// 解释：需要合并 [1,2,3] 和 [2,5,6] 。
+// 合并结果是 [1,2,2,3,5,6] ，其中斜体加粗标注的为 nums1 中的元素。
+func merge(nums1 []int, m int, nums2 []int, n int) {
+	k := len(nums1) - 1
+	i := m - 1
+	j := n - 1
+	for i >= 0 && j >= 0 {
+		if nums1[i] < nums2[j] {
+			nums1[k] = nums2[j]
+			j--
+		} else {
+			nums1[k] = nums1[i]
+			i--
+		}
+		k--
+	}
+	for i >= 0 {
+		nums1[k] = nums1[i]
+		i--
+		k--
+	}
+	for j >= 0 {
+		nums1[k] = nums2[j]
+		j--
+		k--
+	}
+}
+
+// 209. 长度最小的子数组
+// https://leetcode.cn/problems/minimum-size-subarray-sum/description/
+// 输入：target = 7, nums = [2,3,1,2,4,3]
+// 输出：2
+func minSubArrayLen(target int, nums []int) int {
+	result := math.MaxInt
+	left := 0
+	s := 0
+	for right := 0; right < len(nums); right++ {
+		s += nums[right]
+		for s >= target {
+			result = min(result, right-left+1)
+			s -= nums[left]
+			left++
+		}
+	}
+	return result
+}
+
+// 59.螺旋矩阵II
+// https://leetcode.cn/problems/spiral-matrix-ii/
+// 输入: 3 输出: [ [ 1, 2, 3 ], [ 8, 9, 4 ], [ 7, 6, 5 ] ]
+func generateMatrix(n int) [][]int {
+	results := make([][]int, n)
+	for i := 0; i < n; i++ {
+		results[i] = make([]int, n)
+	}
+	loop := n / 2
+	startx, starty := 0, 0
+	offset := 0
+	cnt := 1
+	for loop > 0 {
+		// from left to right
+		i, j := startx, starty
+		for ; j < n-1-offset; j++ {
+			results[i][j] = cnt
+			cnt++
+		}
+		// from top to bottom
+		for ; i < n-1-offset; i++ {
+			results[i][j] = cnt
+			cnt++
+		}
+		// from right to left
+		for ; j > starty; j-- {
+			results[i][j] = cnt
+			cnt++
+		}
+		// from bottom to top
+		for ; i > startx; i-- {
+			results[i][j] = cnt
+			cnt++
+		}
+		offset++
+		startx++
+		starty++
+		loop--
+	}
+	if n%2 == 1 {
+		results[n/2][n/2] = cnt
+	}
+	return results
+}
+
+// 1365. 有多少小于当前数字的数字
+// https://leetcode.cn/problems/how-many-numbers-are-smaller-than-the-current-number/description/
+// 给你一个数组 nums，对于其中每个元素 nums[i]，请你统计数组中比它小的所有数字的数目。
+// 换而言之，对于每个 nums[i] 你必须计算出有效的 j 的数量，其中 j 满足 j != i 且 nums[j] < nums[i] 。
+// 以数组形式返回答案。
+// 输入：nums = [8,1,2,2,3]
+// 输出：[4,0,1,1,3]
+func smallerNumbersThanCurrent(nums []int) []int {
+	n := len(nums)
+	result := make([]int, n)
+	tmp := make([]int, n)
+	copy(tmp, nums)
+	sort.Ints(tmp)
+	m := make(map[int]int)
+	for i, val := range tmp {
+		if _, ok := m[val]; !ok {
+			m[val] = i
+		}
+	}
+	for i, val := range nums {
+		result[i] = m[val]
+	}
+	return result
+}
+
+// 941. 有效的山脉数组
+// 给定一个整数数组 arr，如果它是有效的山脉数组就返回 true，否则返回 false。
+// 让我们回顾一下，如果 arr 满足下述条件，那么它是一个山脉数组：
+// arr.length >= 3
+// 在 0 < i < arr.length - 1 条件下，存在 i 使得：
+// arr[0] < arr[1] < ... arr[i-1] < arr[i]
+// arr[i] > arr[i+1] > ... > arr[arr.length - 1]
+// 输入：arr = [0,3,2,1]
+// 输出：true
+func validMountainArray(arr []int) bool {
+	n := len(arr)
+	if n < 3 {
+		return false
+	}
+	incFlag := false
+	decFlag := false
+	i := 1
+	for ; i < n && arr[i-1] < arr[i]; i++ {
+		incFlag = true
+	}
+	for ; i < n && arr[i-1] > arr[i]; i++ {
+		decFlag = true
+	}
+	return i == n && incFlag && decFlag
+}
+
+// 1207. 独一无二的出现次数
+// https://leetcode.cn/problems/unique-number-of-occurrences/
+// 输入：arr = [1,2,2,1,1,3]
+// 输出：true
+// 解释：在该数组中，1 出现了 3 次，2 出现了 2 次，3 只出现了 1 次。没有两个数的出现次数相同。
+func uniqueOccurrences(arr []int) bool {
+	m := make(map[int]int)
+	for _, val := range arr {
+		m[val]++
+	}
+	freq := make(map[int]bool)
+	for _, val := range m {
+		if freq[val] {
+			return false
+		}
+		freq[val] = true
+	}
+	return true
+}
+
+// 283. 移动零
+// https://leetcode.cn/problems/move-zeroes/description/
+// 给定一个数组 nums，编写一个函数将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。
+// 请注意 ，必须在不复制数组的情况下原地对数组进行操作。
+// 输入: nums = [0,1,0,3,12]
+// 输出: [1,3,12,0,0]
+func moveZeroes(nums []int) {
+	left := 0
+	for i := 0; i < len(nums); i++ {
+		if nums[i] != 0 {
+			nums[left] = nums[i]
+			left++
+		}
+	}
+	for ; left < len(nums); left++ {
+		nums[left] = 0
+	}
+}
+
+// 189. 轮转数组
+// https://leetcode.cn/problems/rotate-array/description/
+// 给定一个整数数组 nums，将数组中的元素向右轮转 k 个位置，其中 k 是非负数。
+// 输入: nums = [1,2,3,4,5,6,7], k = 3
+// 输出: [5,6,7,1,2,3,4]
+// 向右轮转 1 步: [7,1,2,3,4,5,6]
+// 向右轮转 2 步: [6,7,1,2,3,4,5]
+// 向右轮转 3 步: [5,6,7,1,2,3,4]
+func rotate(nums []int, k int) {
+	n := len(nums)
+	if n == 0 {
+		return
+	}
+	for i := 0; i < k%n; i++ {
+		val := nums[n-1]
+		for j := n - 1; j > 0; j-- {
+			nums[j] = nums[j-1]
+		}
+		nums[0] = val
+	}
+}
+
+// 724. 寻找数组的中心下标
+// https://leetcode.cn/problems/find-pivot-index/description/
+// 给你一个整数数组 nums ，请计算数组的 中心下标 。
+// 数组 中心下标 是数组的一个下标，其左侧所有元素相加的和等于右侧所有元素相加的和。
+// 如果中心下标位于数组最左端，那么左侧数之和视为 0 ，因为在下标的左侧不存在元素。这一点对于中心下标位于数组最右端同样适用。
+// 如果数组有多个中心下标，应该返回 最靠近左边 的那一个。如果数组不存在中心下标，返回 -1 。
+// 输入：nums = [1, 7, 3, 6, 5, 6]
+// 输出：3
+// 左侧数之和 sum = nums[0] + nums[1] + nums[2] = 1 + 7 + 3 = 11 ，
+// 右侧数之和 sum = nums[4] + nums[5] = 5 + 6 = 11 ，二者相等。
+func pivotIndex(nums []int) int {
+	s := 0
+	for i := 0; i < len(nums); i++ {
+		s += nums[i]
+	}
+	leftSum, rightSum := 0, 0
+	for i := 0; i < len(nums); i++ {
+		leftSum += nums[i]
+		rightSum = s - leftSum + nums[i]
+		if leftSum == rightSum {
+			return i
+		}
+	}
+	return -1
+}
+
+// 922. 按奇偶排序数组 II
+// https://leetcode.cn/problems/sort-array-by-parity-ii/description/
+// 给定一个非负整数数组 nums，  nums 中一半整数是 奇数 ，一半整数是 偶数 。
+// 对数组进行排序，以便当 nums[i] 为奇数时，i 也是 奇数 ；当 nums[i] 为偶数时， i 也是 偶数 。
+// 你可以返回 任何满足上述条件的数组作为答案 。
+// 输入：nums = [4,2,5,7]
+// 输出：[4,5,2,7]
+// 解释：[4,7,2,5]，[2,5,4,7]，[2,7,4,5] 也会被接受。
+func sortArrayByParityII(nums []int) []int {
+	n := len(nums)
+	if n < 2 {
+		return nums
+	}
+	even := 0
+	odd := 1
+	for even < n && odd < n {
+		for even < n && nums[even]%2 == 0 {
+			even += 2
+		}
+		for odd < n && nums[odd]%2 == 1 {
+			odd += 2
+		}
+		if even < n && odd < n {
+			nums[even], nums[odd] = nums[odd], nums[even]
+			even += 2
+			odd += 2
+		}
+	}
+	return nums
+}
+
+func main() {
+	fmt.Println(sortArrayByParityII([]int{4, 2, 5, 7}))
+	fmt.Println(searchMatrix([][]int{
+		{1, 3, 5, 7},
+		{10, 11, 16, 20},
+		{23, 30, 34, 60}}, 11))
+	fmt.Println(searchMatrix([][]int{
+		{1}}, 1))
+	fmt.Println(searchMatrix([][]int{
+		{1}, {3}}, 3))
+	fmt.Println(searchInsert([]int{1, 3, 5, 6}, 2))       // 1
+	fmt.Println(searchInsert([]int{1, 3, 5, 6}, 5))       // 2
+	fmt.Println(findMin([]int{3, 4, 5, 1, 2}))            // 1
+	fmt.Println(findMin([]int{4, 5, 6, 7, 0, 1, 2}))      // 0
+	fmt.Println(findMin([]int{11, 13, 15, 17}))           // 11
+	fmt.Println(search2([]int{4, 5, 6, 7, 0, 1, 2}, 0))   // 4
+	fmt.Println(searchRange([]int{5, 7, 7, 8, 8, 10}, 8)) // 3,4
+}
