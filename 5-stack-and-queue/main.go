@@ -169,6 +169,34 @@ func evalRPN(tokens []string) int {
 	return r
 }
 
+func evalRPN2(tokens []string) int {
+	result := 0
+	var st []int
+	for i := 0; i < len(tokens); i++ {
+		if tokens[i] != "+" && tokens[i] != "-" && tokens[i] != "*" && tokens[i] != "/" {
+			x, _ := strconv.Atoi(tokens[i])
+			st = append(st, x)
+			continue
+		}
+		a := st[len(st)-1]
+		st = st[:len(st)-1]
+		b := st[len(st)-1]
+		st = st[:len(st)-1]
+		switch {
+		case tokens[i] == "+":
+			result = a + b
+		case tokens[i] == "-":
+			result = b - a
+		case tokens[i] == "*":
+			result = a * b
+		case tokens[i] == "/":
+			result = b / a
+		}
+		st = append(st, result)
+	}
+	return st[0]
+}
+
 // 239. 滑动窗口最大值
 // https://leetcode.cn/problems/sliding-window-maximum/description/
 // 给你一个整数数组 nums，有一个大小为 k 的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 k 个数字。滑动窗口每次只向右移动一位。

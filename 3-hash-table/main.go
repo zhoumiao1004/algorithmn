@@ -130,29 +130,15 @@ func fourSumCount(nums1 []int, nums2 []int, nums3 []int, nums4 []int) int {
 // 判断 ransomNote 能不能由 magazine 里面的字符构成。
 // ransomNote 和 magazine 由小写英文字母组成
 func canConstruct(ransomNote string, magazine string) bool {
-	var arr [26]int
+	var hash [26]int
 	for _, c := range magazine {
-		arr[c-'a']++
+		hash[c-'a']++
 	}
 	for _, c := range ransomNote {
-		arr[c-'a']--
-		if arr[c-'a'] < 0 {
+		if hash[c-'a'] == 0 {
 			return false
 		}
-	}
-	return true
-}
-
-func canConstruct2(ransomNote string, magazine string) bool {
-	var arr [26]int
-	for _, c := range magazine {
-		arr[c-'a']++
-	}
-	for _, c := range ransomNote {
-		if arr[c-'a'] == 0 {
-			return false
-		}
-		arr[c-'a']--
+		hash[c-'a']--
 	}
 	return true
 }
@@ -163,9 +149,10 @@ func canConstruct2(ransomNote string, magazine string) bool {
 // 输出：[[-1,-1,2],[-1,0,1]]
 // 双指针、滑动窗口，关键在如何去重
 func threeSum(nums []int) [][]int {
-	sort.Ints(nums)
 	var results [][]int
-	for i := 0; i < len(nums)-2; i++ {
+	sort.Ints(nums)
+	n := len(nums)
+	for i := 0; i < n-2; i++ {
 		a := nums[i]
 		if a > 0 {
 			break
@@ -173,7 +160,7 @@ func threeSum(nums []int) [][]int {
 		if i > 0 && nums[i] == nums[i-1] {
 			continue
 		}
-		l, r := i+1, len(nums)-1
+		l, r := i+1, n-1
 		for l < r {
 			b, c := nums[l], nums[r]
 			if a+b+c == 0 {
@@ -379,7 +366,7 @@ func containsDuplicate(nums []int) bool {
 // 输出：true
 func containsNearbyDuplicate(nums []int, k int) bool {
 	m := make(map[int]int)
-	for i := 0; i<len(nums); i++ {
+	for i := 0; i < len(nums); i++ {
 		index, ok := m[nums[i]]
 		if ok && i-index <= k {
 			return true

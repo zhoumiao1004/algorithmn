@@ -110,6 +110,7 @@ func inorderTraversal(root *TreeNode) []int {
 	return result
 }
 
+// 迭代法
 func inorderTraversal2(root *TreeNode) []int {
 	var result []int
 	var st []*TreeNode
@@ -370,6 +371,20 @@ func compare(left, right *TreeNode) bool {
 	return outside && inside
 }
 
+func isSymmetric2(root *TreeNode) bool {
+	if root == nil {
+		return true
+	}
+	var dfs func(node1, node2 *TreeNode) bool
+	dfs = func(node1, node2 *TreeNode) bool {
+		if node1 == nil || node2 == nil {
+			return node1 == node2
+		}
+		return node1.Val == node2.Val && dfs(node1.Left, node2.Right) && dfs(node1.Right, node2.Left)
+	}
+	return dfs(root.Left, root.Right)
+}
+
 // 104. 二叉树的最大深度
 // https://leetcode.cn/problems/maximum-depth-of-binary-tree/
 // 后序遍历
@@ -405,7 +420,10 @@ func minDepth(root *TreeNode) int {
 
 // 222.完全二叉树的节点个数
 // https://leetcode.cn/problems/count-complete-tree-nodes/description/
-// 求左右子树的深度
+// 给你一棵 完全二叉树 的根节点 root ，求出该树的节点个数。
+// 完全二叉树 的定义如下：在完全二叉树中，除了最底层节点可能没填满外，其余每层节点数都达到最大值，并且最下面一层的节点都集中在该层最左边的若干位置。若最底层为第 h 层（从第 0 层开始），则该层包含 1~ 2h 个节点。
+// 输入：root = [1,2,3,4,5,6]
+// 输出：6
 func countNodes(root *TreeNode) int {
 	if root == nil {
 		return 0
@@ -425,6 +443,26 @@ func countNodes(root *TreeNode) int {
 	return 1 + leftNum + rightNum
 }
 
+func countNodes2(root *TreeNode) int {
+	if root == nil {
+		return 0
+	}
+	left, right := 0, 0
+	cur1, cur2 := root, root
+	for cur1 != nil {
+		cur1 = cur1.Left
+		left++
+	}
+	for cur2 != nil {
+		cur2 = cur2.Right
+		right++
+	}
+	if left == right {
+		return 1<<left - 1
+	}
+	return countNodes(root.Left) + countNodes(root.Right) + 1
+}
+
 // 110. 平衡二叉树
 // https://leetcode.cn/problems/balanced-binary-tree/description/
 // 对于树中的每个节点：左和右子树高度差不超过1
@@ -432,25 +470,28 @@ func countNodes(root *TreeNode) int {
 // 输出：true
 // 后序遍历
 func isBalanced(root *TreeNode) bool {
-	var dfs func(*TreeNode) int
-	dfs = func(root *TreeNode) int {
-		if root == nil {
+	if root == nil {
+		return true
+	}
+	var getDepth func(node *TreeNode) int
+	getDepth = func(node *TreeNode) int {
+		if node == nil {
 			return 0
 		}
-		leftDepth := dfs(root.Left) // 左
-		if leftDepth == -1 {
+		left := getDepth(node.Left)
+		if left == -1 {
 			return -1
 		}
-		rightDepth := dfs(root.Right) // 右
-		if rightDepth == -1 {
+		right := getDepth(node.Right)
+		if right == -1 {
 			return -1
 		}
-		if math.Abs(float64(leftDepth-rightDepth)) > 1 { // 中
+		if left-right > 1 || left-right < -1 {
 			return -1
 		}
-		return max(leftDepth, rightDepth) + 1
+		return max(left, right) + 1
 	}
-	return dfs(root) != -1
+	return getDepth(root) != -1
 }
 
 // 257. 二叉树的所有路径
@@ -469,7 +510,7 @@ func binaryTreePaths(root *TreeNode) []string {
 		// 中
 		path = append(path, fmt.Sprintf("%d", root.Val))
 		if root.Left == nil && root.Right == nil {
-			results = append(results, strings.Join(path, "->"))
+			results = append(results, strings.Join(path, "->")) // 注意不能return，因为还要回溯
 		}
 		dfs(root.Left)  // 左
 		dfs(root.Right) // 右
@@ -582,6 +623,31 @@ func findBottomLeftValue2(root *TreeNode) int {
 	return result
 }
 
+func findBottomLeftValue3(root *TreeNode) int {
+	maxDepth := 0
+	depth := 0
+	result := 0
+	if root == nil {
+		return result
+	}
+	var dfs func(node *TreeNode)
+	dfs = func(node *TreeNode) {
+		if node == nil {
+			return
+		}
+		depth++
+		if depth > maxDepth {
+			maxDepth = depth
+			result = node.Val
+		}
+		dfs(node.Left)
+		dfs(node.Right)
+		depth--
+	}
+	dfs(root)
+	return result
+}
+
 // 112. 路径总和
 // https://leetcode.cn/problems/path-sum/description/
 // pathSum 返回从根节点到叶子节点路径总和等于给定目标和的1个路径
@@ -609,10 +675,8 @@ func buildTree(inorder []int, postorder []int) *TreeNode {
 	}
 	root := &TreeNode{Val: postorder[len(postorder)-1]}
 	i := 0
-	for ; i < len(inorder); i++ {
-		if inorder[i] == root.Val {
-			break
-		}
+	for inorder[i] != root.Val {
+		i++
 	}
 	root.Left = buildTree(inorder[:i], postorder[:i])
 	root.Right = buildTree(inorder[i+1:], postorder[i:len(postorder)-1])
@@ -633,10 +697,8 @@ func buildTree2(preorder []int, inorder []int) *TreeNode {
 	// 中
 	root := &TreeNode{Val: preorder[0]}
 	i := 0
-	for ; i < len(inorder); i++ {
-		if inorder[i] == root.Val {
-			break
-		}
+	for inorder[i] != preorder[0] {
+		i++
 	}
 	root.Left = buildTree(preorder[1:i+1], inorder[:i])
 	root.Right = buildTree(preorder[i+1:], inorder[i+1:])
@@ -736,7 +798,7 @@ func isValidBST(root *TreeNode) bool {
 // 530. 二叉搜索树的最小绝对差
 // https://leetcode.cn/problems/minimum-absolute-difference-in-bst/description/
 func getMinimumDifference(root *TreeNode) int {
-	minVal := 0
+	result := math.MaxInt
 	var prev *TreeNode
 	var dfs func(*TreeNode)
 	dfs = func(root *TreeNode) {
@@ -744,14 +806,14 @@ func getMinimumDifference(root *TreeNode) int {
 			return
 		}
 		dfs(root.Left)
-		if prev != nil && (minVal == 0 || root.Val-prev.Val < minVal) {
-			minVal = root.Val - prev.Val
+		if prev != nil {
+			result = root.Val - prev.Val
 		}
 		prev = root
 		dfs(root.Right)
 	}
 	dfs(root)
-	return minVal
+	return result
 }
 
 // 501.二叉搜索树中的众数
@@ -759,7 +821,7 @@ func getMinimumDifference(root *TreeNode) int {
 func findMode(root *TreeNode) []int {
 	var results []int
 	maxCnt := 0
-	curCnt := 0
+	cnt := 0
 	var prev *TreeNode
 	var dfs func(*TreeNode)
 	dfs = func(root *TreeNode) {
@@ -768,15 +830,15 @@ func findMode(root *TreeNode) []int {
 		}
 		dfs(root.Left)
 		if prev != nil && prev.Val == root.Val {
-			curCnt++
+			cnt++
 		} else {
-			curCnt = 1
+			cnt = 1
 		}
-		if curCnt == maxCnt {
+		if cnt == maxCnt {
 			results = append(results, root.Val)
-		} else if curCnt > maxCnt {
+		} else if cnt > maxCnt {
 			results = []int{root.Val}
-			maxCnt = curCnt
+			maxCnt = cnt
 		}
 		prev = root
 		dfs(root.Right)
@@ -817,13 +879,15 @@ func lowestCommonAncestorBST(root, p, q *TreeNode) *TreeNode {
 	if root == nil {
 		return root
 	}
+	if root == p || root == q {
+		return root // 找到就向上返回
+	}
 	if root.Val > p.Val && root.Val > q.Val {
 		return lowestCommonAncestorBST(root.Left, q, p)
 	} else if root.Val < p.Val && root.Val < q.Val {
 		return lowestCommonAncestorBST(root.Right, p, q)
-	} else {
-		return root
 	}
+	return root
 }
 
 // 701.二叉搜索树中的插入操作
@@ -873,15 +937,18 @@ func deleteNode(root *TreeNode, key int) *TreeNode {
 	if root == nil {
 		return nil
 	}
-	if root.Left == nil && root.Right == nil {
-		return nil
-	}
 	if root.Val < key {
 		root.Right = deleteNode(root.Right, key)
 	} else if root.Val > key {
 		root.Left = deleteNode(root.Left, key)
 	} else {
-		// 右孩子继承
+		// 删除的是叶子节点
+		if root.Left == nil && root.Right == nil {
+			return nil
+		} else if root.Right == nil {
+			return root.Left
+		}
+		// 右孩子继位，做孩子挂在右子树最左边
 		cur := root.Right
 		for cur.Left != nil {
 			cur = cur.Left
@@ -920,39 +987,28 @@ func trimBST(root *TreeNode, low int, high int) *TreeNode {
 // 输入：nums = [-10,-3,0,5,9]
 // 输出：[0,-3,9,-10,null,5]
 func sortedArrayToBST(nums []int) *TreeNode {
-	n := len(nums)
-	if n == 0 {
-		return nil
-	}
-	root := &TreeNode{Val: nums[n/2]}
-	root.Left = sortedArrayToBST(nums[:n/2])
-	root.Right = sortedArrayToBST(nums[n/2+1:])
-	return root
-}
-func sortedArrayToBST2(nums []int) *TreeNode {
 	if len(nums) == 0 {
 		return nil
 	}
-	left, right := 0, len(nums)-1
-	mid := (left + right) / 2
+	mid := len(nums) / 2
 	root := &TreeNode{Val: nums[mid]}
-	root.Left = sortedArrayToBST(nums[:mid-1])
+	root.Left = sortedArrayToBST(nums[:mid])
 	root.Right = sortedArrayToBST(nums[mid+1:])
 	return root
 }
 
 // 538. 把二叉搜索树转换为累加树
 func convertBST(root *TreeNode) *TreeNode {
-	pre := 0
-	var dfs func(*TreeNode)
-	dfs = func(cur *TreeNode) {
-		if cur == nil {
+	prev := 0
+	var dfs func(node *TreeNode)
+	dfs = func(node *TreeNode) {
+		if node == nil {
 			return
 		}
-		dfs(cur.Right) // 右
-		cur.Val += pre // 中
-		pre = cur.Val
-		dfs(cur.Left) // 左
+		dfs(node.Right)  // 右
+		node.Val += prev // 中
+		prev = node.Val
+		dfs(node.Left) // 左
 	}
 	dfs(root)
 	return root
