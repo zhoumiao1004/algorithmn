@@ -390,14 +390,14 @@ func findSubsequences(nums []int) [][]int {
 		if len(path) > 1 {
 			tmp := make([]int, len(path))
 			copy(tmp, path)
-			results = append(results, tmp)
+			results = append(results, tmp) // 注意这里没有return，因为找到一个子序列，还能继续往树的下一层找更长的子序列
 		}
 		uset := make(map[int]bool) // 同层去重
 		for i := startIndex; i < len(nums); i++ {
 			if uset[nums[i]] {
 				continue
 			}
-			if len(path) > 0 && path[len(path)-1] > nums[i] {
+			if len(path) > 0 && nums[i] < path[len(path)-1] {
 				continue
 			}
 			path = append(path, nums[i])
