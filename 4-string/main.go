@@ -240,7 +240,7 @@ func main() {
 	s = "abcdaefca"
 	fmt.Println(lengthOfLongestSubstring(s))
 	fmt.Println(repeatedSubstringPattern("aba"))
-	fmt.Println(reverseWords2("  the sky is blue  "))
+	fmt.Println(reverseWords("  the sky is blue  "))
 	fmt.Println(string(removeExtraSpaces([]byte("  the sky is blue  "))))
 	fmt.Println(strStr("hello", "ll"))         // 2
 	fmt.Println(strStr("aabaabaaf", "aabaaf")) // 3

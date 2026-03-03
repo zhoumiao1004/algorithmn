@@ -34,38 +34,48 @@ func search(nums []int, target int) int {
 // 输入：nums = [5,7,7,8,8,10], target = 8
 // 输出：[3,4]
 func searchRange(nums []int, target int) []int {
-	left := getLeftOrder(nums, target)
-	right := getRightOrder(nums, target)
-	if left < -1 || right > len(nums) {
+	if len(nums) == 0 {
 		return []int{-1, -1}
 	}
-	return []int{left + 1, right - 1}
+	left := getLeft(nums, target)
+	right := getRight(nums, target)
+	if left < 0 || left > len(nums)-1 || right < 0 || right > len(nums)-1 {
+		return []int{-1, -1}
+	}
+	if nums[left] != target || nums[right] != target {
+		return []int{-1, -1}
+	}
+	return []int{left, right}
 }
 
-func getLeftOrder(nums []int, target int) int {
+func getLeft(nums []int, target int) int {
 	left, right := 0, len(nums)-1
 	for left <= right {
 		mid := left + (right-left)/2
-		if nums[mid] >= target {
+		if nums[mid] < target {
+			left = mid + 1
+		} else if nums[mid] > target {
 			right = mid - 1
-		} else {
+		} else if nums[mid] == target {
+			right = mid - 1
+		}
+	}
+	return left
+}
+
+func getRight(nums []int, target int) int {
+	left, right := 0, len(nums)-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if nums[mid] < target {
+			left = mid + 1
+		} else if nums[mid] > target {
+			right = mid - 1
+		} else if nums[mid] == target {
 			left = mid + 1
 		}
 	}
 	return right
-}
-
-func getRightOrder(nums []int, target int) int {
-	left, right := 0, len(nums)-1
-	for left <= right {
-		mid := left + (right-left)/2
-		if nums[mid] > target {
-			right = mid - 1
-		} else {
-			left = mid + 1
-		}
-	}
-	return left
 }
 
 // 35. 搜索插入位置
@@ -95,6 +105,7 @@ func searchInsert(nums []int, target int) int {
 }
 
 // 162. 寻找峰值
+// https://leetcode.cn/problems/find-peak-element/description/
 // 峰值元素是指其值严格大于左右相邻值的元素。
 // 给你一个整数数组 nums，找到峰值元素并返回其索引。数组可能包含多个峰值，在这种情况下，返回 任何一个峰值 所在位置即可。
 // 你可以假设 nums[-1] = nums[n] = -∞ 。
@@ -110,10 +121,12 @@ func findPeakElement(nums []int) int {
 	left, right := 0, len(nums)-2
 	for left <= right {
 		mid := left + (right-left)/2
-		if nums[mid] > nums[mid+1] { // 下坡，峰值在mid左边，收缩右边界
+		if nums[mid] < nums[mid+1] {
+			left = mid + 1 // 上坡，峰值在右边，收缩左边界
+		} else if nums[mid] > nums[mid+1] {
+			right = mid - 1 // 下坡，峰值在左边，收缩右边界
+		} else if nums[mid] == nums[mid+1] {
 			right = mid - 1
-		} else { // 上坡，峰值在mid上或右边，收缩左边界
-			left = mid + 1
 		}
 	}
 	return left
@@ -135,13 +148,19 @@ func findPeakElement(nums []int) int {
 // 解释：原数组为 [0,1,2,4,5,6,7] ，旋转 4 次得到输入数组。
 func findMin(nums []int) int {
 	n := len(nums)
-	left, right := 0, len(nums)-1
+	if n == 0 {
+		return 0
+	}
+	left, right := 0, n-1
 	for left <= right {
 		mid := left + (right-left)/2
-		if nums[mid] < nums[n-1] { // mid在第二段，收缩右边界，最小值在第二段第一个
+		if nums[mid] < nums[n-1] {
+			// 中点在第二段，最小值在中点左边，收缩右边界
 			right = mid - 1
-		} else if nums[mid] > nums[n-1] { // mid在第一段，收缩左边界，最小值在第二段第一个
+		} else if nums[mid] > nums[n-1] {
 			left = mid + 1
+		} else if nums[mid] == nums[n-1] {
+			right = mid - 1 // 最小值在左侧，继续收缩右边界
 		}
 	}
 	return nums[left]
@@ -163,26 +182,27 @@ func search2(nums []int, target int) int {
 	left, right := 0, len(nums)-1
 	for left <= right {
 		mid := left + (right-left)/2
-		if nums[mid] <= nums[n-1] { // mid在第二段
+		if nums[mid] < nums[n-1] { // 中点在第二段，最小值在左边，收缩右边界
 			right = mid - 1
-		} else {
+		} else if nums[mid] > nums[n-1] {
 			left = mid + 1
+		} else if nums[mid] == nums[n-1] {
+			right = mid - 1
 		}
 	}
-	// fmt.Println(left)
-	l, r := 0, n-1
-	if nums[n-1] >= target {
-		l = left // 第二段
+	minIndex := left
+	if nums[n-1] < target {
+		left, right = 0, minIndex
 	} else {
-		r = left - 1 // 第一段
+		left, right = minIndex, n-1
 	}
-	for l <= r {
-		mid := l + (r-l)/2
+	for left <= right {
+		mid := left + (right-left)/2
 		if nums[mid] < target {
-			l = mid + 1
+			left = mid + 1
 		} else if nums[mid] > target {
-			r = mid - 1
-		} else {
+			right = mid - 1
+		} else if nums[mid] == target {
 			return mid
 		}
 	}
@@ -190,6 +210,7 @@ func search2(nums []int, target int) int {
 }
 
 // 74.搜索二维矩阵
+// https://leetcode.cn/problems/search-a-2d-matrix/
 // 给你一个满足下述两条属性的 m x n 整数矩阵：
 // 每行中的整数从左到右按非严格递增顺序排列。
 // 每行的第一个整数大于前一行的最后一个整数。
@@ -207,8 +228,6 @@ func searchMatrix(matrix [][]int, target int) bool {
 		} else if matrix[mid][0] < target {
 			left = mid + 1
 		} else {
-			// 收缩右侧边界，目的是寻找左边界
-			// right = mid - 1
 			return true
 		}
 	}
@@ -234,6 +253,7 @@ func searchMatrix(matrix [][]int, target int) bool {
 }
 
 // 240.搜索二维矩阵 II
+// https://leetcode.cn/problems/search-a-2d-matrix-ii/
 // 编写一个高效的算法来搜索 m x n 矩阵 matrix 中的一个目标值 target 。该矩阵具有以下特性：
 // 每行的元素从左到右升序排列。
 // 每列的元素从上到下升序排列。

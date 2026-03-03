@@ -103,7 +103,7 @@ func trap(height []int) int {
 			mid := st[len(st)-1]
 			st = st[:len(st)-1] // 出栈
 			if len(st) > 0 {
-				left := st[len(st)-1] // 栈顶元素是mid左边第一个大于的位置
+				left := st[len(st)-1] // 栈顶元素是mid左边第一个大于的位置,注意这里不需要出栈
 				right := i
 				w := right - left - 1
 				h := min(height[left], height[right]) - height[mid]
@@ -153,19 +153,20 @@ func trap2pointer(nums []int) int {
 func largestRectangleArea(heights []int) int {
 	result := 0
 	// 首尾补零
-	nums := make([]int, len(heights)+2)
+	tmp := make([]int, len(heights)+2)
 	for i := 0; i < len(heights); i++ {
-		nums[i+1] = heights[i]
+		tmp[i+1] = heights[i]
 	}
+	heights = tmp
 	var st []int
-	for i := 0; i < len(nums); i++ {
-		for len(st) > 0 && nums[i] < nums[st[len(st)-1]] {
+	for i := 0; i < len(heights); i++ {
+		for len(st) > 0 && heights[i] < heights[st[len(st)-1]] {
 			mid := st[len(st)-1] // 取栈顶：mid
 			st = st[:len(st)-1]  // 出栈
 			if len(st) > 0 {
 				left := st[len(st)-1] // 取栈顶：左边第一个小于mid的元素
 				right := i
-				h := nums[mid]
+				h := heights[mid]
 				w := right - left - 1
 				result = max(result, h*w)
 			}
