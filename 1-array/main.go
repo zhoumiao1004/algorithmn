@@ -26,6 +26,21 @@ func search(nums []int, target int) int {
 	return -1
 }
 
+// LCR 172. 统计目标成绩的出现次数
+// https://leetcode.cn/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/description/
+// 某班级考试成绩按非严格递增顺序记录于整数数组 scores，请返回目标成绩 target 的出现次数。
+// 输入: scores = [2, 2, 3, 4, 4, 4, 5, 6, 6, 8], target = 4
+// 输出: 3
+func countTarget(scores []int, target int) int {
+	n := len(scores)
+	left := getLeft(scores, target)
+	right := getRight(scores, target)
+	if left < 0 || right > n-1 {
+		return 0
+	}
+	return right - left + 1
+}
+
 // 34. 在排序数组中查找元素的第一个和最后一个位置
 // https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/description/
 // 给你一个按照非递减顺序排列的整数数组 nums，和一个目标值 target。请你找出给定目标值在数组中的开始位置和结束位置。
@@ -290,11 +305,27 @@ func removeElement(nums []int, val int) int {
 }
 
 // 80.删除有序数组中的重复项 II
+// https://leetcode.cn/problems/remove-duplicates-from-sorted-array-ii/description/
 // 给你一个有序数组 nums ，请你 原地 删除重复出现的元素，使得出现次数超过两次的元素只出现两次 ，返回删除后数组的新长度。
 // 不要使用额外的数组空间，你必须在 原地 修改输入数组 并在使用 O(1) 额外空间的条件下完成。
 // 输入：nums = [1,1,1,2,2,3]
 // 输出：5, nums = [1,1,2,2,3]
 // 解释：函数应返回新长度 length = 5, 并且原数组的前五个元素被修改为 1, 1, 2, 2, 3。 不需要考虑数组中超出新长度后面的元素。
+func removeDuplicates(nums []int) int {
+	n := len(nums)
+	if n < 2 {
+		return n
+	}
+	slow, fast := 2, 2
+	for fast < n {
+		if nums[fast] != nums[slow-2] {
+			nums[slow] = nums[fast]
+			slow++
+		}
+		fast++
+	}
+	return slow
+}
 
 // 977.有序数组的平方
 // https://leetcode.cn/problems/squares-of-a-sorted-array/description/
