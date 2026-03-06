@@ -119,6 +119,110 @@ func searchInsert(nums []int, target int) int {
 	return left
 }
 
+// 875. 爱吃香蕉的珂珂
+// 珂珂喜欢吃香蕉。这里有 n 堆香蕉，第 i 堆中有 piles[i] 根香蕉。警卫已经离开了，将在 h 小时后回来。
+// 珂珂可以决定她吃香蕉的速度 k （单位：根/小时）。每个小时，她将会选择一堆香蕉，从中吃掉 k 根。如果这堆香蕉少于 k 根，她将吃掉这堆的所有香蕉，然后这一小时内不会再吃更多的香蕉。
+// 珂珂喜欢慢慢吃，但仍然想在警卫回来前吃掉所有的香蕉。
+// 返回她可以在 h 小时内吃掉所有香蕉的最小速度 k（k 为整数）。
+// 输入：piles = [3,6,7,11], h = 8
+// 输出：4
+// 输入：piles = [30,11,23,4,20], h = 5
+// 输出：30
+func minEatingSpeed(piles []int, h int) int {
+	left, right := 1, 1000000000+1
+	for left <= right {
+		mid := left + (right-left)/2
+		if f(piles, mid) == h {
+			// 搜索左侧边界，就要收缩右侧边界
+			right = mid - 1
+		} else if f(piles, mid) < h {
+			// mid速度快了导致需要的时间小于h，需要让f(x）返回大一点，速度mid要降低，所以收缩右边界
+			right = mid - 1
+		} else if f(piles, mid) > h {
+			left = mid + 1
+		}
+	}
+	return left
+}
+
+// 速度为x，需要f(x)小时吃完
+func f(piles []int, x int) int {
+	hours := 0
+	for i := 0; i < len(piles); i++ {
+		hours += piles[i] / x
+		if piles[i]%x > 0 {
+			hours++
+		}
+	}
+	return hours
+}
+
+// 1011. 在 D 天内送达包裹的能力
+// https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/description/
+// 传送带上的包裹必须在 days 天内从一个港口运送到另一个港口。
+// 传送带上的第 i 个包裹的重量为 weights[i]。每一天，我们都会按给出重量（weights）的顺序往传送带上装载包裹。我们装载的重量不会超过船的最大运载重量。
+// 返回能在 days 天内将传送带上的所有包裹送达的船的最低运载能力。
+// 输入：weights = [1,2,3,4,5,6,7,8,9,10], days = 5
+// 输出：15
+// 解释：船舶最低载重 15 就能够在 5 天内送达所有包裹，如下所示：
+// 第 1 天：1, 2, 3, 4, 5
+// 第 2 天：6, 7
+// 第 3 天：8
+// 第 4 天：9
+// 第 5 天：10
+func shipWithinDays(weights []int, days int) int {
+	// left, right := 1, 500*5*10000+1
+	left, right := 0, 1
+	for _, w := range weights {
+		if left < w {
+			left = w
+		}
+		right += w
+	}
+	for left <= right {
+		mid := left + (right-left)/2
+		if f2(weights, mid) == days {
+			// 寻找左边界，所以要收缩右边界
+			right = mid - 1
+		} else if f2(weights, mid) < days {
+			// 速度mid快了
+			right = mid - 1
+		} else if f2(weights, mid) > days {
+			left = mid + 1
+		}
+	}
+	return left
+}
+
+// 运载能力为x，需要x天运完货物
+func f2(weights []int, x int) int {
+	days := 1
+	s := 0
+	for i := 0; i < len(weights); i++ {
+		if s+weights[i] > x {
+			days++
+			s = weights[i]
+		} else {
+			s += weights[i]
+		}
+	}
+	return days
+}
+
+// 410. 分割数组的最大值
+// https://leetcode.cn/problems/split-array-largest-sum/description/
+// 给定一个非负整数数组 nums 和一个整数 k ，你需要将这个数组分成 k 个非空的连续子数组，使得这 k 个子数组各自和的最大值 最小。
+// 返回分割后最小的和的最大值。
+// 子数组 是数组中连续的部分。
+// 输入：nums = [7,2,5,10,8], k = 2
+// 输出：18
+// 解释：一共有四种方法将 nums 分割为 2 个子数组。
+// 其中最好的方式是将其分为 [7,2,5] 和 [10,8] 。
+// 因为此时这两个子数组各自的和的最大值为18，在所有情况中最小。
+func splitArray(nums []int, k int) int {
+	return 0
+}
+
 // 162. 寻找峰值
 // https://leetcode.cn/problems/find-peak-element/description/
 // 峰值元素是指其值严格大于左右相邻值的元素。

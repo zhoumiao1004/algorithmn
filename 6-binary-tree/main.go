@@ -15,6 +15,7 @@ type TreeNode struct {
 // 144. 二叉树的前序遍历
 // https://leetcode.cn/problems/binary-tree-preorder-traversal/description/
 // 给你二叉树的根节点 root ，返回它节点值的 前序 遍历。
+// 递归：遍历的思路
 func preorderTraversal(root *TreeNode) []int {
 	var result []int
 	var dfs func(node *TreeNode)
@@ -30,6 +31,18 @@ func preorderTraversal(root *TreeNode) []int {
 	return result
 }
 
+// 递归：分解的思路
+func preorderTraversal1(root *TreeNode) []int {
+	if root == nil {
+		return []int{}
+	}
+	result := []int{root.Val}
+	result = append(result, preorderTraversal1(root.Left)...)
+	result = append(result, preorderTraversal1(root.Right)...)
+	return result
+}
+
+// 迭代法
 func preorderTraversal2(root *TreeNode) []int {
 	var result []int
 	if root == nil {
@@ -387,8 +400,27 @@ func isSymmetric2(root *TreeNode) bool {
 
 // 104. 二叉树的最大深度
 // https://leetcode.cn/problems/maximum-depth-of-binary-tree/
-// 后序遍历
+// 1.遍历的思路（回溯）
 func maxDepth(root *TreeNode) int {
+	result := 0
+	depth := 0
+	var dfs func(node *TreeNode)
+	dfs = func(node *TreeNode) {
+		if node == nil {
+			result = max(result, depth)
+			return
+		}
+		depth++
+		dfs(node.Left)
+		dfs(node.Right)
+		depth--
+	}
+	dfs(root)
+	return result
+}
+
+// 2.分解子问题的思路(dp)后序遍历
+func maxDepth2(root *TreeNode) int {
 	if root == nil {
 		return 0
 	}
