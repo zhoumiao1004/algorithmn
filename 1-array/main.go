@@ -426,7 +426,8 @@ func uniqueOccurrences(arr []int) bool {
 // 向右轮转 1 步: [7,1,2,3,4,5,6]
 // 向右轮转 2 步: [6,7,1,2,3,4,5]
 // 向右轮转 3 步: [5,6,7,1,2,3,4]
-func rotate(nums []int, k int) {
+// 方法1：原地
+func rotateInplace(nums []int, k int) {
 	n := len(nums)
 	if n == 0 {
 		return
@@ -437,6 +438,18 @@ func rotate(nums []int, k int) {
 			nums[j] = nums[j-1]
 		}
 		nums[0] = val
+	}
+}
+
+// 方法2：取余
+func rotateMod(nums []int, k int) {
+	n := len(nums)
+	if n == 0 {
+		return
+	}
+	tmp := append([]int{}, nums...)
+	for i := 0; i < n; i++ {
+		nums[(i+k)%n] = tmp[i]
 	}
 }
 

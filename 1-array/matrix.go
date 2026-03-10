@@ -39,7 +39,30 @@ func reverseWords(s string) string {
 // 输入：head = [1,2,3,4,5], k = 2
 // 输出：[4,5,1,2,3]
 func rotateRight(head *ListNode, k int) *ListNode {
-
+	// 倒数第k个节点作为头结点
+	if head == nil {
+		return nil
+	}
+	length := 0
+	for cur := head; cur != nil; cur = cur.Next {
+		length++
+	}
+	n := k % length
+	if n == 0 {
+		return head
+	}
+	slow, fast := head, head
+	for i := 0; i < n; i++ {
+		fast = fast.Next
+	}
+	for fast.Next != nil {
+		slow = slow.Next
+		fast = fast.Next
+	}
+	newHead := slow.Next
+	fast.Next = head
+	slow.Next = nil
+	return newHead
 }
 
 // 54. 螺旋矩阵
