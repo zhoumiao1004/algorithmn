@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type ListNode struct {
 	Val  int
 	Next *ListNode
@@ -13,7 +15,7 @@ type ListNode struct {
 // 输入：nums = [1,1,2]
 // 输出：2, nums = [1,2,_]
 // 解释：函数应该返回新的长度 2 ，并且原数组 nums 的前两个元素被修改为 1, 2 。不需要考虑数组中超出新长度后面的元素。
-func removeDuplicates2(nums []int) int {
+func removeDuplicates(nums []int) int {
 	if len(nums) == 0 {
 		return 0
 	}
@@ -160,4 +162,151 @@ func palindrome(s string, l, r int) string {
 	}
 	// 此时 s[l+1..r-1] 就是最长回文串
 	return s[l+1 : r]
+}
+
+// 80.删除有序数组中的重复项 II
+// https://leetcode.cn/problems/remove-duplicates-from-sorted-array-ii/description/
+// 给你一个有序数组 nums ，请你 原地 删除重复出现的元素，使得出现次数超过两次的元素只出现两次 ，返回删除后数组的新长度。
+// 不要使用额外的数组空间，你必须在 原地 修改输入数组 并在使用 O(1) 额外空间的条件下完成。
+// 输入：nums = [1,1,1,2,2,3]
+// 输出：5, nums = [1,1,2,2,3]
+// 解释：函数应返回新长度 length = 5, 并且原数组的前五个元素被修改为 1, 1, 2, 2, 3。 不需要考虑数组中超出新长度后面的元素。
+func removeDuplicates2(nums []int) int {
+	n := len(nums)
+	if n < 2 {
+		return n
+	}
+	slow, fast := 2, 2
+	for fast < n {
+		if nums[fast] != nums[slow-2] {
+			nums[slow] = nums[fast]
+			slow++
+		}
+		fast++
+	}
+	return slow
+}
+
+// 快慢指针
+func removeDuplicates3(nums []int) int {
+	if len(nums) == 0 {
+		return 0
+	}
+	// 快慢指针，维护 nums[0..slow] 为结果子数组
+	slow, fast := 0, 0
+	// 记录一个元素重复的次数
+	count := 0
+	for fast < len(nums) {
+		if nums[fast] != nums[slow] {
+			// 此时，对于 nums[0..slow] 来说，nums[fast] 是一个新的元素，加进来
+			slow++
+			nums[slow] = nums[fast]
+		} else if slow < fast && count < 2 {
+			// 此时，对于 nums[0..slow] 来说，nums[fast] 重复次数小于 2，也加进来
+			slow++
+			nums[slow] = nums[fast]
+		}
+		fast++
+		count++
+		if fast < len(nums) && nums[fast] != nums[fast-1] {
+			// fast 遇到新的不同的元素时，重置 count
+			count = 0
+		}
+	}
+	// 数组长度为索引 + 1
+	return slow + 1
+}
+
+// 125. 验证回文串
+// https://leetcode.cn/problems/valid-palindrome/description/
+// 如果在将所有大写字符转换为小写字符、并移除所有非字母数字字符之后，短语正着读和反着读都一样。则可以认为该短语是一个 回文串 。
+// 字母和数字都属于字母数字字符。
+// 给你一个字符串 s，如果它是 回文串 ，返回 true ；否则，返回 false 。
+// 输入: s = "A man, a plan, a canal: Panama"
+// 输出：true
+// 解释："amanaplanacanalpanama" 是回文串。
+func isPalindrome(s string) bool {
+	bs := []byte(s)
+	// 保留小写字母
+	slow := 0
+	for i := 0; i < len(bs); i++ {
+		c := s[i]
+		if (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') {
+			bs[slow] = c
+			slow++
+		} else if c >= 'A' && c <= 'Z' {
+			bs[slow] = c - 'A' + 'a'
+			slow++
+		}
+	}
+	fmt.Println(string(bs[:slow]))
+	left, right := 0, slow-1
+	for left < right {
+		if bs[left] != bs[right] {
+			return false
+		}
+		left++
+		right--
+	}
+	return true
+}
+
+// 75. 颜色分类
+// https://leetcode.cn/problems/sort-colors/
+// 给定一个包含红色、白色和蓝色、共 n 个元素的数组 nums ，原地 对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。
+// 我们使用整数 0、 1 和 2 分别表示红色、白色和蓝色。
+// 必须在不使用库内置的 sort 函数的情况下解决这个问题。
+func sortColors(nums []int) {
+	p0, p2 := 0, len(nums)-1
+	p := 0
+	for p <= p2 {
+		if nums[p] == 0 {
+			nums[p0], nums[p] = nums[p], nums[p0]
+			p0++
+		} else if nums[p] == 2 {
+			nums[p], nums[p2] = nums[p2], nums[p]
+			p2--
+		} else if nums[p] == 1 {
+			p++
+		}
+		// 由于p找到0就会和p0位置的数字换，所以p0一直增加，由于p0之前都是0，所以p需要>=p0
+		if p < p0 {
+			p = p0
+		}
+	}
+}
+
+// 88.合并两个有序数组
+// 给你两个按 非递减顺序 排列的整数数组 nums1 和 nums2，另有两个整数 m 和 n ，分别表示 nums1 和 nums2 中的元素数目。
+// 请你 合并 nums2 到 nums1 中，使合并后的数组同样按 非递减顺序 排列。
+// 注意：最终，合并后数组不应由函数返回，而是存储在数组 nums1 中。为了应对这种情况，nums1 的初始长度为 m + n，其中前 m 个元素表示应合并的元素，后 n 个元素为 0 ，应忽略。nums2 的长度为 n 。
+// 输入：nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3
+// 输出：[1,2,2,3,5,6]
+// 解释：需要合并 [1,2,3] 和 [2,5,6] 。
+// 合并结果是 [1,2,2,3,5,6] ，其中斜体加粗标注的为 nums1 中的元素。
+func merge(nums1 []int, m int, nums2 []int, n int) {
+	i, j := m-1, n-1
+	k := len(nums1) - 1
+	for i >= 0 && j >= 0 {
+		if nums1[i] < nums2[j] {
+			nums1[k] = nums2[j]
+			j--
+		} else {
+			nums1[k] = nums1[i]
+			i--
+		}
+		k--
+	}
+	for j >= 0 {
+		nums1[k] = nums2[j]
+		j--
+		k--
+	}
+}
+
+func main() {
+	fmt.Println(isPalindrome("A man, a plan, a canal: Panama"))
+	nums := []int{2, 0, 2, 1, 1, 0}
+	sortColors(nums)
+	fmt.Println(nums)
 }

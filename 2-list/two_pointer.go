@@ -1,6 +1,9 @@
 package main
 
-import "container/heap"
+import (
+	"container/heap"
+	"sort"
+)
 
 /*1、合并两个有序链表
 2、链表的分解
@@ -195,4 +198,114 @@ func getIntersectionNode2(headA, headB *ListNode) *ListNode {
 		p2 = p2.Next
 	}
 	return nil
+}
+
+// 977.有序数组的平方
+// https://leetcode.cn/problems/squares-of-a-sorted-array/description/
+// 输入：nums = [-4,-1,0,3,10]
+// 输出：[0,1,9,16,100]
+func sortedSquares(nums []int) []int {
+	n := len(nums)
+	results := make([]int, n)
+	left, right := 0, n-1
+	k := n - 1
+	for left <= right {
+		if nums[left]*nums[left] < nums[right]*nums[right] {
+			results[k] = nums[right] * nums[right]
+			right--
+		} else {
+			results[k] = nums[left] * nums[left]
+			left++
+		}
+		k--
+	}
+	return results
+}
+
+// 1329. 将矩阵按对角线排序
+// https://leetcode.cn/problems/sort-the-matrix-diagonally/
+// 输入：mat = [[3,3,1,1],[2,2,1,2],[1,1,1,2]]
+// 输出：[[1,1,1,1],[1,2,2,2],[1,2,3,3]]
+func diagonalSort(mat [][]int) [][]int {
+	m, n := len(mat), len(mat[0])
+	diaMap := make(map[int][]int)
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			k := i - j
+			diaMap[k] = append(diaMap[k], mat[i][j])
+		}
+	}
+	for _, v := range diaMap {
+		sort.Slice(v, func(i, j int) bool {
+			return v[i] > v[j]
+		})
+	}
+	// 结果回填到矩阵
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			arr := diaMap[i-j]
+			mat[i][j] = arr[len(arr)-1]
+			diaMap[i-j] = arr[:len(arr)-1]
+		}
+	}
+	return mat
+}
+
+// 1260. 二维网格迁移
+// https://leetcode.cn/problems/shift-2d-grid/description/
+// 给你一个 m 行 n 列的二维网格 grid 和一个整数 k。你需要将 grid 迁移 k 次。
+// 每次「迁移」操作将会引发下述活动：
+// 位于 grid[i][j]（j < n - 1）的元素将会移动到 grid[i][j + 1]。
+// 位于 grid[i][n - 1] 的元素将会移动到 grid[i + 1][0]。
+// 位于 grid[m - 1][n - 1] 的元素将会移动到 grid[0][0]。
+// 请你返回 k 次迁移操作后最终得到的 二维网格。
+// 输入：grid = [[1,2,3],[4,5,6],[7,8,9]], k = 1
+// 输出：[[9,1,2],[3,4,5],[6,7,8]]
+// 1.除最后一列向右移1位 2.最后一列一到第一列 3.右下角移到左上角
+func shiftGrid(grid [][]int, k int) [][]int {
+
+}
+
+// 867. 转置矩阵
+// https://leetcode.cn/problems/transpose-matrix/
+// 给你一个二维整数数组 matrix， 返回 matrix 的 转置矩阵 。
+// 矩阵的 转置 是指将矩阵的主对角线翻转，交换矩阵的行索引与列索引。
+// 输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
+// 输出：[[1,4,7],[2,5,8],[3,6,9]]
+func transpose(matrix [][]int) [][]int {
+	m, n := len(matrix), len(matrix[0])
+	results := make([][]int, n)
+	for i := 0; i < n; i++ {
+		results[i] = make([]int, m)
+	}
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			results[j][i] = matrix[i][j]
+		}
+	}
+	return results
+}
+
+// 14. 最长公共前缀
+// https://leetcode.cn/problems/longest-common-prefix/
+// 编写一个函数来查找字符串数组中的最长公共前缀。
+// 如果不存在公共前缀，返回空字符串 ""。
+// 输入：strs = ["flower","flow","flight"]
+// 输出："fl"
+func longestCommonPrefix(strs []string) string {
+	if len(strs) == 0 {
+		return ""
+	}
+	left := 0 // 相同的列
+	m, n := len(strs), len(strs[0])
+	for j := 0; j < n; j++ {
+		// 第j列，对比每一行是否相同
+		for i := 1; i < m; i++ {
+			if len(strs[i]) <= j || strs[i][j] != strs[0][j] {
+				return strs[0][:left]
+			}
+		}
+		left++
+	}
+	return strs[0][:left]
 }

@@ -393,100 +393,6 @@ func searchMatrix2(matrix [][]int, target int) bool {
 	return false
 }
 
-// 27. 移除元素
-// https://leetcode.cn/problems/remove-element/description/
-// nums = [3,2,2,3], val = 3
-// 输出: 2, nums = [2,2,_,_]
-func removeElement(nums []int, val int) int {
-	left := 0
-	for right := 0; right < len(nums); right++ {
-		if nums[right] != val {
-			nums[left] = nums[right]
-			left++
-		}
-	}
-	return left
-}
-
-// 80.删除有序数组中的重复项 II
-// https://leetcode.cn/problems/remove-duplicates-from-sorted-array-ii/description/
-// 给你一个有序数组 nums ，请你 原地 删除重复出现的元素，使得出现次数超过两次的元素只出现两次 ，返回删除后数组的新长度。
-// 不要使用额外的数组空间，你必须在 原地 修改输入数组 并在使用 O(1) 额外空间的条件下完成。
-// 输入：nums = [1,1,1,2,2,3]
-// 输出：5, nums = [1,1,2,2,3]
-// 解释：函数应返回新长度 length = 5, 并且原数组的前五个元素被修改为 1, 1, 2, 2, 3。 不需要考虑数组中超出新长度后面的元素。
-func removeDuplicates(nums []int) int {
-	n := len(nums)
-	if n < 2 {
-		return n
-	}
-	slow, fast := 2, 2
-	for fast < n {
-		if nums[fast] != nums[slow-2] {
-			nums[slow] = nums[fast]
-			slow++
-		}
-		fast++
-	}
-	return slow
-}
-
-// 977.有序数组的平方
-// https://leetcode.cn/problems/squares-of-a-sorted-array/description/
-// 输入：nums = [-4,-1,0,3,10]
-// 输出：[0,1,9,16,100]
-func sortedSquares(nums []int) []int {
-	n := len(nums)
-	results := make([]int, n)
-	left, right := 0, n-1
-	k := n - 1
-	for left <= right {
-		if nums[left]*nums[left] < nums[right]*nums[right] {
-			results[k] = nums[right] * nums[right]
-			right--
-		} else {
-			results[k] = nums[left] * nums[left]
-			left++
-		}
-		k--
-	}
-	return results
-}
-
-// 88.合并两个有序数组
-// 给你两个按 非递减顺序 排列的整数数组 nums1 和 nums2，另有两个整数 m 和 n ，分别表示 nums1 和 nums2 中的元素数目。
-// 请你 合并 nums2 到 nums1 中，使合并后的数组同样按 非递减顺序 排列。
-// 注意：最终，合并后数组不应由函数返回，而是存储在数组 nums1 中。为了应对这种情况，nums1 的初始长度为 m + n，其中前 m 个元素表示应合并的元素，后 n 个元素为 0 ，应忽略。nums2 的长度为 n 。
-// 输入：nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3
-// 输出：[1,2,2,3,5,6]
-// 解释：需要合并 [1,2,3] 和 [2,5,6] 。
-// 合并结果是 [1,2,2,3,5,6] ，其中斜体加粗标注的为 nums1 中的元素。
-func merge(nums1 []int, m int, nums2 []int, n int) {
-	k := len(nums1) - 1
-	i := m - 1
-	j := n - 1
-	for i >= 0 && j >= 0 {
-		if nums1[i] < nums2[j] {
-			nums1[k] = nums2[j]
-			j--
-		} else {
-			nums1[k] = nums1[i]
-			i--
-		}
-		k--
-	}
-	for i >= 0 {
-		nums1[k] = nums1[i]
-		i--
-		k--
-	}
-	for j >= 0 {
-		nums1[k] = nums2[j]
-		j--
-		k--
-	}
-}
-
 // 209. 长度最小的子数组
 // https://leetcode.cn/problems/minimum-size-subarray-sum/description/
 // 输入：target = 7, nums = [2,3,1,2,4,3]
@@ -661,32 +567,6 @@ func rotate(nums []int, k int) {
 		}
 		nums[0] = val
 	}
-}
-
-// 724. 寻找数组的中心下标
-// https://leetcode.cn/problems/find-pivot-index/description/
-// 给你一个整数数组 nums ，请计算数组的 中心下标 。
-// 数组 中心下标 是数组的一个下标，其左侧所有元素相加的和等于右侧所有元素相加的和。
-// 如果中心下标位于数组最左端，那么左侧数之和视为 0 ，因为在下标的左侧不存在元素。这一点对于中心下标位于数组最右端同样适用。
-// 如果数组有多个中心下标，应该返回 最靠近左边 的那一个。如果数组不存在中心下标，返回 -1 。
-// 输入：nums = [1, 7, 3, 6, 5, 6]
-// 输出：3
-// 左侧数之和 sum = nums[0] + nums[1] + nums[2] = 1 + 7 + 3 = 11 ，
-// 右侧数之和 sum = nums[4] + nums[5] = 5 + 6 = 11 ，二者相等。
-func pivotIndex(nums []int) int {
-	s := 0
-	for i := 0; i < len(nums); i++ {
-		s += nums[i]
-	}
-	leftSum, rightSum := 0, 0
-	for i := 0; i < len(nums); i++ {
-		leftSum += nums[i]
-		rightSum = s - leftSum + nums[i]
-		if leftSum == rightSum {
-			return i
-		}
-	}
-	return -1
 }
 
 // 922. 按奇偶排序数组 II
