@@ -73,8 +73,8 @@ func Constructor2(matrix [][]int) NumMatrix {
 
 func (this *NumMatrix) SumRegion(row1 int, col1 int, row2 int, col2 int) int {
 	// 目标矩阵之和由四个相邻矩阵运算获得
-	return this.preSum[x2+1][y2+1] - this.preSum[x1][y2+1] - this.preSum[x2+1][y1] + this.preSum[x1][y1]
-
+	// return this.preSum[x2+1][y2+1] - this.preSum[x1][y2+1] - this.preSum[x2+1][y1] + this.preSum[x1][y1]
+	return 0
 }
 
 // 724. 寻找数组的中心下标
@@ -327,10 +327,33 @@ func longestWPI(hours []int) int {
 // 有 7 个子数组满足其元素之和可被 k = 5 整除：
 // [4, 5, 0, -2, -3, 1], [5], [5, 0], [5, 0, -2, -3], [0], [0, -2, -3], [-2, -3]
 func subarraysDivByK(nums []int, k int) int {
-
+	n := len(nums)
+	preSum := make([]int, n+1)
+	for i := 1; i < len(preSum); i++ {
+		preSum[i] = preSum[i-1] + nums[i-1]
+	}
+	result := 0
+	m := make(map[int]int)
+	fmt.Println("preSum=", preSum)
+	for _, val := range preSum {
+		// preSum[i] - preSum[j] % k == 0 => preSum[i] % k == preSum[j] % k
+		r := val % k
+		if r < 0 {
+			r += k
+		}
+		cnt, ok := m[r]
+		if ok {
+			result += cnt
+		}
+		m[r]++
+	}
+	fmt.Println("m=", m)
+	return result
 }
 
 func main() {
 	c := Constructor([]int{3, 5, 2, -2, 4, 1})
 	fmt.Println(c.SumRange(1, 4))
+	fmt.Println(subarraysDivByK([]int{-1, 2, 9}, 2))     // 2
+	fmt.Println(subarraysDivByK([]int{2, -2, 2, -4}, 6)) // 2
 }
