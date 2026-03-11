@@ -46,7 +46,7 @@ func minWindow(s string, t string) string {
 				valid++
 			}
 		}
-		fmt.Println(window)
+		// fmt.Println(window)
 		// 判断左侧窗口是否需要收缩
 		for valid == len(need) {
 			// 更新结果
@@ -411,16 +411,134 @@ abs(nums[i] - nums[j]) <= valueDiff
 示例 1：
 输入：nums = [1,2,3,1], indexDiff = 3, valueDiff = 0
 输出：true
-解释：可以找出 (i, j) = (0, 3) 。
-满足下述 3 个条件：
-i != j --> 0 != 3
-abs(i - j) <= indexDiff --> abs(0 - 3) <= 3
-abs(nums[i] - nums[j]) <= valueDiff --> abs(1 - 1) <= 0
 */
 func containsNearbyAlmostDuplicate(nums []int, indexDiff int, valueDiff int) bool {
+	if indexDiff <= 0 || valueDiff < 0 {
+		return false
+	}
 
+	getID := func(x, w int) int {
+		if x >= 0 {
+			return x / w
+		}
+		return (x+1)/w - 1
+	}
+
+	window := make(map[int]int)
+	w := valueDiff + 1
+
+	for i := 0; i < len(nums); i++ {
+		m := getID(nums[i], w)
+
+		// 为了防止 i == j，所以在扩大窗口之前先判断是否有符合题意的索引对 (i, j)
+		// 查找略大于 nums[right] 的那个元素
+		if _, ok := window[m]; ok {
+			return true
+		}
+		// 查找略小于 nums[right] 的那个元素
+		if v, ok := window[m-1]; ok && math.Abs(float64(nums[i]-v)) < float64(w) {
+			return true
+		}
+		if v, ok := window[m+1]; ok && math.Abs(float64(nums[i]-v)) < float64(w) {
+			return true
+		}
+
+		// 扩大窗口
+		window[m] = nums[i]
+
+		if i >= indexDiff {
+			// 缩小窗口
+			delete(window, getID(nums[i-indexDiff], w))
+		}
+	}
+
+	return false
+}
+
+/*
+209. 长度最小的子数组
+https://leetcode.cn/problems/minimum-size-subarray-sum/description/
+给定一个含有 n 个正整数的数组和一个正整数 target 。
+找出该数组中满足其总和大于等于 target 的长度最小的 子数组 [numsl, numsl+1, ..., numsr-1, numsr] ，并返回其长度。如果不存在符合条件的子数组，返回 0 。
+输入：target = 7, nums = [2,3,1,2,4,3]
+输出：2
+解释：子数组 [4,3] 是该条件下的长度最小的子数组。
+*/
+func minSubArrayLen(target int, nums []int) int {
+	result := math.MaxInt
+	s := 0
+	left := 0
+	for right := 0; right < len(nums); right++ {
+		s += nums[right]
+		for s >= target {
+			result = min(result, right-left+1)
+			s -= nums[left]
+			left++
+		}
+	}
+	if result == math.MaxInt {
+		return 0
+	}
+	return result
+}
+
+/*
+395. 至少有 K 个重复字符的最长子串
+https://leetcode.cn/problems/longest-substring-with-at-least-k-repeating-characters/
+给你一个字符串 s 和一个整数 k ，请你找出 s 中的最长子串， 要求该子串中的每一字符出现次数都不少于 k 。返回这一子串的长度。
+如果不存在这样的子字符串，则返回 0。s 仅由小写英文字母组成
+输入：s = "aaabb", k = 3
+输出：3
+解释：最长子串为 "aaa" ，其中 'a' 重复了 3 次。
+*/
+func longestSubstring(s string, k int) int {
+	result := 0
+	for i := 1; i<=26; i++ {
+		r := longestKLetterSubstr(s, k, i)
+		result = max(result, r)
+	}
+	return result
+}
+
+// 寻找s中含有count种字符，且每种字符出现次数都大于k的子串长度
+func longestKLetterSubstr(s string, k, count int) int {
+	result := 0
+	left, right := 0, 0
+	var window [26]int
+	uniqueCount := 0
+	validCount := 0
+	for right < len(s) {
+		c := s[right]
+		if window[c-'a'] == 0 {
+			uniqueCount++
+		}
+		window[c-'a']++
+		if window[c-'a'] == k {
+			validCount++
+		}
+		right++
+
+		for uniqueCount > count {
+			d := s[left]
+			if window[d-'a'] == k {
+				validCount--
+			}
+			window[d-'a']--
+			if window[d-'a'] == 0 {
+				uniqueCount--
+			}
+			left++
+		}
+		if validCount == count {
+			result = max(result, right-left)
+		}
+	}
+	return result
 }
 
 func main() {
 	fmt.Println(minWindow("ADOBECODEBANC", "ABC"))
+	fmt.Println(containsNearbyAlmostDuplicate([]int{1, 5, 9, 1, 5, 9}, 2, 3)) // false
+	fmt.Println(containsNearbyAlmostDuplicate([]int{-2, 3}, 2, 5))            // true
+	fmt.Println(containsNearbyAlmostDuplicate([]int{1, 2, 2, 3, 4, 5}, 3, 0)) // true
 }

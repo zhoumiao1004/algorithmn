@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"sort"
 )
 
@@ -221,130 +220,6 @@ func f2(weights []int, x int) int {
 // 因为此时这两个子数组各自的和的最大值为18，在所有情况中最小。
 func splitArray(nums []int, k int) int {
 	return 0
-}
-
-// 162. 寻找峰值
-// https://leetcode.cn/problems/find-peak-element/description/
-// 峰值元素是指其值严格大于左右相邻值的元素。
-// 给你一个整数数组 nums，找到峰值元素并返回其索引。数组可能包含多个峰值，在这种情况下，返回 任何一个峰值 所在位置即可。
-// 你可以假设 nums[-1] = nums[n] = -∞ 。
-// 你必须实现时间复杂度为 O(log n) 的算法来解决此问题。
-// 输入：nums = [1,2,3,1]
-// 输出：2
-// 解释：3 是峰值元素，你的函数应该返回其索引 2。
-// 输入：nums = [1,2,1,3,5,6,4]
-// 输出：1 或 5
-// 解释：你的函数可以返回索引 1，其峰值元素为 2；
-// 或者返回索引 5， 其峰值元素为 6。
-func findPeakElement(nums []int) int {
-	left, right := 0, len(nums)-2
-	for left <= right {
-		mid := left + (right-left)/2
-		if nums[mid] < nums[mid+1] {
-			left = mid + 1 // 上坡，峰值在右边，收缩左边界
-		} else if nums[mid] > nums[mid+1] {
-			right = mid - 1 // 下坡，峰值在左边，收缩右边界
-		} else if nums[mid] == nums[mid+1] {
-			right = mid - 1
-		}
-	}
-	return left
-}
-
-// 153. 寻找旋转排序数组中的最小值
-// https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/description/
-// 已知一个长度为 n 的数组，预先按照升序排列，经由 1 到 n 次 旋转 后，得到输入数组。例如，原数组 nums = [0,1,2,4,5,6,7] 在变化后可能得到：
-// 若旋转 4 次，则可以得到 [4,5,6,7,0,1,2]
-// 若旋转 7 次，则可以得到 [0,1,2,4,5,6,7]
-// 注意，数组 [a[0], a[1], a[2], ..., a[n-1]] 旋转一次 的结果为数组 [a[n-1], a[0], a[1], a[2], ..., a[n-2]] 。
-// 给你一个元素值 互不相同 的数组 nums ，它原来是一个升序排列的数组，并按上述情形进行了多次旋转。请你找出并返回数组中的 最小元素 。
-// 你必须设计一个时间复杂度为 O(log n) 的算法解决此问题。
-// 输入：nums = [3,4,5,1,2]
-// 输出：1
-// 解释：原数组为 [1,2,3,4,5] ，旋转 3 次得到输入数组。
-// 输入：nums = [4,5,6,7,0,1,2]
-// 输出：0
-// 解释：原数组为 [0,1,2,4,5,6,7] ，旋转 4 次得到输入数组。
-func findMin(nums []int) int {
-	n := len(nums)
-	if n == 0 {
-		return 0
-	}
-	left, right := 0, n-1
-	for left <= right {
-		mid := left + (right-left)/2
-		if nums[mid] < nums[n-1] {
-			// 中点在第二段，最小值在中点左边，收缩右边界
-			right = mid - 1
-		} else if nums[mid] > nums[n-1] {
-			left = mid + 1
-		} else if nums[mid] == nums[n-1] {
-			right = mid - 1 // 最小值在左侧，继续收缩右边界
-		}
-	}
-	return nums[left]
-}
-
-// 33.搜索旋转排序数组
-// https://leetcode.cn/problems/search-in-rotated-sorted-array/description/
-// 整数数组 nums 按升序排列，数组中的值 互不相同 。
-// 在传递给函数之前，nums 在预先未知的某个下标 k（0 <= k < nums.length）上进行了 向左旋转，使数组变为 [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]（下标 从 0 开始 计数）。例如， [0,1,2,4,5,6,7] 下标 3 上向左旋转后可能变为 [4,5,6,7,0,1,2] 。
-// 给你 旋转后 的数组 nums 和一个整数 target ，如果 nums 中存在这个目标值 target ，则返回它的下标，否则返回 -1 。
-// 你必须设计一个时间复杂度为 O(log n) 的算法解决此问题。
-// 输入：nums = [4,5,6,7,0,1,2], target = 0
-// 输出：4
-// 输入：nums = [4,5,6,7,0,1,2], target = 3
-// 输出：-1
-func search2(nums []int, target int) int {
-	// 2次二分：第一次找到最小值下标，第二次在有序数组中找值
-	n := len(nums)
-	left, right := 0, len(nums)-1
-	for left <= right {
-		mid := left + (right-left)/2
-		if nums[mid] < nums[n-1] { // 中点在第二段，最小值在左边，收缩右边界
-			right = mid - 1
-		} else if nums[mid] > nums[n-1] {
-			left = mid + 1
-		} else if nums[mid] == nums[n-1] {
-			right = mid - 1
-		}
-	}
-	minIndex := left
-	if nums[n-1] < target {
-		left, right = 0, minIndex
-	} else {
-		left, right = minIndex, n-1
-	}
-	for left <= right {
-		mid := left + (right-left)/2
-		if nums[mid] < target {
-			left = mid + 1
-		} else if nums[mid] > target {
-			right = mid - 1
-		} else if nums[mid] == target {
-			return mid
-		}
-	}
-	return -1
-}
-
-// 209. 长度最小的子数组
-// https://leetcode.cn/problems/minimum-size-subarray-sum/description/
-// 输入：target = 7, nums = [2,3,1,2,4,3]
-// 输出：2
-func minSubArrayLen(target int, nums []int) int {
-	result := math.MaxInt
-	left := 0
-	s := 0
-	for right := 0; right < len(nums); right++ {
-		s += nums[right]
-		for s >= target {
-			result = min(result, right-left+1)
-			s -= nums[left]
-			left++
-		}
-	}
-	return result
 }
 
 // 1365. 有多少小于当前数字的数字
