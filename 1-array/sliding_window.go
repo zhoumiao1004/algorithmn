@@ -334,7 +334,7 @@ func characterReplacement(s string, k int) int {
 		hash[c-'A']++
 		maxCnt = max(maxCnt, hash[c-'A'])
 
-		for right - left - maxCnt > k {
+		for right-left-maxCnt > k {
 			// 左侧窗口要收缩
 			d := s[left]
 			hash[d-'A']--
@@ -343,6 +343,82 @@ func characterReplacement(s string, k int) int {
 		result = max(result, right-left)
 	}
 	return result
+}
+
+// 219. 存在重复元素 II
+// https://leetcode.cn/problems/contains-duplicate-ii/submissions/705551348/
+// 给你一个整数数组 nums 和一个整数 k ，判断数组中是否存在两个 不同的索引 i 和 j ，满足 nums[i] == nums[j] 且 abs(i - j) <= k 。如果存在，返回 true ；否则，返回 false 。
+// 输入：nums = [1,2,3,1], k = 3
+// 输出：true
+func containsNearbyDuplicate(nums []int, k int) bool {
+	n := len(nums)
+	window := make(map[int]int)
+	right := 0
+	for right < n {
+		val := nums[right]
+		right++
+		index, ok := window[val]
+		if ok && right-index <= k {
+			return true
+		}
+		window[val] = right
+	}
+	return false
+}
+
+func containsNearbyDuplicate1(nums []int, k int) bool {
+	left, right := 0, 0
+	window := make(map[int]bool)
+	// 滑动窗口算法框架，维护一个大小为 k 的窗口
+	for right < len(nums) {
+		// 扩大窗口
+		if window[nums[right]] {
+			return true
+		}
+		window[nums[right]] = true
+		right++
+
+		if right-left > k {
+			// 当窗口的大小大于 k 时，缩小窗口
+			delete(window, nums[left])
+			left++
+		}
+	}
+	return false
+}
+
+func containsNearbyDuplicate2(nums []int, k int) bool {
+	m := make(map[int]int)
+	for i := 0; i < len(nums); i++ {
+		index, ok := m[nums[i]]
+		if ok && i-index <= k {
+			return true
+		}
+		m[nums[i]] = i
+	}
+	return false
+}
+
+/*
+220. 存在重复元素 III
+https://leetcode.cn/problems/contains-duplicate-iii/
+给你一个整数数组 nums 和两个整数 indexDiff 和 valueDiff 。
+找出满足下述条件的下标对 (i, j)：
+i != j,
+abs(i - j) <= indexDiff
+abs(nums[i] - nums[j]) <= valueDiff
+如果存在，返回 true ；否则，返回 false 。
+示例 1：
+输入：nums = [1,2,3,1], indexDiff = 3, valueDiff = 0
+输出：true
+解释：可以找出 (i, j) = (0, 3) 。
+满足下述 3 个条件：
+i != j --> 0 != 3
+abs(i - j) <= indexDiff --> abs(0 - 3) <= 3
+abs(nums[i] - nums[j]) <= valueDiff --> abs(1 - 1) <= 0
+*/
+func containsNearbyAlmostDuplicate(nums []int, indexDiff int, valueDiff int) bool {
+
 }
 
 func main() {
