@@ -1,5 +1,7 @@
 package main
 
+import "math"
+
 type TreeNode struct {
 	Val   int
 	Left  *TreeNode
@@ -186,4 +188,58 @@ func trimBST(root *TreeNode, low int, high int) *TreeNode {
 	root.Left = trimBST(root.Left, low, root.Val)
 	root.Right = trimBST(root.Right, root.Val, high)
 	return root
+}
+
+// 1373. 二叉搜索子树的最大键值和
+// 给你一棵以 root 为根的 二叉树 ，请你返回 任意 二叉搜索子树的最大键值和。
+// 二叉搜索树的定义如下：
+// 任意节点的左子树中的键值都 小于 此节点的键值。
+// 任意节点的右子树中的键值都 大于 此节点的键值。
+// 任意节点的左子树和右子树都是二叉搜索树。
+// 输入：root = [1,4,3,2,4,2,5,null,null,null,null,null,null,4,6]
+// 输出：20
+// 解释：键值为 3 的子树是和最大的二叉搜索树。
+func maxSumBST(root *TreeNode) int {
+	var maxSum int
+	var findMaxMinSum func(*TreeNode) []int
+	// 计算以 root 为根的二叉树的最大值、最小值、节点和
+	findMaxMinSum = func(root *TreeNode) []int {
+		// base case
+		if root == nil {
+			return []int{1, math.MaxInt32, math.MinInt32, 0}
+		}
+
+		// 递归计算左右子树
+		left := findMaxMinSum(root.Left)
+		right := findMaxMinSum(root.Right)
+
+		// ******* 后序位置 *******
+		// 通过 left 和 right 推导返回值
+		// 并且正确更新 maxSum 变量
+		res := make([]int, 4)
+		// 这个 if 在判断以 root 为根的二叉树是不是 BST
+		if left[0] == 1 && right[0] == 1 &&
+			root.Val > left[2] && root.Val < right[1] {
+			// 以 root 为根的二叉树是 BST
+			res[0] = 1
+			// 计算以 root 为根的这棵 BST 的最小值
+			res[1] = min(left[1], root.Val)
+			// 计算以 root 为根的这棵 BST 的最大值
+			res[2] = max(right[2], root.Val)
+			// 计算以 root 为根的这棵 BST 所有节点之和
+			res[3] = left[3] + right[3] + root.Val
+			// 更新全局变量
+			maxSum = max(maxSum, res[3])
+		} else {
+			// 以 root 为根的二叉树不是 BST
+			res[0] = 0
+			// 其他的值都没必要计算了，因为用不到
+		}
+		// ************************
+
+		return res
+	}
+
+	findMaxMinSum(root)
+	return maxSum
 }

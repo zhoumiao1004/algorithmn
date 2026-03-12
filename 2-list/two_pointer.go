@@ -108,6 +108,12 @@ func trainingPlan(head *ListNode, cnt int) *ListNode {
 
 // 876. 链表的中间结点
 // https://leetcode.cn/problems/middle-of-the-linked-list/description/
+// 输入：head = [1,2,3,4,5]
+// 输出：[3,4,5]
+// 解释：链表只有一个中间结点，值为 3 。
+// 输入：head = [1,2,3,4,5,6]
+// 输出：[4,5,6]
+// 解释：该链表有两个中间结点，值分别为 3 和 4 ，返回第二个结点。
 func middleNode(head *ListNode) *ListNode {
 	if head == nil {
 		return nil
@@ -122,6 +128,12 @@ func middleNode(head *ListNode) *ListNode {
 
 // 141. 环形链表
 // https://leetcode.cn/problems/linked-list-cycle/
+// 给你一个链表的头节点 head ，判断链表中是否有环。
+// 如果链表中有某个节点，可以通过连续跟踪 next 指针再次到达，则链表中存在环。 为了表示给定链表中的环，评测系统内部使用整数 pos 来表示链表尾连接到链表中的位置（索引从 0 开始）。注意：pos 不作为参数进行传递 。仅仅是为了标识链表的实际情况。
+// 如果链表中存在环 ，则返回 true 。 否则，返回 false 。
+// 输入：head = [3,2,0,-4], pos = 1
+// 输出：true
+// 解释：链表中有一个环，其尾部连接到第二个节点。
 func hasCycle(head *ListNode) bool {
 	if head == nil {
 		return false
@@ -139,6 +151,12 @@ func hasCycle(head *ListNode) bool {
 
 // 142. 环形链表 II
 // https://leetcode.cn/problems/linked-list-cycle-ii/
+// 给定一个链表的头节点  head ，返回链表开始入环的第一个节点。 如果链表无环，则返回 null。
+// 如果链表中有某个节点，可以通过连续跟踪 next 指针再次到达，则链表中存在环。 为了表示给定链表中的环，评测系统内部使用整数 pos 来表示链表尾连接到链表中的位置（索引从 0 开始）。如果 pos 是 -1，则在该链表中没有环。注意：pos 不作为参数进行传递，仅仅是为了标识链表的实际情况。
+// 不允许修改 链表。
+// 输入：head = [3,2,0,-4], pos = 1
+// 输出：返回索引为 1 的链表节点
+// 解释：链表中有一个环，其尾部连接到第二个节点。
 func detectCycle(head *ListNode) *ListNode {
 	if head == nil {
 		return nil
@@ -162,6 +180,7 @@ func detectCycle(head *ListNode) *ListNode {
 
 // 160. 两个链表是否相交
 // https://leetcode.cn/problems/intersection-of-two-linked-lists/
+// 给你两个单链表的头节点 headA 和 headB ，请你找出并返回两个单链表相交的起始节点。如果两个链表不存在相交节点，返回 null 。
 func getIntersectionNode2(headA, headB *ListNode) *ListNode {
 	p1, p2 := headA, headB
 	if p1 == nil || p2 == nil {

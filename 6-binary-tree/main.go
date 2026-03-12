@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math"
-	"strings"
 )
 
 type TreeNode struct {
@@ -180,30 +179,6 @@ func levelOrderBottom(root *TreeNode) [][]int {
 		results[left], results[right] = results[right], results[left]
 		left++
 		right--
-	}
-	return results
-}
-
-// 199. 二叉树的右视图
-// https://leetcode.cn/problems/binary-tree-right-side-view/
-func rightSideView(root *TreeNode) []int {
-	var results []int
-	if root == nil {
-		return results
-	}
-	q := []*TreeNode{root}
-	for len(q) > 0 {
-		results = append(results, q[len(q)-1].Val)
-		var next []*TreeNode
-		for _, node := range q {
-			if node.Left != nil {
-				next = append(next, node.Left)
-			}
-			if node.Right != nil {
-				next = append(next, node.Right)
-			}
-		}
-		q = next
 	}
 	return results
 }
@@ -524,32 +499,6 @@ func isBalanced(root *TreeNode) bool {
 		return max(left, right) + 1
 	}
 	return getDepth(root) != -1
-}
-
-// 257. 二叉树的所有路径
-// https://leetcode.cn/problems/binary-tree-paths/description/
-// 输入：root = [1,2,3,null,5]
-// 输出：["1->2->5","1->3"]
-// 先序遍历
-func binaryTreePaths(root *TreeNode) []string {
-	var results []string
-	var path []string
-	var dfs func(*TreeNode)
-	dfs = func(root *TreeNode) {
-		if root == nil {
-			return
-		}
-		// 中
-		path = append(path, fmt.Sprintf("%d", root.Val))
-		if root.Left == nil && root.Right == nil {
-			results = append(results, strings.Join(path, "->")) // 注意不能return，因为还要回溯
-		}
-		dfs(root.Left)  // 左
-		dfs(root.Right) // 右
-		path = path[:len(path)-1]
-	}
-	dfs(root)
-	return results
 }
 
 // 404.左叶子之和
@@ -921,40 +870,6 @@ func pathSum2(root *TreeNode, targetSum int) [][]*TreeNode {
 	}
 	dfs(root, targetSum)
 	return ans
-}
-
-// 129. 求根节点到叶节点数字之和
-// 给你一个二叉树的根节点 root ，树中每个节点都存放有一个 0 到 9 之间的数字。
-// 每条从根节点到叶节点的路径都代表一个数字：
-// 例如，从根节点到叶节点的路径 1 -> 2 -> 3 表示数字 123 。
-// 输入：root = [1,2,3]
-// 输出：25
-// 解释：
-// 从根到叶子节点路径 1->2 代表数字 12
-// 从根到叶子节点路径 1->3 代表数字 13
-// 因此，数字总和 = 12 + 13 = 25
-func sumNumbers(root *TreeNode) int {
-	result := 0
-	var path []int
-	var dfs func(root *TreeNode)
-	dfs = func(root *TreeNode) {
-		if root == nil {
-			return
-		}
-		path = append(path, root.Val)
-		if root.Left == nil && root.Right == nil {
-			s := 0
-			for i := 0; i < len(path); i++ {
-				s = 10*s + path[i]
-			}
-			result += s
-		}
-		dfs(root.Left)
-		dfs(root.Right)
-		path = path[:len(path)-1]
-	}
-	dfs(root)
-	return result
 }
 
 // 1382.将二叉搜索树变平衡
