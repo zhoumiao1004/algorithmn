@@ -694,49 +694,6 @@ func hasPathSum(root *TreeNode, targetSum int) bool {
 	return hasPathSum(root.Left, targetSum-root.Val) || hasPathSum(root.Right, targetSum-root.Val)
 }
 
-// 106. 从中序与后序遍历序列构造二叉树
-// https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/description/
-// 输入：inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]
-// 输出：[3,9,20,null,null,15,7]
-// 先从postordre获取最后一个节点作为根节点，在inordre中找到所在位置
-func buildTree(inorder []int, postorder []int) *TreeNode {
-	if len(postorder) == 0 {
-		return nil
-	} else if len(postorder) == 1 {
-		return &TreeNode{Val: postorder[0]}
-	}
-	root := &TreeNode{Val: postorder[len(postorder)-1]}
-	i := 0
-	for inorder[i] != root.Val {
-		i++
-	}
-	root.Left = buildTree(inorder[:i], postorder[:i])
-	root.Right = buildTree(inorder[i+1:], postorder[i:len(postorder)-1])
-	return root
-}
-
-// 105. 从前序与中序遍历序列构造二叉树
-// https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/description/
-// 给定两个整数数组 preorder 和 inorder ，其中 preorder 是二叉树的先序遍历， inorder 是同一棵树的中序遍历，请构造二叉树并返回其根节点。
-// 输入: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
-// 输出: [3,9,20,null,null,15,7]
-func buildTree2(preorder []int, inorder []int) *TreeNode {
-	if len(preorder) == 0 {
-		return nil
-	} else if len(preorder) == 1 {
-		return &TreeNode{Val: preorder[0]}
-	}
-	// 中
-	root := &TreeNode{Val: preorder[0]}
-	i := 0
-	for inorder[i] != preorder[0] {
-		i++
-	}
-	root.Left = buildTree(preorder[1:i+1], inorder[:i])
-	root.Right = buildTree(preorder[i+1:], inorder[i+1:])
-	return root
-}
-
 // 654. 最大二叉树
 // https://leetcode.cn/problems/maximum-binary-tree/description/
 // 给定一个不重复的整数数组 nums 。 最大二叉树 可以用下面的算法从 nums 递归地构建:
@@ -784,47 +741,6 @@ func mergeTrees(root1 *TreeNode, root2 *TreeNode) *TreeNode {
 	root1.Left = mergeTrees(root1.Left, root2.Left)    // 左
 	root1.Right = mergeTrees(root1.Right, root2.Right) // 右
 	return root1
-}
-
-// 700.二叉搜索树中的搜索
-// https://leetcode.cn/problems/search-in-a-binary-search-tree/description/
-// 迭代法
-func searchBST(root *TreeNode, val int) *TreeNode {
-	if root == nil {
-		return nil
-	}
-	if root.Val == val {
-		return root
-	} else if root.Val < val {
-		return searchBST(root.Right, val)
-	} else {
-		return searchBST(root.Left, val)
-	}
-}
-
-// 98.验证二叉搜索树
-// https://leetcode.cn/problems/validate-binary-search-tree/description/
-// 二叉搜索树定义如下：
-// 节点的左子树只包含 严格小于 当前节点的数。
-// 节点的右子树只包含 严格大于 当前节点的数。
-// 所有左子树和右子树自身必须也是二叉搜索树。
-func isValidBST(root *TreeNode) bool {
-	var prev *TreeNode
-	var dfs func(*TreeNode) bool
-	dfs = func(root *TreeNode) bool {
-		if root == nil {
-			return true
-		}
-		if !dfs(root.Left) {
-			return false
-		}
-		if prev != nil && root.Val <= prev.Val {
-			return false
-		}
-		prev = root
-		return dfs(root.Right)
-	}
-	return dfs(root)
 }
 
 // 530. 二叉搜索树的最小绝对差
@@ -922,97 +838,6 @@ func lowestCommonAncestorBST(root, p, q *TreeNode) *TreeNode {
 	return root
 }
 
-// 701.二叉搜索树中的插入操作
-// https://leetcode.cn/problems/insert-into-a-binary-search-tree/description/
-// 递归法
-func insertIntoBST(root *TreeNode, val int) *TreeNode {
-	if root == nil {
-		return &TreeNode{Val: val}
-	}
-	if root.Val < val {
-		root.Right = insertIntoBST(root.Right, val)
-	} else {
-		root.Left = insertIntoBST(root.Left, val)
-	}
-	return root
-}
-
-// 迭代法
-func insertIntoBST2(root *TreeNode, val int) *TreeNode {
-	if root == nil {
-		return &TreeNode{Val: val}
-	}
-	prev := root
-	cur := root
-	for cur != nil {
-		prev = cur
-		if cur.Val < val {
-			cur = cur.Right
-		} else {
-			cur = cur.Left
-		}
-	}
-	node := &TreeNode{Val: val}
-	if prev.Val < val {
-		prev.Right = node
-	} else {
-		prev.Left = node
-	}
-	return root
-}
-
-// 450.删除二叉搜索树中的节点
-// https://leetcode.cn/problems/delete-node-in-a-bst/description/
-// 输入：root = [5,3,6,2,4,null,7], key = 3
-// 输出：[5,4,6,2,null,null,7]
-func deleteNode(root *TreeNode, key int) *TreeNode {
-	if root == nil {
-		return nil
-	}
-	if root.Val < key {
-		root.Right = deleteNode(root.Right, key)
-	} else if root.Val > key {
-		root.Left = deleteNode(root.Left, key)
-	} else {
-		// 删除的是叶子节点
-		if root.Left == nil && root.Right == nil {
-			return nil
-		} else if root.Right == nil {
-			return root.Left
-		}
-		// 右孩子继位，做孩子挂在右子树最左边
-		cur := root.Right
-		for cur.Left != nil {
-			cur = cur.Left
-		}
-		cur.Left = root.Left
-		return root.Right
-	}
-
-	return root
-}
-
-// 669. 修剪二叉搜索树
-// https://leetcode.cn/problems/trim-a-binary-search-tree/description/
-// 给你二叉搜索树的根节点 root ，同时给定最小边界low 和最大边界 high。通过修剪二叉搜索树，使得所有节点的值在[low, high]中。修剪树 不应该 改变保留在树中的元素的相对结构 (即，如果没有被移除，原有的父代子代关系都应当保留)。 可以证明，存在 唯一的答案 。
-// 输入：root = [1,0,2], low = 1, high = 2
-// 输出：[1,null,2]
-func trimBST(root *TreeNode, low int, high int) *TreeNode {
-	if root == nil {
-		return nil
-	}
-	if root.Val < low {
-		// 左边更小了，右子树中可能有，返回右子树中>low的节点
-		return trimBST(root.Right, low, high)
-	} else if root.Val > high {
-		// 右边更大了，左子树中可能还有在区间内的节点
-		return trimBST(root.Left, low, high)
-	}
-	root.Left = trimBST(root.Left, low, root.Val)
-	root.Right = trimBST(root.Right, root.Val, high)
-	return root
-}
-
 // 108. 将有序数组转换为二叉搜索树
 // https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/
 // 给你一个整数数组 nums ，其中元素已经按 升序 排列，请你将其转换为一棵 平衡 二叉搜索树。
@@ -1026,41 +851,6 @@ func sortedArrayToBST(nums []int) *TreeNode {
 	root := &TreeNode{Val: nums[mid]}
 	root.Left = sortedArrayToBST(nums[:mid])
 	root.Right = sortedArrayToBST(nums[mid+1:])
-	return root
-}
-
-// 538. 把二叉搜索树转换为累加树
-func convertBST(root *TreeNode) *TreeNode {
-	prev := 0
-	var dfs func(node *TreeNode)
-	dfs = func(node *TreeNode) {
-		if node == nil {
-			return
-		}
-		dfs(node.Right)  // 右
-		node.Val += prev // 中
-		prev = node.Val
-		dfs(node.Left) // 左
-	}
-	dfs(root)
-	return root
-}
-
-func convertBST2(root *TreeNode) *TreeNode {
-	var prev *TreeNode
-	var dfs func(root *TreeNode)
-	dfs = func(root *TreeNode) {
-		if root == nil {
-			return
-		}
-		dfs(root.Right)
-		if prev != nil {
-			root.Val += prev.Val
-		}
-		prev = root
-		dfs(root.Left)
-	}
-	dfs(root)
 	return root
 }
 
