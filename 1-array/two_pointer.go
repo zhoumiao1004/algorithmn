@@ -55,6 +55,32 @@ func deleteDuplicates(head *ListNode) *ListNode {
 	return head
 }
 
+// 82. 删除排序链表中的重复元素 II
+// 给定一个已排序的链表的头 head ， 删除原始链表中所有重复数字的节点，只留下不同的数字 。返回 已排序的链表 。
+// 输入：head = [1,2,3,3,4,4,5]
+// 输出：[1,2,5]
+func deleteDuplicates2(head *ListNode) *ListNode {
+	if head == nil {
+		return nil
+	}
+	dummy := &ListNode{Next: head}
+	slow := dummy
+	fast := head
+	for fast != nil && fast.Next != nil {
+		if fast.Val != fast.Next.Val {
+			slow = slow.Next
+			fast = fast.Next
+			continue
+		}
+		for fast.Next != nil && fast.Val == fast.Next.Val {
+			fast = fast.Next
+		}
+		slow.Next = fast.Next
+		fast = fast.Next
+	}
+	return dummy.Next
+}
+
 // 27. 移除元素
 // https://leetcode.cn/problems/remove-element/description/
 // nums = [3,2,2,3], val = 3
@@ -302,6 +328,28 @@ func merge(nums1 []int, m int, nums2 []int, n int) {
 		j--
 		k--
 	}
+}
+
+// 977.有序数组的平方
+// https://leetcode.cn/problems/squares-of-a-sorted-array/description/
+// 输入：nums = [-4,-1,0,3,10]
+// 输出：[0,1,9,16,100]
+func sortedSquares(nums []int) []int {
+	n := len(nums)
+	results := make([]int, n)
+	left, right := 0, n-1
+	k := n - 1
+	for left <= right {
+		if nums[left]*nums[left] < nums[right]*nums[right] {
+			results[k] = nums[right] * nums[right]
+			right--
+		} else {
+			results[k] = nums[left] * nums[left]
+			left++
+		}
+		k--
+	}
+	return results
 }
 
 func main() {

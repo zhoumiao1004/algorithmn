@@ -2,8 +2,13 @@ package main
 
 import (
 	"container/heap"
-	"sort"
+	"fmt"
 )
+
+type ListNode struct {
+	Val  int
+	Next *ListNode
+}
 
 /*1、合并两个有序链表
 2、链表的分解
@@ -128,6 +133,49 @@ func mergeKLists(lists []*ListNode) *ListNode {
 	return dummy.Next
 }
 
+// 378. 有序矩阵中第 K 小的元素
+// https://leetcode.cn/problems/kth-smallest-element-in-a-sorted-matrix/
+// 给你一个 n x n 矩阵 matrix ，其中每行和每列元素均按升序排序，找到矩阵中第 k 小的元素。
+// 请注意，它是 排序后 的第 k 小元素，而不是第 k 个 不同 的元素。
+// 你必须找到一个内存复杂度优于 O(n2) 的解决方案。
+// 输入：matrix = [[1,5,9],[10,11,13],[12,13,15]], k = 8
+// 输出：13
+// 解释：矩阵中的元素为 [1,5,9,10,11,12,13,13,15]，第 8 小元素是 13
+type IntHeap [][]int
+
+func (h IntHeap) Len() int           { return len(h) }
+func (h IntHeap) Less(i, j int) bool { return h[i][0] < h[j][0] }
+func (h IntHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h *IntHeap) Push(x interface{}) {
+	*h = append(*h, x.([]int))
+}
+func (h *IntHeap) Pop() interface{} {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
+
+func kthSmallest(matrix [][]int, k int) int {
+	h := &IntHeap{}
+	heap.Init(h)
+	// 初始化优先级队列
+	for i := 0; i < len(matrix); i++ {
+		heap.Push(h, matrix[i])
+	}
+	result := -1
+	for h.Len() > 0 && k > 0 {
+		nums := heap.Pop(h).([]int)
+		result = nums[0]
+		k--
+		if len(nums) > 1 {
+			heap.Push(h, append([]int{}, nums[1:]...))
+		}
+	}
+	return result
+}
+
 // 面试题 02.02. 返回倒数第 k 个节点
 // https://leetcode.cn/problems/kth-node-from-end-of-list-lcci/description/
 func kthToLast(head *ListNode, k int) int {
@@ -144,6 +192,26 @@ func kthToLast(head *ListNode, k int) int {
 		p2 = p2.Next
 	}
 	return p2.Val
+}
+
+// LCR 140. 训练计划 II
+// 给定一个头节点为 head 的链表用于记录一系列核心肌群训练项目编号，请查找并返回倒数第 cnt 个训练项目编号。
+// 输入：head = [2,4,7,8], cnt = 1
+// 输出：8
+func trainingPlan(head *ListNode, cnt int) *ListNode {
+	if head == nil {
+		return nil
+	}
+	p1 := head
+	for i := 0; i < cnt; i++ {
+		p1 = p1.Next
+	}
+	p2 := head
+	for p1 != nil {
+		p1 = p1.Next
+		p2 = p2.Next
+	}
+	return p2
 }
 
 // 876. 链表的中间结点
@@ -177,6 +245,29 @@ func hasCycle(head *ListNode) bool {
 	return false
 }
 
+// 142. 环形链表 II
+// https://leetcode.cn/problems/linked-list-cycle-ii/
+func detectCycle(head *ListNode) *ListNode {
+	if head == nil {
+		return nil
+	}
+	slow := head
+	fast := head
+	for fast != nil && fast.Next != nil {
+		slow = slow.Next
+		fast = fast.Next.Next
+		if slow == fast {
+			cur := head
+			for cur != slow {
+				cur = cur.Next
+				slow = slow.Next
+			}
+			return cur
+		}
+	}
+	return nil
+}
+
 // 160. 两个链表是否相交
 // https://leetcode.cn/problems/intersection-of-two-linked-lists/
 func getIntersectionNode2(headA, headB *ListNode) *ListNode {
@@ -200,112 +291,6 @@ func getIntersectionNode2(headA, headB *ListNode) *ListNode {
 	return nil
 }
 
-// 977.有序数组的平方
-// https://leetcode.cn/problems/squares-of-a-sorted-array/description/
-// 输入：nums = [-4,-1,0,3,10]
-// 输出：[0,1,9,16,100]
-func sortedSquares(nums []int) []int {
-	n := len(nums)
-	results := make([]int, n)
-	left, right := 0, n-1
-	k := n - 1
-	for left <= right {
-		if nums[left]*nums[left] < nums[right]*nums[right] {
-			results[k] = nums[right] * nums[right]
-			right--
-		} else {
-			results[k] = nums[left] * nums[left]
-			left++
-		}
-		k--
-	}
-	return results
-}
-
-// 1329. 将矩阵按对角线排序
-// https://leetcode.cn/problems/sort-the-matrix-diagonally/
-// 输入：mat = [[3,3,1,1],[2,2,1,2],[1,1,1,2]]
-// 输出：[[1,1,1,1],[1,2,2,2],[1,2,3,3]]
-func diagonalSort(mat [][]int) [][]int {
-	m, n := len(mat), len(mat[0])
-	diaMap := make(map[int][]int)
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			k := i - j
-			diaMap[k] = append(diaMap[k], mat[i][j])
-		}
-	}
-	for _, v := range diaMap {
-		sort.Slice(v, func(i, j int) bool {
-			return v[i] > v[j]
-		})
-	}
-	// 结果回填到矩阵
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			arr := diaMap[i-j]
-			mat[i][j] = arr[len(arr)-1]
-			diaMap[i-j] = arr[:len(arr)-1]
-		}
-	}
-	return mat
-}
-
-// 1260. 二维网格迁移
-// https://leetcode.cn/problems/shift-2d-grid/description/
-// 给你一个 m 行 n 列的二维网格 grid 和一个整数 k。你需要将 grid 迁移 k 次。
-// 每次「迁移」操作将会引发下述活动：
-// 位于 grid[i][j]（j < n - 1）的元素将会移动到 grid[i][j + 1]。
-// 位于 grid[i][n - 1] 的元素将会移动到 grid[i + 1][0]。
-// 位于 grid[m - 1][n - 1] 的元素将会移动到 grid[0][0]。
-// 请你返回 k 次迁移操作后最终得到的 二维网格。
-// 输入：grid = [[1,2,3],[4,5,6],[7,8,9]], k = 1
-// 输出：[[9,1,2],[3,4,5],[6,7,8]]
-// 1.除最后一列向右移1位 2.最后一列一到第一列 3.右下角移到左上角
-func shiftGrid(grid [][]int, k int) [][]int {
-
-}
-
-// 867. 转置矩阵
-// https://leetcode.cn/problems/transpose-matrix/
-// 给你一个二维整数数组 matrix， 返回 matrix 的 转置矩阵 。
-// 矩阵的 转置 是指将矩阵的主对角线翻转，交换矩阵的行索引与列索引。
-// 输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
-// 输出：[[1,4,7],[2,5,8],[3,6,9]]
-func transpose(matrix [][]int) [][]int {
-	m, n := len(matrix), len(matrix[0])
-	results := make([][]int, n)
-	for i := 0; i < n; i++ {
-		results[i] = make([]int, m)
-	}
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			results[j][i] = matrix[i][j]
-		}
-	}
-	return results
-}
-
-// 14. 最长公共前缀
-// https://leetcode.cn/problems/longest-common-prefix/
-// 编写一个函数来查找字符串数组中的最长公共前缀。
-// 如果不存在公共前缀，返回空字符串 ""。
-// 输入：strs = ["flower","flow","flight"]
-// 输出："fl"
-func longestCommonPrefix(strs []string) string {
-	if len(strs) == 0 {
-		return ""
-	}
-	left := 0 // 相同的列
-	m, n := len(strs), len(strs[0])
-	for j := 0; j < n; j++ {
-		// 第j列，对比每一行是否相同
-		for i := 1; i < m; i++ {
-			if len(strs[i]) <= j || strs[i][j] != strs[0][j] {
-				return strs[0][:left]
-			}
-		}
-		left++
-	}
-	return strs[0][:left]
+func main() {
+	fmt.Println(kthSmallest([][]int{[]int{1, 5, 9}, []int{10, 11, 13}, []int{12, 13, 15}}, 8))
 }

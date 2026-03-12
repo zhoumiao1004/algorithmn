@@ -222,29 +222,6 @@ func getIntersectionNode(headA, headB *ListNode) *ListNode {
 	return nil
 }
 
-// 142. 环形链表 II
-// https://leetcode.cn/problems/linked-list-cycle-ii/
-func detectCycle(head *ListNode) *ListNode {
-	if head == nil {
-		return nil
-	}
-	slow := head
-	fast := head
-	for fast != nil && fast.Next != nil {
-		slow = slow.Next
-		fast = fast.Next.Next
-		if slow == fast {
-			cur := head
-			for cur != slow {
-				cur = cur.Next
-				slow = slow.Next
-			}
-			return cur
-		}
-	}
-	return nil
-}
-
 // 234. 回文链表
 // 给你一个单链表的头节点 head ，请你判断该链表是否为回文链表。如果是，返回 true ；否则，返回 false 。
 // 输入：head = [1,2,2,1]
