@@ -110,10 +110,10 @@ func pivotIndex2(nums []int) int {
 		preSum[i] = preSum[i-1] + nums[i-1]
 	}
 	for i := 1; i < len(preSum); i++ {
-		leftSum := preSum[i] - preSum[0]
-		rightSum := preSum[n] - preSum[i]
+		leftSum := preSum[i] - preSum[0]    // i之前元素之和（不包括i
+		rightSum := preSum[n] - preSum[i+1] // i之后元素之和（不包括i）
 		if leftSum == rightSum {
-			return i - 1 // 相对于nums，preSum有一位索引偏移
+			return i
 		}
 	}
 	return -1
@@ -334,7 +334,7 @@ func subarraysDivByK(nums []int, k int) int {
 	}
 	result := 0
 	m := make(map[int]int)
-	fmt.Println("preSum=", preSum)
+	// fmt.Println("preSum=", preSum)
 	for _, val := range preSum {
 		// preSum[i] - preSum[j] % k == 0 => preSum[i] % k == preSum[j] % k
 		r := val % k
@@ -347,7 +347,7 @@ func subarraysDivByK(nums []int, k int) int {
 		}
 		m[r]++
 	}
-	fmt.Println("m=", m)
+	// fmt.Println("m=", m)
 	return result
 }
 
