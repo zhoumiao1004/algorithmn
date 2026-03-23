@@ -1,0 +1,371 @@
+package main
+
+import "math"
+
+type TreeNode struct {
+	Val   int
+	Left  *TreeNode
+	Right *TreeNode
+}
+
+// 102. 二叉树的层序遍历
+// https://leetcode.cn/problems/binary-tree-level-order-traversal/
+// 输入：root = [3,9,20,null,null,15,7]
+// 输出：[[3],[9,20],[15,7]]
+func levelOrder(root *TreeNode) [][]int {
+	var results [][]int
+	if root == nil {
+		return results
+	}
+	q := []*TreeNode{root}
+	for len(q) > 0 {
+		var next []*TreeNode
+		var tmp []int
+		for _, node := range q {
+			tmp = append(tmp, node.Val)
+			if node.Left != nil {
+				next = append(next, node.Left)
+			}
+			if node.Right != nil {
+				next = append(next, node.Right)
+			}
+		}
+		results = append(results, tmp)
+		q = next
+	}
+	return results
+}
+
+// 107.二叉树的层次遍历 II
+// https://leetcode.cn/problems/binary-tree-level-order-traversal-ii/
+func levelOrderBottom(root *TreeNode) [][]int {
+	results := levelOrder(root)
+	left, right := 0, len(results)-1
+	for left < right {
+		results[left], results[right] = results[right], results[left]
+		left++
+		right--
+	}
+	return results
+}
+
+// 103. 二叉树的锯齿形层序遍历
+// https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/submissions/
+// 给你二叉树的根节点 root ，返回其节点值的 锯齿形层序遍历 。（即先从左往右，再从右往左进行下一层遍历，以此类推，层与层之间交替进行）。
+// 输入：root = [3,9,20,null,null,15,7]
+// 输出：[[3],[20,9],[15,7]]
+func zigzagLevelOrder(root *TreeNode) [][]int {
+	var results [][]int
+	if root == nil {
+		return results
+	}
+	flag := true
+	q := []*TreeNode{root}
+	for len(q) > 0 {
+		var tmp []int
+		var next []*TreeNode
+		for _, node := range q {
+			tmp = append(tmp, node.Val)
+			if node.Left != nil {
+				next = append(next, node.Left)
+			}
+			if node.Right != nil {
+				next = append(next, node.Right)
+			}
+		}
+		q = next
+		if !flag {
+			l, r := 0, len(tmp)-1
+			for l < r {
+				tmp[l], tmp[r] = tmp[r], tmp[l]
+				l++
+				r--
+			}
+		}
+		flag = !flag
+		results = append(results, tmp)
+	}
+	return results
+}
+
+// 117. 填充每个节点的下一个右侧节点指针 II
+// https://leetcode.cn/problems/populating-next-right-pointers-in-each-node-ii/description/
+// 填充它的每个 next 指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将 next 指针设置为 NULL 。
+// 初始状态下，所有 next 指针都被设置为 NULL 。
+type Node struct {
+	Val   int
+	Left  *Node
+	Right *Node
+	Next  *Node
+}
+
+func connect(root *Node) *Node {
+	if root == nil {
+		return nil
+	}
+	q := []*Node{root}
+	for len(q) > 0 {
+		var next []*Node
+		for i, node := range q {
+			if node.Left != nil {
+				next = append(next, node.Left)
+			}
+			if node.Right != nil {
+				next = append(next, node.Right)
+			}
+			if i != len(q)-1 {
+				node.Next = q[i+1]
+			}
+		}
+		q = next
+	}
+	return root
+}
+
+// 662. 二叉树最大宽度
+// https://leetcode.cn/problems/maximum-width-of-binary-tree/description/
+// 给你一棵二叉树的根节点 root ，返回树的 最大宽度 。
+// 树的 最大宽度 是所有层中最大的 宽度 。
+// 每一层的 宽度 被定义为该层最左和最右的非空节点（即，两个端点）之间的长度。将这个二叉树视作与满二叉树结构相同，两端点间会出现一些延伸到这一层的 null 节点，这些 null 节点也计入长度。
+// 题目数据保证答案将会在  32 位 带符号整数范围内。
+func widthOfBinaryTree(root *TreeNode) int {
+	if root == nil {
+		return 0
+	}
+	result := 0
+	q := []*Pair{{node: root, id: 1}}
+	for len(q) > 0 {
+		n := len(q)
+		start, end := 0, 0
+		for i := 0; i < n; i++ {
+			cur := q[0]
+			q = q[1:]
+			curNode := cur.node
+			curId := cur.id
+			if i == 0 {
+				start = curId
+			}
+			if i == n-1 {
+				end = curId
+			}
+			if curNode.Left != nil {
+				q = append(q, &Pair{node: curNode.Left, id: 2 * curId})
+			}
+			if curNode.Right != nil {
+				q = append(q, &Pair{node: curNode.Right, id: 2*curId + 1})
+			}
+		}
+		result = max(result, end-start+1)
+	}
+	return result
+}
+
+type Pair struct {
+	node *TreeNode
+	id   int
+}
+
+// 515. 在每个树行中找最大值
+// 给定一棵二叉树的根节点 root ，请找出该二叉树中每一层的最大值。
+// 输入: root = [1,3,2,5,3,null,9]
+// 输出: [1,3,9]
+func largestValues(root *TreeNode) []int {
+	var result []int
+	if root == nil {
+		return result
+	}
+	q := []*TreeNode{root}
+	for len(q) > 0 {
+		maxVal := math.MinInt
+		var next []*TreeNode
+		for _, node := range q {
+			maxVal = max(maxVal, node.Val)
+			if node.Left != nil {
+				next = append(next, node.Left)
+			}
+			if node.Right != nil {
+				next = append(next, node.Right)
+			}
+		}
+		result = append(result, maxVal)
+		q = next
+	}
+	return result
+}
+
+// 637. 二叉树的层平均值
+// https://leetcode.cn/problems/average-of-levels-in-binary-tree/description/
+// 给定一个非空二叉树的根节点 root , 以数组的形式返回每一层节点的平均值。与实际答案相差 10-5 以内的答案可以被接受。
+// 输入：root = [3,9,20,null,null,15,7]
+// 输出：[3.00000,14.50000,11.00000]
+// 解释：第 0 层的平均值为 3,第 1 层的平均值为 14.5,第 2 层的平均值为 11 。
+func averageOfLevels(root *TreeNode) []float64 {
+	var result []float64
+	if root == nil {
+		return result
+	}
+	q := []*TreeNode{root}
+	for len(q) > 0 {
+		s := 0
+		var next []*TreeNode
+		for _, node := range q {
+			s += node.Val
+			if node.Left != nil {
+				next = append(next, node.Left)
+			}
+			if node.Right != nil {
+				next = append(next, node.Right)
+			}
+		}
+		result = append(result, float64(s)/float64(len(q)))
+		q = next
+	}
+	return result
+}
+
+// 958. 二叉树的完全性检验
+// https://leetcode.cn/problems/check-completeness-of-a-binary-tree/description/
+// 给你一棵二叉树的根节点 root ，请你判断这棵树是否是一棵 完全二叉树 。
+// 在一棵 完全二叉树 中，除了最后一层外，所有层都被完全填满，并且最后一层中的所有节点都尽可能靠左。最后一层（第 h 层）中可以包含 1 到 2h 个节点。
+// 输入：root = [1,2,3,4,5,6]
+// 输出：true
+// 解释：最后一层前的每一层都是满的（即，节点值为 {1} 和 {2,3} 的两层），且最后一层中的所有节点（{4,5,6}）尽可能靠左。
+func isCompleteTree(root *TreeNode) bool {
+	end := false
+	q := []*TreeNode{root}
+	for len(q) > 0 {
+		n := len(q)
+		for i := 0; i < n; i++ {
+			node := q[0]
+			q = q[1:]
+			if node == nil {
+				end = true
+			} else {
+				if end == true {
+					return false
+				}
+				q = append(q, node.Left)
+				q = append(q, node.Right)
+			}
+		}
+	}
+	return true
+}
+
+// 1161. 最大层内元素和
+// https://leetcode.cn/problems/maximum-level-sum-of-a-binary-tree/
+// 给你一个二叉树的根节点 root。设根节点位于二叉树的第 1 层，而根节点的子节点位于第 2 层，依此类推。
+// 返回总和 最大 的那一层的层号 x。如果有多层的总和一样大，返回其中 最小 的层号 x。
+// 输入：root = [1,7,0,7,-8,null,null]
+// 输出：2
+// 解释：
+// 第 1 层各元素之和为 1，
+// 第 2 层各元素之和为 7 + 0 = 7，
+// 第 3 层各元素之和为 7 + -8 = -1，
+// 所以我们返回第 2 层的层号，它的层内元素之和最大。
+func maxLevelSum(root *TreeNode) int {
+	if root == nil {
+		return 0
+	}
+	maxSum := math.MinInt
+	maxSumLevel := 0
+	level := 0
+	q := []*TreeNode{root}
+	for len(q) > 0 {
+		n := len(q)
+		level++
+		s := 0
+		for i := 0; i < n; i++ {
+			node := q[0]
+			q = q[1:]
+			s += node.Val
+			if node.Left != nil {
+				q = append(q, node.Left)
+			}
+			if node.Right != nil {
+				q = append(q, node.Right)
+			}
+		}
+		if s > maxSum {
+			maxSum = s
+			maxSumLevel = level
+		}
+	}
+	return maxSumLevel
+}
+
+// 1302. 层数最深叶子节点的和
+// https://leetcode.cn/problems/deepest-leaves-sum/
+// 给你一棵二叉树的根节点 root ，请你返回 层数最深的叶子节点的和 。
+// 输入：root = [1,2,3,4,5,null,6,7,null,null,null,null,8]
+// 输出：15
+func deepestLeavesSum(root *TreeNode) int {
+	result := 0
+	q := []*TreeNode{root}
+	for len(q) > 0 {
+		n := len(q)
+		s := 0
+		for i := 0; i < n; i++ {
+			node := q[0]
+			q = q[1:]
+			s += node.Val
+			if node.Left != nil {
+				q = append(q, node.Left)
+			}
+			if node.Right != nil {
+				q = append(q, node.Right)
+			}
+		}
+		result = s
+	}
+	return result
+}
+
+// 1609. 奇偶树
+// https://leetcode.cn/problems/even-odd-tree/
+// 如果一棵二叉树满足下述几个条件，则可以称为 奇偶树 ：
+// 二叉树根节点所在层下标为 0 ，根的子节点所在层下标为 1 ，根的孙节点所在层下标为 2 ，依此类推。
+// 偶数下标 层上的所有节点的值都是 奇 整数，从左到右按顺序 严格递增
+// 奇数下标 层上的所有节点的值都是 偶 整数，从左到右按顺序 严格递减
+// 给你二叉树的根节点，如果二叉树为 奇偶树 ，则返回 true ，否则返回 false 。
+// 输入：root = [1,10,4,3,null,7,9,12,8,6,null,null,2]
+// 输出：true
+// 解释：每一层的节点值分别是：
+// 0 层：[1]
+// 1 层：[10,4]
+// 2 层：[3,7,9]
+// 3 层：[12,8,6,2]
+// 由于 0 层和 2 层上的节点值都是奇数且严格递增，而 1 层和 3 层上的节点值都是偶数且严格递减，因此这是一棵奇偶树。
+func isEvenOddTree(root *TreeNode) bool {
+	return true
+}
+
+// 872. 叶子相似的树
+// https://leetcode.cn/problems/leaf-similar-trees/description/
+// 输入：root1 = [3,5,1,6,2,9,8,null,null,7,4], root2 = [3,5,1,6,7,4,2,null,null,null,null,null,null,9,8]
+// 输出：true
+func leafSimilar(root1 *TreeNode, root2 *TreeNode) bool {
+    var dfs func(root *TreeNode, nums *[]int)
+	dfs = func(root *TreeNode, nums *[]int) {
+		if root == nil {
+			return
+		}
+		if root.Left == nil && root.Right == nil {
+			*nums = append(*nums, root.Val)
+		}
+		dfs(root.Left, nums)
+		dfs(root.Right, nums)
+	}
+	var nums1, nums2 []int
+	dfs(root1, &nums1)
+	dfs(root2, &nums2)
+	if len(nums1) != len(nums2) {
+		return false
+	}
+	for i := 0; i<len(nums1); i++ {
+		if nums1[i] != nums2[i] {
+			return false
+		}
+	}
+	return true
+}

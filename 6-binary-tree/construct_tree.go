@@ -6,49 +6,6 @@ type TreeNode struct {
 	Right *TreeNode
 }
 
-// 106. 从中序与后序遍历序列构造二叉树
-// https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/description/
-// 输入：inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]
-// 输出：[3,9,20,null,null,15,7]
-// 先从postordre获取最后一个节点作为根节点，在inordre中找到所在位置
-func buildTree(inorder []int, postorder []int) *TreeNode {
-	if len(postorder) == 0 {
-		return nil
-	} else if len(postorder) == 1 {
-		return &TreeNode{Val: postorder[0]}
-	}
-	root := &TreeNode{Val: postorder[len(postorder)-1]}
-	i := 0
-	for inorder[i] != root.Val {
-		i++
-	}
-	root.Left = buildTree(inorder[:i], postorder[:i])
-	root.Right = buildTree(inorder[i+1:], postorder[i:len(postorder)-1])
-	return root
-}
-
-// 105. 从前序与中序遍历序列构造二叉树
-// https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/description/
-// 给定两个整数数组 preorder 和 inorder ，其中 preorder 是二叉树的先序遍历， inorder 是同一棵树的中序遍历，请构造二叉树并返回其根节点。
-// 输入: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
-// 输出: [3,9,20,null,null,15,7]
-func buildTree2(preorder []int, inorder []int) *TreeNode {
-	if len(preorder) == 0 {
-		return nil
-	} else if len(preorder) == 1 {
-		return &TreeNode{Val: preorder[0]}
-	}
-	// 中
-	root := &TreeNode{Val: preorder[0]}
-	i := 0
-	for inorder[i] != preorder[0] {
-		i++
-	}
-	root.Left = buildTree(preorder[1:i+1], inorder[:i])
-	root.Right = buildTree(preorder[i+1:], inorder[i+1:])
-	return root
-}
-
 // 96.不同的二叉搜索树
 // https://leetcode.cn/problems/unique-binary-search-trees/description/
 // 求恰由 n 个节点组成且节点值从 1 到 n 互不相同的 二叉搜索树 有多少种？返回满足题意的二叉搜索树的种数。
@@ -111,7 +68,7 @@ func generateTrees(n int) []*TreeNode {
 	if n == 0 {
 		return []*TreeNode{}
 	}
-	// 构造闭区间 [1, n] 组成的 BST 
+	// 构造闭区间 [1, n] 组成的 BST
 	return build(1, n)
 }
 
@@ -119,14 +76,14 @@ func build(low, high int) []*TreeNode {
 	var results []*TreeNode
 	if low > high {
 		// 这里需要装一个 null 元素，这样才能让下面的两个内层 for 循环都能进入，正确地创建出叶子节点
-        // 举例来说吧，什么时候会进到这个 if 语句？当你创建叶子节点的时候，对吧。
-        // 那么如果你这里不加 null，直接返回空列表，那么下面的内层两个 for 循环都无法进入
-        // 你的那个叶子节点就没有创建出来，看到了吗？所以这里要加一个 null，确保下面能把叶子节点做出来
+		// 举例来说吧，什么时候会进到这个 if 语句？当你创建叶子节点的时候，对吧。
+		// 那么如果你这里不加 null，直接返回空列表，那么下面的内层两个 for 循环都无法进入
+		// 你的那个叶子节点就没有创建出来，看到了吗？所以这里要加一个 null，确保下面能把叶子节点做出来
 		results = append(results, nil)
 		return results
 	}
 	// 穷举 root 节点的所有可能
-	for i := low; i<=high; i++ {
+	for i := low; i <= high; i++ {
 		// 递推构造出左右子树的所有BST
 		left := build(low, i-1)
 		right := build(i+1, high)

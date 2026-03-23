@@ -22,9 +22,7 @@ func combine(n int, k int) [][]int {
 	var dfs func(int, int, int)
 	dfs = func(n, k, startIndex int) {
 		if len(path) == k {
-			tmp := make([]int, k)
-			copy(tmp, path)
-			results = append(results, tmp)
+			results = append(results, append([]int{}, path...))
 			return
 		}
 		for i := startIndex; i <= n; i++ {
@@ -44,9 +42,7 @@ func combine2(n int, k int) [][]int {
 	var dfs func(int, int, int)
 	dfs = func(n, k, startIndex int) {
 		if len(path) == k {
-			tmp := make([]int, k)
-			copy(tmp, path)
-			results = append(results, tmp)
+			results = append(results, append([]int{}, path...))
 			return
 		}
 		// 目标是选k个数，已经选了len(path)个数，还要选k-len(path)个数，找选哪个数之后后面的数就不够了？
@@ -70,9 +66,7 @@ func combine3(n int, k int) [][]int {
 	var dfs func(int, int, int)
 	dfs = func(n, k, startIndex int) {
 		if len(path) == k {
-			tmp := make([]int, k)
-			copy(tmp, path)
-			results = append(results, tmp)
+			results = append(results, append([]int{}, path...))
 			return
 		}
 		// 目标是选k个数，已经选了len(path)个数，还要选k-len(path)个数
@@ -98,9 +92,7 @@ func combinationSum3(k int, n int) [][]int {
 	var dfs func(k, n, startIndex int)
 	dfs = func(k, n, startIndex int) {
 		if len(path) == k && s == n {
-			tmp := make([]int, len(path))
-			copy(tmp, path)
-			results = append(results, tmp)
+			results = append(results, append([]int{}, path...))
 			return
 		}
 		for i := startIndex; i <= 9 && s+i <= n; i++ {
@@ -159,9 +151,7 @@ func combinationSum(candidates []int, target int) [][]int {
 	var dfs func([]int, int, int)
 	dfs = func(candidates []int, target int, startIndex int) {
 		if s == target {
-			tmp := make([]int, len(path))
-			copy(tmp, path)
-			results = append(results, tmp)
+			results = append(results, append([]int{}, path...))
 		}
 		for i := startIndex; i < len(candidates) && s+candidates[i] <= target; i++ {
 			path = append(path, candidates[i])
@@ -175,21 +165,18 @@ func combinationSum(candidates []int, target int) [][]int {
 	return results
 }
 
-// 方法2：不排序
+// 方法2：不排序,利用元素都是正数来剪枝，但剪枝效率不如排序，不推荐
 func combinationSumWithoutSort(candidates []int, target int) [][]int {
 	var results [][]int
 	var path []int
 	s := 0
 	var dfs func([]int, int, int)
 	dfs = func(candidates []int, target int, startIndex int) {
-		// 因为题目中说所有元素都是正整数才能这么剪枝
 		if s > target {
-			return
+			return // 因为题目中说所有元素都是正整数才能这么剪枝
 		}
 		if s == target {
-			tmp := make([]int, len(path))
-			copy(tmp, path)
-			results = append(results, tmp)
+			results = append(results, append([]int{}, path...))
 		}
 		for i := startIndex; i < len(candidates); i++ {
 			path = append(path, candidates[i])
@@ -205,6 +192,7 @@ func combinationSumWithoutSort(candidates []int, target int) [][]int {
 
 // 40. 组合总和 II
 // https://leetcode.cn/problems/combination-sum-ii/description/
+// LCR 082. 组合总和 II https://leetcode.cn/problems/4sjJUc/description/
 // 给定一个候选人编号的集合 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。
 // candidates 中的每个数字在每个组合中只能使用 一次 。
 // 注意：解集不能包含重复的组合。
@@ -223,9 +211,7 @@ func combinationSum2(candidates []int, target int) [][]int {
 	var dfs func(candidates []int, target int, startIndex int)
 	dfs = func(candidates []int, target, startIndex int) {
 		if s == target {
-			tmp := make([]int, len(path))
-			copy(tmp, path)
-			results = append(results, tmp)
+			results = append(results, append([]int{}, path...))
 		}
 		// 因为题目说所有元素是正整数所以可以剪枝
 		for i := startIndex; i < len(candidates) && s+candidates[i] <= target; i++ {
@@ -326,21 +312,41 @@ func isValidIp(s string) bool {
 // 输入：nums = [1,2,3]
 // 输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
 // 可以取0-3个
+// 思路1:盒(桶)的视角选球
 func subsets(nums []int) [][]int {
 	var results [][]int
 	var path []int
-	var dfs func(nums []int, start int)
-	dfs = func(nums []int, start int) {
-		tmp := make([]int, len(path))
-		copy(tmp, path)
-		results = append(results, tmp)
+	var backtrack func(nums []int, start int)
+	backtrack = func(nums []int, start int) {
+		results = append(results, append([]int{}, path...))
 		for i := start; i < len(nums); i++ {
 			path = append(path, nums[i])
-			dfs(nums, i+1)
+			backtrack(nums, i+1)
 			path = path[:len(path)-1]
 		}
 	}
-	dfs(nums, 0)
+	backtrack(nums, 0)
+	return results
+}
+
+// 思路2:球的视角选盒(桶)
+func subset(nums []int) [][]int {
+	var results [][]int
+	var path []int
+	var backtrack func(nums []int, i int)
+	backtrack = func(nums []int, i int) {
+		if i == len(nums) {
+			results = append(results, append([]int{}, path...))
+			return
+		}
+		// 第一种选择：球在盒中
+		path = append(path, nums[i])
+		backtrack(nums, i+1)
+		path = path[:len(path)-1] // 撤销选择
+		// 第二种选择：球不在盒中
+		backtrack(nums, i+1)
+	}
+	backtrack(nums, 0)
 	return results
 }
 
@@ -357,9 +363,7 @@ func subsetsWithDup(nums []int) [][]int {
 	used := make([]bool, len(nums))
 	var dfs func(nums []int, startIndex int)
 	dfs = func(nums []int, startIndes int) {
-		tmp := make([]int, len(path))
-		copy(tmp, path)
-		results = append(results, tmp)
+		results = append(results, append([]int{}, path...))
 		for i := startIndes; i < len(nums); i++ {
 			if i > 0 && nums[i-1] == nums[i] && !used[i-1] {
 				continue // 树层去重
@@ -385,12 +389,10 @@ func subsetsWithDup(nums []int) [][]int {
 func findSubsequences(nums []int) [][]int {
 	var results [][]int
 	var path []int
-	var dfs func(nums []int, startIndex int)
-	dfs = func(nums []int, startIndex int) {
+	var backtrack func(nums []int, startIndex int)
+	backtrack = func(nums []int, startIndex int) {
 		if len(path) > 1 {
-			tmp := make([]int, len(path))
-			copy(tmp, path)
-			results = append(results, tmp) // 注意这里没有return，因为找到一个子序列，还能继续往树的下一层找更长的子序列
+			results = append(results, append([]int{}, path...)) // 注意这里没有return，因为找到一个子序列，还能继续往树的下一层找更长的子序列
 		}
 		uset := make(map[int]bool) // 同层去重
 		for i := startIndex; i < len(nums); i++ {
@@ -402,75 +404,11 @@ func findSubsequences(nums []int) [][]int {
 			}
 			path = append(path, nums[i])
 			uset[nums[i]] = true
-			dfs(nums, i+1)
+			backtrack(nums, i+1)
 			path = path[:len(path)-1]
 		}
 	}
-	dfs(nums, 0)
-	return results
-}
-
-// 46.全排列
-// https://leetcode.cn/problems/permutations/description/
-func permute(nums []int) [][]int {
-	var results [][]int
-	var path []int
-	used := make([]bool, len(nums))
-	var dfs func(nums []int)
-	dfs = func(nums []int) {
-		if len(path) == len(nums) {
-			tmp := make([]int, len(path))
-			copy(tmp, path)
-			results = append(results, tmp)
-			return
-		}
-		for i := 0; i < len(nums); i++ {
-			if used[i] {
-				continue
-			}
-			used[i] = true
-			path = append(path, nums[i])
-			dfs(nums)
-			path = path[:len(path)-1]
-			used[i] = false
-		}
-	}
-	dfs(nums)
-	return results
-}
-
-// 47. 全排列 II
-// https://leetcode.cn/problems/permutations-ii/description/
-// 输入：nums = [1,1,2]
-// 输出：[[1,1,2],[1,2,1],[2,1,1]]
-func permuteUnique(nums []int) [][]int {
-	var results [][]int
-	var path []int
-	sort.Ints(nums)
-	used := make([]bool, len(nums))
-	var dfs func(nums []int)
-	dfs = func(nums []int) {
-		if len(path) == len(nums) {
-			tmp := make([]int, len(path))
-			copy(tmp, path)
-			results = append(results, tmp)
-			return
-		}
-		for i := 0; i < len(nums); i++ {
-			if i > 0 && nums[i-1] == nums[i] && !used[i-1] {
-				continue // 树层去重复
-			}
-			if used[i] {
-				continue
-			}
-			used[i] = true
-			path = append(path, nums[i])
-			dfs(nums)
-			path = path[:len(path)-1]
-			used[i] = false
-		}
-	}
-	dfs(nums)
+	backtrack(nums, 0)
 	return results
 }
 
