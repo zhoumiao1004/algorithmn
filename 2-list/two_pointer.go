@@ -258,5 +258,4 @@ func getIntersectionNode2(headA, headB *ListNode) *ListNode {
 }
 
 func main() {
-	fmt.Println(kthSmallest([][]int{[]int{1, 5, 9}, []int{10, 11, 13}, []int{12, 13, 15}}, 8))
 }

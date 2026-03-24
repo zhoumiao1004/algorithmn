@@ -1,6 +1,9 @@
 package main
 
-import "container/heap"
+import (
+	"container/heap"
+	"fmt"
+)
 
 // 23.合并 k 个有序链表
 // https://leetcode.cn/problems/merge-k-sorted-lists/
@@ -147,4 +150,8 @@ func (h *IntHeap2) Pop() interface{} {
 	x := old[n-1]
 	*h = old[0 : n-1]
 	return x
+}
+
+func main() {
+	fmt.Println(kthSmallest([][]int{[]int{1, 5, 9}, []int{10, 11, 13}, []int{12, 13, 15}}, 8))
 }

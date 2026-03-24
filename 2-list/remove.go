@@ -9,6 +9,41 @@ type ListNode struct {
 	Next *ListNode
 }
 
+// 27. 移除元素
+// https://leetcode.cn/problems/remove-element/description/
+// nums = [3,2,2,3], val = 3
+// 输出: 2, nums = [2,2,_,_]
+// 注意：和26题有序数组去重的解法有一个细节差异，我们这里是先给 nums[slow] 赋值然后再给 slow++，这样可以保证 nums[0..slow-1] 是不包含值为 val 的元素的，最后的结果数组长度就是 slow。
+func removeElement(nums []int, val int) int {
+	left := 0 // 维护 nums[0..slow] 左开右闭，为不包含val元素的结果子数组
+	for right := 0; right < len(nums); right++ {
+		if nums[right] != val {
+			nums[left] = nums[right]
+			left++
+		}
+	}
+	return left
+}
+
+// 283. 移动零
+// https://leetcode.cn/problems/move-zeroes/description/
+// 给定一个数组 nums，编写一个函数将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。
+// 请注意 ，必须在不复制数组的情况下原地对数组进行操作。
+// 输入: nums = [0,1,0,3,12]
+// 输出: [1,3,12,0,0]
+func moveZeroes(nums []int) {
+	left := 0 // 维护 nums[0..slow] 左开右闭，为不包含0的结果子数组
+	for i := 0; i < len(nums); i++ {
+		if nums[i] != 0 {
+			nums[left] = nums[i]
+			left++
+		}
+	}
+	for ; left < len(nums); left++ {
+		nums[left] = 0
+	}
+}
+
 // 26. 删除有序数组中的重复项
 // https://leetcode.cn/problems/remove-duplicates-from-sorted-array/description/
 // 给你一个 非严格递增排列 的数组 nums ，请你 原地 删除重复出现的元素，使每个元素 只出现一次 ，返回删除后数组的新长度。元素的 相对顺序 应该保持 一致 。然后返回 nums 中唯一元素的个数。
@@ -17,13 +52,15 @@ type ListNode struct {
 // 输入：nums = [1,1,2]
 // 输出：2, nums = [1,2,_]
 // 解释：函数应该返回新的长度 2 ，并且原数组 nums 的前两个元素被修改为 1, 2 。不需要考虑数组中超出新长度后面的元素。
+// 快慢指针，注意：和27移除元素的区别，本题要求移除多余重复的元素
 func removeDuplicates(nums []int) int {
 	if len(nums) == 0 {
 		return 0
 	}
-	slow, fast := 0, 0
+	slow, fast := 0, 0 // 维护 nums[0..slow] 左闭右闭，为不包含重复元素的结果子数组
 	for fast < len(nums) {
-		if nums[fast] != nums[slow] {
+		if nums[fast] != nums[slow] { // 发现fast是一个新的无重复元素
+			// slow把fast的值复制过来
 			slow++
 			nums[slow] = nums[fast]
 		}
@@ -39,7 +76,38 @@ func removeDuplicates(nums []int) int {
 // 输入：nums = [1,1,1,2,2,3]
 // 输出：5, nums = [1,1,2,2,3]
 // 解释：函数应返回新长度 length = 5, 并且原数组的前五个元素被修改为 1, 1, 2, 2, 3。 不需要考虑数组中超出新长度后面的元素。
-func removeDuplicates2(nums []int) int {
+// 思路1:快慢指针
+func removeDuplicatesII2(nums []int) int {
+	if len(nums) == 0 {
+		return 0
+	}
+	// 快慢指针，维护 nums[0..slow] 左闭右闭，为结果子数组
+	slow, fast := 0, 0
+	// 记录一个元素重复的次数
+	count := 0
+	for fast < len(nums) {
+		if nums[fast] != nums[slow] {
+			// 此时，对于 nums[0..slow] 来说，nums[fast] 是一个新的元素，加进来
+			slow++
+			nums[slow] = nums[fast]
+		} else if slow < fast && count < 2 {
+			// 此时，对于 nums[0..slow] 来说，nums[fast] 重复次数小于 2，也加进来
+			slow++
+			nums[slow] = nums[fast]
+		}
+		fast++
+		count++
+		if fast < len(nums) && nums[fast] != nums[fast-1] {
+			// fast 遇到新的不同的元素时，重置 count
+			count = 0
+		}
+	}
+	// 数组长度为索引 + 1
+	return slow + 1
+}
+
+// 思路2
+func removeDuplicatesII(nums []int) int {
 	n := len(nums)
 	if n < 2 {
 		return n
@@ -128,104 +196,6 @@ func deleteDuplicatesII2(head *ListNode) *ListNode {
 	return dummy.Next
 }
 
-// 27. 移除元素
-// https://leetcode.cn/problems/remove-element/description/
-// nums = [3,2,2,3], val = 3
-// 输出: 2, nums = [2,2,_,_]
-func removeElement(nums []int, val int) int {
-	left := 0
-	for right := 0; right < len(nums); right++ {
-		if nums[right] != val {
-			nums[left] = nums[right]
-			left++
-		}
-	}
-	return left
-}
-
-// 283. 移动零
-// https://leetcode.cn/problems/move-zeroes/description/
-// 给定一个数组 nums，编写一个函数将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。
-// 请注意 ，必须在不复制数组的情况下原地对数组进行操作。
-// 输入: nums = [0,1,0,3,12]
-// 输出: [1,3,12,0,0]
-func moveZeroes(nums []int) {
-	left := 0
-	for i := 0; i < len(nums); i++ {
-		if nums[i] != 0 {
-			nums[left] = nums[i]
-			left++
-		}
-	}
-	for ; left < len(nums); left++ {
-		nums[left] = 0
-	}
-}
-
-// 快慢指针
-func removeDuplicates3(nums []int) int {
-	if len(nums) == 0 {
-		return 0
-	}
-	// 快慢指针，维护 nums[0..slow] 为结果子数组
-	slow, fast := 0, 0
-	// 记录一个元素重复的次数
-	count := 0
-	for fast < len(nums) {
-		if nums[fast] != nums[slow] {
-			// 此时，对于 nums[0..slow] 来说，nums[fast] 是一个新的元素，加进来
-			slow++
-			nums[slow] = nums[fast]
-		} else if slow < fast && count < 2 {
-			// 此时，对于 nums[0..slow] 来说，nums[fast] 重复次数小于 2，也加进来
-			slow++
-			nums[slow] = nums[fast]
-		}
-		fast++
-		count++
-		if fast < len(nums) && nums[fast] != nums[fast-1] {
-			// fast 遇到新的不同的元素时，重置 count
-			count = 0
-		}
-	}
-	// 数组长度为索引 + 1
-	return slow + 1
-}
-
-// 125. 验证回文串
-// https://leetcode.cn/problems/valid-palindrome/description/
-// 如果在将所有大写字符转换为小写字符、并移除所有非字母数字字符之后，短语正着读和反着读都一样。则可以认为该短语是一个 回文串 。
-// 字母和数字都属于字母数字字符。
-// 给你一个字符串 s，如果它是 回文串 ，返回 true ；否则，返回 false 。
-// 输入: s = "A man, a plan, a canal: Panama"
-// 输出：true
-// 解释："amanaplanacanalpanama" 是回文串。
-func isPalindrome(s string) bool {
-	bs := []byte(s)
-	// 保留小写字母
-	slow := 0
-	for i := 0; i < len(bs); i++ {
-		c := s[i]
-		if (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') {
-			bs[slow] = c
-			slow++
-		} else if c >= 'A' && c <= 'Z' {
-			bs[slow] = c - 'A' + 'a'
-			slow++
-		}
-	}
-	fmt.Println(string(bs[:slow]))
-	left, right := 0, slow-1
-	for left < right {
-		if bs[left] != bs[right] {
-			return false
-		}
-		left++
-		right--
-	}
-	return true
-}
-
 // 75. 颜色分类
 // https://leetcode.cn/problems/sort-colors/
 // 给定一个包含红色、白色和蓝色、共 n 个元素的数组 nums ，原地 对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。
@@ -302,7 +272,6 @@ func sortedSquares(nums []int) []int {
 }
 
 func main() {
-	fmt.Println(isPalindrome("A man, a plan, a canal: Panama"))
 	nums := []int{2, 0, 2, 1, 1, 0}
 	sortColors(nums)
 	fmt.Println(nums)

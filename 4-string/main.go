@@ -56,6 +56,40 @@ func longestPalindrome(s string) string {
 	return res
 }
 
+// 125. 验证回文串
+// https://leetcode.cn/problems/valid-palindrome/description/
+// 如果在将所有大写字符转换为小写字符、并移除所有非字母数字字符之后，短语正着读和反着读都一样。则可以认为该短语是一个 回文串 。
+// 字母和数字都属于字母数字字符。
+// 给你一个字符串 s，如果它是 回文串 ，返回 true ；否则，返回 false 。
+// 输入: s = "A man, a plan, a canal: Panama"
+// 输出：true
+// 解释："amanaplanacanalpanama" 是回文串。
+func isPalindrome(s string) bool {
+	bs := []byte(s)
+	// 保留小写字母
+	slow := 0
+	for i := 0; i < len(bs); i++ {
+		c := s[i]
+		if (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') {
+			bs[slow] = c
+			slow++
+		} else if c >= 'A' && c <= 'Z' {
+			bs[slow] = c - 'A' + 'a'
+			slow++
+		}
+	}
+	// fmt.Println(string(bs[:slow]))
+	left, right := 0, slow-1
+	for left < right {
+		if bs[left] != bs[right] {
+			return false
+		}
+		left++
+		right--
+	}
+	return true
+}
+
 // 541. 反转字符串 II
 // https://leetcode.cn/problems/reverse-string-ii/description/
 // 给定一个字符串 s 和一个整数 k，从字符串开头算起，每计数至 2k 个字符，就反转这 2k 字符中的前 k 个字符。
@@ -271,6 +305,8 @@ func backspaceCompare(s string, t string) bool {
 }
 
 func main() {
+	fmt.Println(isPalindrome("A man, a plan, a canal: Panama"))
+
 	s := "the sky is blue"
 	fmt.Println(reverseWords(s))
 

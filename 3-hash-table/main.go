@@ -376,6 +376,27 @@ func containsNearbyDuplicate(nums []int, k int) bool {
 	return false
 }
 
+// 442. 数组中重复的数据
+// https://leetcode.cn/problems/find-all-duplicates-in-an-array/description/
+// 给你一个长度为 n 的整数数组 nums ，其中 nums 的所有整数都在范围 [1, n] 内，且每个整数出现 最多两次 。请你找出所有出现 两次 的整数，并以数组形式返回。
+// 你必须设计并实现一个时间复杂度为 O(n) 且仅使用常量额外空间（不包括存储输出所需的空间）的算法解决此问题。
+// 输入：nums = [4,3,2,7,8,2,3,1]
+// 输出：[2,3]
+// 注：1 <= nums[i] <= n
+func findDuplicates(nums []int) []int {
+	var result []int
+	n := len(nums)
+	hash := make([]bool, n+1)
+	for _, val := range nums {
+		if hash[val] {
+			result = append(result, val)
+			continue
+		}
+		hash[val] = true
+	}
+	return result
+}
+
 func main() {
 	nums := []int{-1, 0, 1, 2, -1, -4}
 	fmt.Println(threeSum(nums))
