@@ -20,6 +20,8 @@ type ListNode struct {
 // 21. 合并两个有序链表
 // https://leetcode.cn/problems/merge-two-sorted-lists/
 // 将两个升序链表合并为一个新的 升序 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。
+// 输入：l1 = [1,2,4], l2 = [1,3,4]
+// 输出：[1,1,2,3,4,4]
 func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
 	var dummy *ListNode
 	cur := dummy
@@ -53,6 +55,7 @@ func partition(head *ListNode, x int) *ListNode {
 	p1, p2 := dummy1, dummy2
 	cur := head
 	for cur != nil {
+		next := cur.Next // 记录下个需要遍历的节点，防止丢失
 		if cur.Val < x {
 			p1.Next = cur
 			p1 = p1.Next
@@ -60,8 +63,7 @@ func partition(head *ListNode, x int) *ListNode {
 			p2.Next = cur
 			p2 = p2.Next
 		}
-		next := cur.Next
-		cur.Next = nil
+		cur.Next = nil // 修改节点的指针，断掉和原链表的联系，节点加入p1/p2中
 		cur = next
 	}
 	p1.Next = dummy2.Next
@@ -74,16 +76,69 @@ func kthToLast(head *ListNode, k int) int {
 	if head == nil {
 		return 0
 	}
-	p1 := head
+	// fast先走k步
+	fast := head
 	for i := 0; i < k; i++ {
-		p1 = p1.Next
+		fast = fast.Next
 	}
-	p2 := head
-	for p1 != nil {
-		p1 = p1.Next
-		p2 = p2.Next
+	// slow 和 fast 同时走 n - k 步
+	slow := head
+	for fast != nil {
+		fast = fast.Next
+		slow = slow.Next
 	}
-	return p2.Val
+	return slow.Val
+}
+
+// 19.删除链表的倒数第N个节点
+// https://leetcode.cn/problems/remove-nth-node-from-end-of-list/description/
+// 输入：head = [1,2,3,4,5], n = 2
+// 输出：[1,2,3,5]
+func removeNthFromEnd(head *ListNode, n int) *ListNode {
+	if head == nil {
+		return head
+	}
+	dummy := &ListNode{Next: head}
+	slow := dummy
+	fast := dummy
+	for i := 0; i < n; i++ {
+		fast = fast.Next
+	}
+	for fast.Next != nil {
+		slow = slow.Next
+		fast = fast.Next
+	}
+	slow.Next = slow.Next.Next
+	return dummy.Next
+}
+
+// 思路2: 删除倒数第 n 个，要先找倒数第 n + 1 个节点（要删除节点前面一个节点）
+func removeNthFromEnd2(head *ListNode, n int) *ListNode {
+	if head == nil {
+		return nil
+	}
+	dummy := &ListNode{Next: head} // 前面加一个dummy节点
+	node := findFromLast(dummy, n+1)
+	node.Next = node.Next.Next
+	return dummy.Next
+}
+
+func findFromLast(head *ListNode, k int) *ListNode {
+	if head == nil {
+		return nil
+	}
+	// fast先走k步
+	fast := head
+	for i := 0; i < k; i++ {
+		fast = fast.Next
+	}
+	// slow 和 fast 同时走 n - k 步
+	slow := head
+	for fast != nil {
+		fast = fast.Next
+		slow = slow.Next
+	}
+	return slow
 }
 
 // LCR 140. 训练计划 II

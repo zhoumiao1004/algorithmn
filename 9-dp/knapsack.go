@@ -361,3 +361,14 @@ func climbStairsN(n, m int) int {
 	fmt.Println(dp)
 	return dp[n]
 }
+
+func main() {
+	fmt.Println(change(5, []int{1, 2, 5}))
+	fmt.Println(findTargetSumWays([]int{1, 1, 1, 1, 1}, 3))
+	fmt.Println(coinChange([]int{1, 2, 5}, 11))
+	fmt.Println(coinChange([]int{2}, 3))
+	fmt.Println(numSquares(13))
+
+	fmt.Println(wordBreak("leetcode", []string{"leet", "code"}))
+	fmt.Println(wordBreak("applepenapple", []string{"apple", "pen"}))
+}

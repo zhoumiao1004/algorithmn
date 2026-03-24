@@ -192,3 +192,8 @@ func minDistanceMemo(word1 string, word2 string) int {
 	}
 	return dp(len(word1)-1, len(word2)-1)
 }
+
+func main() {
+	fmt.Println(numDistinct("babgbag", "bag"))
+	// fmt.Println(minDistance("horse", "ros"))
+}

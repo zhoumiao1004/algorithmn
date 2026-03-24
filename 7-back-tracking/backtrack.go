@@ -315,7 +315,7 @@ func getMaximumGold(grid [][]int) int {
 // 解释：s 可以拆分为 ["05", "004", "3"] ，对应数值为 [5,4,3] 。
 // 满足按降序排列，且相邻值相差 1 。
 func splitString(s string) bool {
-
+	return false
 }
 
 func main() {

@@ -389,3 +389,15 @@ func longestCommonPrefix(strs []string) string {
 	}
 	return strs[0][:left]
 }
+
+func main() {
+	fmt.Println(matrixReshape([][]int{[]int{1, 2}, []int{3, 4}}, 4, 1))
+	fmt.Println(searchMatrix([][]int{
+		{1, 3, 5, 7},
+		{10, 11, 16, 20},
+		{23, 30, 34, 60}}, 11))
+	fmt.Println(searchMatrix([][]int{
+		{1}}, 1))
+	fmt.Println(searchMatrix([][]int{
+		{1}, {3}}, 3))
+}

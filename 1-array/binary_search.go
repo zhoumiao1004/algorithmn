@@ -2,6 +2,209 @@ package main
 
 import "fmt"
 
+// 704. 二分查找
+// 本质：通过收缩左右边界，缩小搜索范围
+// https://leetcode.cn/problems/binary-search/description/
+// 输入: nums = [-1,0,3,5,9,12], target = 9 输出: 4
+// 解释: 9 出现在 nums 中并且下标为 4
+func search(nums []int, target int) int {
+	left, right := 0, len(nums)-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if nums[mid] == target {
+			return mid
+		} else if nums[mid] < target {
+			left = mid + 1
+		} else {
+			right = mid - 1
+		}
+	}
+	return -1
+}
+
+// LCR 172. 统计目标成绩的出现次数
+// https://leetcode.cn/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/description/
+// 某班级考试成绩按非严格递增顺序记录于整数数组 scores，请返回目标成绩 target 的出现次数。
+// 输入: scores = [2, 2, 3, 4, 4, 4, 5, 6, 6, 8], target = 4
+// 输出: 3
+func countTarget(scores []int, target int) int {
+	n := len(scores)
+	left := getLeft(scores, target)
+	right := getRight(scores, target)
+	if left < 0 || right > n-1 {
+		return 0
+	}
+	return right - left + 1
+}
+
+// 34. 在排序数组中查找元素的第一个和最后一个位置
+// https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/description/
+// 给你一个按照非递减顺序排列的整数数组 nums，和一个目标值 target。请你找出给定目标值在数组中的开始位置和结束位置。
+// 如果数组中不存在目标值 target，返回 [-1, -1]。
+// 你必须设计并实现时间复杂度为 O(log n) 的算法解决此问题。
+// 输入：nums = [5,7,7,8,8,10], target = 8
+// 输出：[3,4]
+func searchRange(nums []int, target int) []int {
+	if len(nums) == 0 {
+		return []int{-1, -1}
+	}
+	left := getLeft(nums, target)
+	right := getRight(nums, target)
+	if left < 0 || left > len(nums)-1 || right < 0 || right > len(nums)-1 {
+		return []int{-1, -1}
+	}
+	if nums[left] != target || nums[right] != target {
+		return []int{-1, -1}
+	}
+	return []int{left, right}
+}
+
+func getLeft(nums []int, target int) int {
+	left, right := 0, len(nums)-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if nums[mid] < target {
+			left = mid + 1
+		} else if nums[mid] > target {
+			right = mid - 1
+		} else if nums[mid] == target {
+			right = mid - 1
+		}
+	}
+	return left
+}
+
+func getRight(nums []int, target int) int {
+	left, right := 0, len(nums)-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if nums[mid] < target {
+			left = mid + 1
+		} else if nums[mid] > target {
+			right = mid - 1
+		} else if nums[mid] == target {
+			left = mid + 1
+		}
+	}
+	return right
+}
+
+// 35. 搜索插入位置
+// https://leetcode.cn/problems/search-insert-position/description/
+// 给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置。
+// 请必须使用时间复杂度为 O(log n) 的算法。
+// 输入: nums = [1,3,5,6], target = 2
+// 输出: 1
+// 输入: nums = [1,3,5,6], target = 5
+// 输出: 2
+func searchInsert(nums []int, target int) int {
+	left, right := 0, len(nums)-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if nums[mid] > target {
+			right = mid - 1
+		} else if nums[mid] < target {
+			left = mid + 1
+		} else if nums[mid] == target {
+			// 收缩右边界
+			right = mid - 1
+		}
+	}
+	// right指向第一个小于的位置，left指向后一个位置
+	// return right + 1
+	return left
+}
+
+// 875. 爱吃香蕉的珂珂
+// 珂珂喜欢吃香蕉。这里有 n 堆香蕉，第 i 堆中有 piles[i] 根香蕉。警卫已经离开了，将在 h 小时后回来。
+// 珂珂可以决定她吃香蕉的速度 k （单位：根/小时）。每个小时，她将会选择一堆香蕉，从中吃掉 k 根。如果这堆香蕉少于 k 根，她将吃掉这堆的所有香蕉，然后这一小时内不会再吃更多的香蕉。
+// 珂珂喜欢慢慢吃，但仍然想在警卫回来前吃掉所有的香蕉。
+// 返回她可以在 h 小时内吃掉所有香蕉的最小速度 k（k 为整数）。
+// 输入：piles = [3,6,7,11], h = 8
+// 输出：4
+// 输入：piles = [30,11,23,4,20], h = 5
+// 输出：30
+func minEatingSpeed(piles []int, h int) int {
+	// 速度为x，需要f(x)小时吃完
+	var f func(piles []int, x int) int
+	f = func(piles []int, x int) int {
+		hours := 0
+		for i := 0; i < len(piles); i++ {
+			hours += piles[i] / x
+			if piles[i]%x > 0 {
+				hours++
+			}
+		}
+		return hours
+	}
+	left, right := 1, 1000000000+1
+	for left <= right {
+		mid := left + (right-left)/2
+		if f(piles, mid) == h {
+			// 搜索左侧边界，就要收缩右侧边界
+			right = mid - 1
+		} else if f(piles, mid) < h {
+			// mid速度快了导致需要的时间小于h，需要让f(x）返回大一点，速度mid要降低，所以收缩右边界
+			right = mid - 1
+		} else if f(piles, mid) > h {
+			left = mid + 1
+		}
+	}
+	return left
+}
+
+// 1011. 在 D 天内送达包裹的能力
+// https://leetcode.cn/problems/capacity-to-ship-packages-within-d-days/description/
+// 传送带上的包裹必须在 days 天内从一个港口运送到另一个港口。
+// 传送带上的第 i 个包裹的重量为 weights[i]。每一天，我们都会按给出重量（weights）的顺序往传送带上装载包裹。我们装载的重量不会超过船的最大运载重量。
+// 返回能在 days 天内将传送带上的所有包裹送达的船的最低运载能力。
+// 输入：weights = [1,2,3,4,5,6,7,8,9,10], days = 5
+// 输出：15
+// 解释：船舶最低载重 15 就能够在 5 天内送达所有包裹，如下所示：
+// 第 1 天：1, 2, 3, 4, 5
+// 第 2 天：6, 7
+// 第 3 天：8
+// 第 4 天：9
+// 第 5 天：10
+func shipWithinDays(weights []int, days int) int {
+	// 运载能力为x，需要x天运完货物
+	var leastDays func(weights []int, x int) int
+	leastDays = func(weights []int, x int) int {
+		days := 1
+		s := 0
+		for i := 0; i < len(weights); i++ {
+			if s+weights[i] > x {
+				days++
+				s = weights[i]
+			} else {
+				s += weights[i]
+			}
+		}
+		return days
+	}
+	// left, right := 1, 500*5*10000+1
+	left, right := 0, 1
+	for _, w := range weights {
+		if left < w {
+			left = w
+		}
+		right += w
+	}
+	for left <= right {
+		mid := left + (right-left)/2
+		if leastDays(weights, mid) == days {
+			// 寻找左边界，所以要收缩右边界
+			right = mid - 1
+		} else if leastDays(weights, mid) < days {
+			// 速度mid快了
+			right = mid - 1
+		} else if leastDays(weights, mid) > days {
+			left = mid + 1
+		}
+	}
+	return left
+}
+
 /*
 392. 判断子序列
 https://leetcode.cn/problems/is-subsequence/
@@ -335,6 +538,36 @@ func findMin(nums []int) int {
 	return nums[left]
 }
 
+// 167. 两数之和 II - 输入有序数组
+// https://leetcode.cn/problems/two-sum-ii-input-array-is-sorted/
+// 给你一个下标从 1 开始的整数数组 numbers ，该数组已按 非递减顺序排列  ，请你从数组中找出满足相加之和等于目标数 target 的两个数。如果设这两个数分别是 numbers[index1] 和 numbers[index2] ，则 1 <= index1 < index2 <= numbers.length 。
+// 以长度为 2 的整数数组 [index1, index2] 的形式返回这两个整数的下标 index1 和 index2。
+// 你可以假设每个输入 只对应唯一的答案 ，而且你 不可以 重复使用相同的元素。
+// 你所设计的解决方案必须只使用常量级的额外空间。
+// 输入：numbers = [2,7,11,15], target = 9
+// 输出：[1,2]
+// 解释：2 与 7 之和等于目标数 9 。因此 index1 = 1, index2 = 2 。返回 [1, 2] 。
+func twoSum(numbers []int, target int) []int {
+	left, right := 0, len(numbers)-1
+	for left < right {
+		sum := numbers[left] + numbers[right]
+		if sum == target {
+			return []int{left + 1, right + 1}
+		} else if sum < target {
+			left++
+		} else if sum > target {
+			right--
+		}
+	}
+	return []int{-1, -1}
+}
+
 func main() {
-	fmt.Println(matrixReshape([][]int{[]int{1, 2}, []int{3, 4}}, 4, 1))
+	fmt.Println(searchInsert([]int{1, 3, 5, 6}, 2))       // 1
+	fmt.Println(searchInsert([]int{1, 3, 5, 6}, 5))       // 2
+	fmt.Println(findMin([]int{3, 4, 5, 1, 2}))            // 1
+	fmt.Println(findMin([]int{4, 5, 6, 7, 0, 1, 2}))      // 0
+	fmt.Println(findMin([]int{11, 13, 15, 17}))           // 11
+	fmt.Println(search2([]int{4, 5, 6, 7, 0, 1, 2}, 0))   // 4
+	fmt.Println(searchRange([]int{5, 7, 7, 8, 8, 10}, 8)) // 3,4
 }

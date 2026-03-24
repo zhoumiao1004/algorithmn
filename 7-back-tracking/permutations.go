@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/base32"
+	"fmt"
 	"sort"
 )
 
@@ -68,7 +68,7 @@ func permute3(nums []int) [][]int {
 		}
 		originalIndex := -1
 		swapIndex := -1
-		for i := 0; i<len(nums); i++ {
+		for i := 0; i < len(nums); i++ {
 			if used[i] {
 				continue
 			}
@@ -77,14 +77,14 @@ func permute3(nums []int) [][]int {
 			}
 			swapIndex = i
 			// 做选择，元素 nums[originalIndex] 选择 swapIndex 位置
-			nums[originalIndex], nums[swapIndex] =  nums[swapIndex], nums[originalIndex]
+			nums[originalIndex], nums[swapIndex] = nums[swapIndex], nums[originalIndex]
 			used[swapIndex] = true
 			count++
 			backtrack(nums)
 			// 撤销选择
 			count--
 			used[swapIndex] = false
-			nums[originalIndex], nums[swapIndex] =  nums[swapIndex], nums[originalIndex]
+			nums[originalIndex], nums[swapIndex] = nums[swapIndex], nums[originalIndex]
 		}
 	}
 	backtrack(nums)
@@ -123,4 +123,9 @@ func permuteUnique(nums []int) [][]int {
 	}
 	dfs(nums)
 	return results
+}
+
+func main() {
+	fmt.Println(permute([]int{1, 2, 3}))
+	fmt.Println(permuteUnique([]int{1, 1, 2}))
 }

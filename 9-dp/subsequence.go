@@ -543,4 +543,15 @@ func main() {
 	fmt.Println(findNumberOfLIS2([]int{2, 2, 2, 2, 2}))         // 5
 	fmt.Println(longestPalindrome("babad"))                     // bab
 	fmt.Println(longestPalindrome2("babad"))                    // bab
+	//输入：s = "abc", t = "ahbgdc"
+	//输出：true
+	//[0 0 0 0 0 0 0]
+	//[0 1 1 1 1 1 1]
+	//[0 0 0 2 2 2 2]
+	//[0 0 0 0 0 0 3]
+	fmt.Println(isSubsequence("abc", "ahbgdc"))
+	nums := []int{-2, 1, -3, 4, -1, 2, 1, -5, 4}
+	// nums := []int{-1}
+	fmt.Println(maxSubArray(nums))                        // 6 连续子数组 [4,-1,2,1] 的和最大，为 6 。
+	fmt.Println(longestCommonSubsequence("abced", "ace")) // 3
 }

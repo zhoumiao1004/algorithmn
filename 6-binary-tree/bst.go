@@ -508,7 +508,7 @@ func sortedListToBST(head *ListNode) *TreeNode {
 // 输出
 // [null, 3, 7, true, 9, true, 15, true, 20, false]
 type BSTIterator struct {
-    st []*TreeNode
+	st []*TreeNode
 }
 
 func Constructor(root *TreeNode) BSTIterator {
