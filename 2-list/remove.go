@@ -44,6 +44,47 @@ func moveZeroes(nums []int) {
 	}
 }
 
+// 203.移除链表元素
+// https://leetcode.cn/problems/remove-linked-list-elements/description/
+// 输入：head = [1,2,6,3,4,5,6], val = 6
+// 输出：[1,2,3,4,5]
+func removeElements(head *ListNode, val int) *ListNode {
+	if head == nil {
+		return nil
+	}
+	dummy := &ListNode{Next: head}
+	slow := dummy
+	fast := head
+	for fast != nil {
+		if fast.Val != val {
+			fast = fast.Next
+			slow = slow.Next
+		} else {
+			for fast != nil && fast.Val == val {
+				fast = fast.Next
+			}
+			slow.Next = fast
+		}
+	}
+	return dummy.Next
+}
+
+// 更简明的方法
+func removeElements2(head *ListNode, val int) *ListNode {
+	dummy := &ListNode{Next: head}
+	cur := dummy
+	for cur.Next != nil {
+		if cur.Next.Val != val {
+			cur = cur.Next
+		} else {
+			for cur.Next != nil && cur.Next.Val == val {
+				cur.Next = cur.Next.Next
+			}
+		}
+	}
+	return dummy.Next
+}
+
 // 26. 删除有序数组中的重复项
 // https://leetcode.cn/problems/remove-duplicates-from-sorted-array/description/
 // 给你一个 非严格递增排列 的数组 nums ，请你 原地 删除重复出现的元素，使每个元素 只出现一次 ，返回删除后数组的新长度。元素的 相对顺序 应该保持 一致 。然后返回 nums 中唯一元素的个数。

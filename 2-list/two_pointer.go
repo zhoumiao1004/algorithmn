@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 type ListNode struct {
 	Val  int
 	Next *ListNode
@@ -235,8 +231,9 @@ func detectCycle(head *ListNode) *ListNode {
 
 // 160. 两个链表是否相交
 // https://leetcode.cn/problems/intersection-of-two-linked-lists/
+// 和面试题 02.07. 链表相交相同：https://leetcode.cn/problems/intersection-of-two-linked-lists-lcci/description/
 // 给你两个单链表的头节点 headA 和 headB ，请你找出并返回两个单链表相交的起始节点。如果两个链表不存在相交节点，返回 null 。
-func getIntersectionNode2(headA, headB *ListNode) *ListNode {
+func getIntersectionNode(headA, headB *ListNode) *ListNode {
 	p1, p2 := headA, headB
 	if p1 == nil || p2 == nil {
 		return nil

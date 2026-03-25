@@ -100,47 +100,6 @@ func (l *MyLinkedList) DeleteAtIndex(index int) {
 	l.Size--
 }
 
-// 203.移除链表元素
-// https://leetcode.cn/problems/remove-linked-list-elements/description/
-// 输入：head = [1,2,6,3,4,5,6], val = 6
-// 输出：[1,2,3,4,5]
-func removeElements(head *ListNode, val int) *ListNode {
-	if head == nil {
-		return nil
-	}
-	dummy := &ListNode{Next: head}
-	slow := dummy
-	fast := head
-	for fast != nil {
-		if fast.Val != val {
-			fast = fast.Next
-			slow = slow.Next
-		} else {
-			for fast != nil && fast.Val == val {
-				fast = fast.Next
-			}
-			slow.Next = fast
-		}
-	}
-	return dummy.Next
-}
-
-// 更简明的方法
-func removeElements2(head *ListNode, val int) *ListNode {
-	dummy := &ListNode{Next: head}
-	cur := dummy
-	for cur.Next != nil {
-		if cur.Next.Val != val {
-			cur = cur.Next
-		} else {
-			for cur.Next != nil && cur.Next.Val == val {
-				cur.Next = cur.Next.Next
-			}
-		}
-	}
-	return dummy.Next
-}
-
 // 24. 两两交换链表中的节点
 // https://leetcode.cn/problems/swap-nodes-in-pairs/description/
 func swapPairs(head *ListNode) *ListNode {
@@ -151,29 +110,6 @@ func swapPairs(head *ListNode) *ListNode {
 	head.Next = swapPairs(head.Next.Next)
 	next.Next = head
 	return next
-}
-
-// 面试题 02.07. 链表相交
-// https://leetcode.cn/problems/intersection-of-two-linked-lists-lcci/description/
-func getIntersectionNode(headA, headB *ListNode) *ListNode {
-	if headA == nil || headB == nil {
-		return nil
-	}
-	p1, p2 := headA, headB
-	for p1 != nil || p2 != nil {
-		if p1 == nil {
-			p1 = headB
-		}
-		if p2 == nil {
-			p2 = headA
-		}
-		if p1 == p2 {
-			return p1
-		}
-		p1 = p1.Next
-		p2 = p2.Next
-	}
-	return nil
 }
 
 // 234. 回文链表
