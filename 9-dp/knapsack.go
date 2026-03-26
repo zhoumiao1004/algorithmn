@@ -315,34 +315,6 @@ func numSquares(n int) int {
 	return dp[n]
 }
 
-// 139.单词拆分
-// https://leetcode.cn/problems/word-break/
-// 输入: s = "leetcode", wordDict = ["leet", "code"] 输出: true
-// 解释: 返回 true 因为 "leetcode" 可以被拆分成 "leet code"。
-// 注意：单词放入是有顺序的，所以是排列问题，不能求组合
-func wordBreak(s string, wordDict []string) bool {
-	// dp[j]含义：[0,j)范围的子串，能否由字典里的单词组成
-	// 用集合中的物品，装大小为j的背包
-	// if dp[i] = true && [i,j]区间内的字符串在字典中 : dp[j] = true
-	// 遍历顺序：求排列，先遍历背包再遍历物品
-	wordMap := make(map[string]bool)
-	for _, w := range wordDict {
-		wordMap[w] = true
-	}
-	n := len(s)
-	dp := make([]bool, n+1)
-	dp[0] = true
-	for j := 1; j <= n; j++ { // 背包
-		for i := 0; i <= j; i++ { // 物品
-			if dp[i] && wordMap[s[i:j]] {
-				dp[j] = true
-			}
-		}
-	}
-	// fmt.Println(dp)
-	return dp[n]
-}
-
 // 每次可以爬 1 、 2、.....、m 个台阶。问有多少种不同的方法可以爬到楼顶呢？
 // 转换为完全背包问题：装满大小为n的背包。可以装1/2/3/4...m,有几种方式
 // 递推公式：dp[j] += dp[j-i]

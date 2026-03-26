@@ -9,7 +9,7 @@ import (
 // https://leetcode.cn/problems/subsets/description/
 // 输入：nums = [1,2,3]
 // 输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
-// 可以取0-3个
+
 // 思路1:盒(桶)的视角选球
 func subsets(nums []int) [][]int {
 	var results [][]int
@@ -59,8 +59,8 @@ func subsetsWithDup(nums []int) [][]int {
 	var path []int
 	sort.Ints(nums)
 	used := make([]bool, len(nums))
-	var dfs func(nums []int, startIndex int)
-	dfs = func(nums []int, startIndes int) {
+	var backtrack func(nums []int, startIndex int)
+	backtrack = func(nums []int, startIndes int) {
 		results = append(results, append([]int{}, path...))
 		for i := startIndes; i < len(nums); i++ {
 			if i > 0 && nums[i-1] == nums[i] && !used[i-1] {
@@ -68,12 +68,12 @@ func subsetsWithDup(nums []int) [][]int {
 			}
 			path = append(path, nums[i])
 			used[i] = true
-			dfs(nums, i+1)
+			backtrack(nums, i+1)
 			used[i] = false
 			path = path[:len(path)-1]
 		}
 	}
-	dfs(nums, 0)
+	backtrack(nums, 0)
 	return results
 }
 

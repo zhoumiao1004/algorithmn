@@ -214,33 +214,34 @@ func canPartitionKSubsets(nums []int, k int) bool {
 		return false
 	}
 	target := sum / k
-	used := make([]bool, len(nums))
-	var backtrack func(nums []int, k, sum, start int) bool
-	backtrack = func(nums []int, k, sum, start int) bool {
+	visited := make([]bool, len(nums))
+	s := 0
+	var backtrack func(nums []int, k, start int) bool
+	backtrack = func(nums []int, k, start int) bool {
 		if k == 0 {
 			return true
 		}
-		if sum == target {
-			return backtrack(nums, k-1, 0, 0)
+		if s == target {
+			return backtrack(nums, k-1, 0)
 		}
 		for i := start; i < len(nums); i++ {
-			if used[i] {
+			if visited[i] {
 				continue
 			}
-			if sum+nums[i] > target {
+			if s+nums[i] > target { // 也可以放在for条件里
 				continue
 			}
-			used[i] = true
-			sum += nums[i]
-			if backtrack(nums, k, sum, i+1) {
+			visited[i] = true
+			s += nums[i]
+			if backtrack(nums, k, i+1) {
 				return true
 			}
-			sum -= nums[i]
-			used[i] = false
+			s -= nums[i]
+			visited[i] = false
 		}
 		return false
 	}
-	return backtrack(nums, k, 0, 0)
+	return backtrack(nums, k, 0)
 }
 
 // 1219. 黄金矿工
@@ -263,9 +264,9 @@ func getMaximumGold(grid [][]int) int {
 	m, n := len(grid), len(grid[0])
 	result := 0
 	s := 0
-	used := make([][]bool, m)
+	visited := make([][]bool, m)
 	for i := 0; i < m; i++ {
-		used[i] = make([]bool, n)
+		visited[i] = make([]bool, n)
 	}
 	var dfs func(grid [][]int, i, j int)
 	dfs = func(grid [][]int, i, j int) {
@@ -277,18 +278,18 @@ func getMaximumGold(grid [][]int) int {
 		if grid[i][j] == 0 {
 			return
 		}
-		if used[i][j] {
+		if visited[i][j] { // 不走回头路
 			return
 		}
 		// 回溯算法框架：进入 (i, j)，做选择
-		used[i][j] = true
+		visited[i][j] = true
 		s += grid[i][j]
 		result = max(result, s)
 		for _, dir := range dirs {
 			dfs(grid, i+dir[0], j+dir[1])
 		}
 		s -= grid[i][j]
-		used[i][j] = false
+		visited[i][j] = false
 	}
 
 	for i := 0; i < m; i++ {

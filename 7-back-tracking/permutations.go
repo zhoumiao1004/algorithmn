@@ -15,8 +15,8 @@ func permute(nums []int) [][]int {
 	var results [][]int
 	var path []int
 	used := make([]bool, len(nums))
-	var dfs func(nums []int)
-	dfs = func(nums []int) {
+	var backtrack func(nums []int)
+	backtrack = func(nums []int) {
 		if len(path) == len(nums) {
 			results = append(results, append([]int{}, path...))
 			return
@@ -27,12 +27,12 @@ func permute(nums []int) [][]int {
 			}
 			used[i] = true
 			path = append(path, nums[i])
-			dfs(nums)
+			backtrack(nums)
 			path = path[:len(path)-1]
 			used[i] = false
 		}
 	}
-	dfs(nums)
+	backtrack(nums)
 	return results
 }
 
