@@ -81,72 +81,15 @@ func findLength(nums1 []int, nums2 []int) int {
 	return result
 }
 
-// 1143.最长公共子序列
-// https://leetcode.cn/problems/longest-common-subsequence/description/
-// 给定两个字符串 text1 和 text2，返回这两个字符串的最长公共子序列的长度
-/* text1 = "abcde", text2 = "ace"
-		a	c	e
-	0	0	0	0
-a	0	1	1	1
-b	0	1	1	1
-c	0	1	2	2
-d	0	1	2	2
-e	0	1	2	3
-*/
-func longestCommonSubsequence(text1, text2 string) int {
-	m, n := len(text1), len(text2)
-	// dp[i][j]含义：[0,i-1]的text1和[0,j-1]的text2的最长公共子序列长度
-	dp := make([][]int, m+1)
-	for i := 0; i <= m; i++ {
-		dp[i] = make([]int, n+1)
-	}
-	for i := 1; i <= m; i++ {
-		for j := 1; j <= n; j++ {
-			if text1[i-1] == text2[j-1] {
-				dp[i][j] = dp[i-1][j-1] + 1
-			} else {
-				dp[i][j] = max(dp[i-1][j], dp[i][j-1])
-			}
-		}
-	}
-	// fmt.Println(dp)
-	return dp[m][n]
-}
-
-// 1035.不相交的线
-// 在两条独立的水平线上按给定的顺序写下 nums1 和 nums2 中的整数。
-// 现在，可以绘制一些连接两个数字 nums1[i] 和 nums2[j] 的直线，这些直线需要同时满足：
-// nums1[i] == nums2[j]
-// 且绘制的直线不与任何其他连线（非水平线）相交。
-// 请注意，连线即使在端点也不能相交：每个数字只能属于一条连线。
-// 以这种方法绘制线条，并返回可以绘制的最大连线数。
-// 输入：nums1 = [1,4,2], nums2 = [1,2,4] 输出：2
-// 解释：可以画出两条不交叉的线
-// 但无法画出第三条不相交的直线，因为从 nums1[1]=4 到 nums2[2]=4 的直线将与从 nums1[2]=2 到 nums2[1]=2 的直线相交。
-func maxUncrossedLines(nums1 []int, nums2 []int) int {
-	m := len(nums1)
-	n := len(nums2)
-	// dp[i][j]含义：以下标i-1结尾的nums1和下标j-1结尾的nums2最长公共子序列长度
-	dp := make([][]int, m+1)
-	for i := 0; i <= m; i++ {
-		dp[i] = make([]int, n+1)
-	}
-	for i := 1; i <= m; i++ {
-		for j := 1; j <= n; j++ {
-			if nums1[i-1] == nums2[j-1] {
-				dp[i][j] = dp[i-1][j-1] + 1
-			} else {
-				dp[i][j] = max(dp[i-1][j], dp[i][j-1])
-			}
-		}
-	}
-	return dp[m][n]
-}
-
 // 53. 最大子数组和
+// https://leetcode.cn/problems/maximum-subarray/description/
 // 给你一个整数数组 nums ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+// 输入：nums = [-2,1,-3,4,-1,2,1,-5,4]
+// 输出：6
+// 解释：连续子数组 [4,-1,2,1] 的和最大，为 6 。
 func maxSubArray(nums []int) int {
-	// dp[i]含义：以nums[i]结尾的最大(连续)子数组的和
+	// dp函数定义：一般思路是返回nums[0...i]的最大子数组和，但没办法从dp[i-1]推出dp[i]
+	// 重新定义dp[i]：返回以nums[i]结尾的最大子数组和
 	// 递推公式：dp[i] = max(dp[i-1] + nums[i], nums[i])
 	n := len(nums)
 	result := nums[0]
@@ -171,6 +114,44 @@ func maxSubArrayGreedy(nums []int) int {
 	for i := 0; i < n; i++ {
 		s = max(s+nums[i], nums[i])
 		result = max(result, s)
+	}
+	return result
+}
+
+// 滑动窗口解法
+func maxSubArraySlideWindow(nums []int) int {
+	left, right := 0, 0
+	windowSum := 0
+	maxSum := math.MinInt32
+	for right < len(nums) {
+		windowSum += nums[right]
+		right++
+		// 更新答案
+		maxSum = max(maxSum, windowSum)
+		// 判断窗口是否要收缩
+		for windowSum < 0 {
+			windowSum -= nums[left]
+			left++
+		}
+	}
+	return maxSum
+}
+
+// 前缀和思路：以nums[i]结尾的最大子数组和 = preSum[i+1] - min(preSum[0...i])
+func maxSubArrayPreSum(nums []int) int {
+	n := len(nums)
+	if n == 0 {
+		return 0
+	}
+	preSum := make([]int, n+1)
+	for i := 1; i <= n; i++ {
+		preSum[i] = preSum[i-1] + nums[i-1]
+	}
+	minPreSum := math.MaxInt
+	result := math.MinInt
+	for i := 0; i < n; i++ {
+		minPreSum = min(minPreSum, preSum[i])
+		result = max(result, preSum[i+1]-minPreSum)
 	}
 	return result
 }
