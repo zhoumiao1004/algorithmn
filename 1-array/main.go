@@ -29,8 +29,7 @@ func splitArray(nums []int, k int) int {
 func smallerNumbersThanCurrent(nums []int) []int {
 	n := len(nums)
 	result := make([]int, n)
-	tmp := make([]int, n)
-	copy(tmp, nums)
+	tmp := append([]int{}, nums...)
 	sort.Ints(tmp)
 	m := make(map[int]int)
 	for i, val := range tmp {

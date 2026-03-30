@@ -5,6 +5,11 @@ import (
 	"sort"
 )
 
+type ListNode struct {
+	Val  int
+	Next *ListNode
+}
+
 // 48. 旋转图像
 // https://leetcode.cn/problems/rotate-image/description/
 // 给定一个 n × n 的二维矩阵 matrix 表示一个图像。请你将图像顺时针旋转 90 度。
@@ -33,7 +38,7 @@ func rotate(matrix [][]int) {
 // 151. 反转字符串中的单词
 // https://leetcode.cn/problems/reverse-words-in-a-string/
 func reverseWords(s string) string {
-
+	return ""
 }
 
 // 61. 旋转链表
@@ -116,6 +121,52 @@ func generateMatrix(n int) [][]int {
 	for i := 0; i < n; i++ {
 		result[i] = make([]int, n)
 	}
+	cnt := 1
+	upper_bound, lower_bound := 0, n-1
+	left_bound, right_bound := 0, n-1
+	for cnt <= n*n {
+		// 左到右
+		if upper_bound <= lower_bound {
+			for j := left_bound; j <= right_bound; j++ {
+				result[upper_bound][j] = cnt
+				cnt++
+			}
+			upper_bound++
+		}
+		// 上到下
+		if left_bound <= right_bound {
+			for i := upper_bound; i <= lower_bound; i++ {
+				result[i][right_bound] = cnt
+				cnt++
+			}
+			right_bound--
+		}
+		// 右到左
+		if upper_bound <= lower_bound {
+			for j := right_bound; j >= left_bound; j-- {
+				result[lower_bound][j] = cnt
+				cnt++
+			}
+			lower_bound--
+		}
+		// 下到上
+		if left_bound <= right_bound {
+			for i := lower_bound; i >= upper_bound; i-- {
+				result[i][left_bound] = cnt
+				cnt++
+			}
+			left_bound++
+		}
+	}
+
+	return result
+}
+
+func generateMatrix2(n int) [][]int {
+	result := make([][]int, n)
+	for i := 0; i < n; i++ {
+		result[i] = make([]int, n)
+	}
 	startx, starty := 0, 0
 	offset := 0
 	cnt := 1
@@ -172,7 +223,7 @@ func searchMatrix(matrix [][]int, target int) bool {
 		}
 	}
 	// 第一列没找到：right指向的第一个小于target的位置
-	fmt.Println(left, right)
+	// fmt.Println(left, right)
 	if right < 0 {
 		right++
 	}
@@ -238,7 +289,7 @@ func matrixReshape(mat [][]int, r int, c int) [][]int {
 			tmp[i*n+j] = mat[i][j]
 		}
 	}
-	fmt.Println(tmp)
+	// fmt.Println(tmp)
 	for i := 0; i < r; i++ {
 		for j := 0; j < c; j++ {
 			result[i][j] = tmp[i*c+j]
@@ -343,7 +394,8 @@ func diagonalSort(mat [][]int) [][]int {
 // 输出：[[9,1,2],[3,4,5],[6,7,8]]
 // 1.除最后一列向右移1位 2.最后一列一到第一列 3.右下角移到左上角
 func shiftGrid(grid [][]int, k int) [][]int {
-
+	var res [][]int
+	return res
 }
 
 // 867. 转置矩阵
@@ -391,6 +443,7 @@ func longestCommonPrefix(strs []string) string {
 }
 
 func main() {
+	fmt.Println(generateMatrix(3))
 	fmt.Println(matrixReshape([][]int{[]int{1, 2}, []int{3, 4}}, 4, 1))
 	fmt.Println(searchMatrix([][]int{
 		{1, 3, 5, 7},

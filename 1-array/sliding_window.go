@@ -78,6 +78,7 @@ func minWindow(s string, t string) string {
 // 输入：s1 = "ab" s2 = "eidbaooo"
 // 输出：true
 // 解释：s2 包含 s1 的排列之一 ("ba").
+// 思路1:滑动窗口
 func checkInclusion(s1 string, s2 string) bool {
 	need := make(map[byte]int)
 	for i := 0; i < len(s1); i++ {
@@ -115,7 +116,7 @@ func checkInclusion(s1 string, s2 string) bool {
 	return false
 }
 
-// hash table
+// 思路2:hash table
 func checkInclusion2(s1 string, s2 string) bool {
 	len1, len2 := len(s1), len(s2)
 	if len1 > len2 {
@@ -387,18 +388,6 @@ func containsNearbyDuplicate1(nums []int, k int) bool {
 	return false
 }
 
-func containsNearbyDuplicate2(nums []int, k int) bool {
-	m := make(map[int]int)
-	for i := 0; i < len(nums); i++ {
-		index, ok := m[nums[i]]
-		if ok && i-index <= k {
-			return true
-		}
-		m[nums[i]] = i
-	}
-	return false
-}
-
 /*
 220. 存在重复元素 III
 https://leetcode.cn/problems/contains-duplicate-iii/
@@ -485,7 +474,6 @@ func minSubArrayLen(target int, nums []int) int {
 // 文件拷贝：某一个大文件被拆成了 N 个小文件，每个小文件编号从 0 至 N-1，相应大小分别记为 S(i)。给定磁盘空间为 C ，
 // 试实现一个函数从 N 个文件中连续选出若干个文件拷贝到磁盘中，使得磁盘剩余空间最小。
 func minDiskSpaceRemainder(nums []int, target int) int {
-
 	left := 0
 	s := 0
 	maxSum := 0 // 不超过target的最大和

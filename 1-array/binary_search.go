@@ -363,6 +363,7 @@ func findPeakElement(nums []int) int {
 	return left
 }
 
+// 思路2: 收缩右边界
 func findPeakElement2(nums []int) int {
 	// 取两端都闭的二分搜索
 	left, right := 0, len(nums)-1

@@ -14,10 +14,11 @@ func hasPathSum(root *TreeNode, targetSum int) bool {
 	if root == nil {
 		return false
 	}
+	// 中
 	if root.Left == nil && root.Right == nil {
 		return root.Val == targetSum
 	}
-	return hasPathSum(root.Left, targetSum-root.Val) || hasPathSum(root.Right, targetSum-root.Val)
+	return hasPathSum(root.Left, targetSum-root.Val) || hasPathSum(root.Right, targetSum-root.Val) // 左右
 }
 
 // 113. 路径总和 II
@@ -30,8 +31,8 @@ func pathSumII(root *TreeNode, targetSum int) [][]int {
 	var results [][]int
 	var path []int
 	s := 0
-	var dfs func(root *TreeNode)
-	dfs = func(root *TreeNode) {
+	var traverse func(root *TreeNode)
+	traverse = func(root *TreeNode) {
 		if root == nil {
 			return
 		}
@@ -40,12 +41,12 @@ func pathSumII(root *TreeNode, targetSum int) [][]int {
 		if s == targetSum && root.Left == nil && root.Right == nil {
 			results = append(results, append([]int{}, path...))
 		}
-		dfs(root.Left)
-		dfs(root.Right)
+		traverse(root.Left)
+		traverse(root.Right)
 		path = path[:len(path)-1]
 		s -= root.Val
 	}
-	dfs(root)
+	traverse(root)
 	return results
 }
 
@@ -71,6 +72,42 @@ func maxPathSum(root *TreeNode) int {
 		return max(left, right) + root.Val
 	}
 	dfs(root)
+	return result
+}
+
+// 437. 路径总和 III
+// https://leetcode.cn/problems/path-sum-iii/description/
+// 给定一个二叉树的根节点 root ，和一个整数 targetSum ，求该二叉树里节点值之和等于 targetSum 的 路径 的数目。
+// 路径 不需要从根节点开始，也不需要在叶子节点结束，但是路径方向必须是向下的（只能从父节点到子节点）。
+// 输入：root = [10,5,-3,3,2,null,11,3,-2,null,1], targetSum = 8
+// 输出：3
+// 解释：和等于 8 的路径有 3 条，如图所示。
+func pathSum(root *TreeNode, targetSum int) int {
+	result := 0
+	if root == nil {
+		return 0
+	}
+	preSumCount := make(map[int]int)
+	preSumCount[0] = 1
+	pathSum := 0
+	var traverse func(root *TreeNode)
+	traverse = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+		// 前序遍历位置
+		pathSum += root.Val // 从根开始的前缀和
+		result += preSumCount[pathSum-targetSum]
+		preSumCount[pathSum]++
+
+		traverse(root.Left)
+		traverse(root.Right)
+
+		// 后序遍历位置
+		preSumCount[pathSum]--
+		pathSum -= root.Val
+	}
+	traverse(root)
 	return result
 }
 

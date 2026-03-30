@@ -4,6 +4,8 @@ import "fmt"
 
 // 206. 反转链表
 // https://leetcode.cn/problems/reverse-linked-list/
+// 输入：head = [1,2,3,4,5]
+// 输出：[5,4,3,2,1]
 func reverseList(head *ListNode) *ListNode {
 	if head == nil || head.Next == nil {
 		return head
@@ -19,6 +21,7 @@ func reverseList(head *ListNode) *ListNode {
 	return prev
 }
 
+// 思路2:递归
 func reverseListRecursively(head *ListNode) *ListNode {
 	if head == nil || head.Next == nil {
 		return head
@@ -30,6 +33,7 @@ func reverseListRecursively(head *ListNode) *ListNode {
 }
 
 // 92. 反转链表 II
+// https://leetcode.cn/problems/reverse-linked-list-ii/
 // 给你单链表的头指针 head 和两个整数 left 和 right ，其中 left <= right 。请你反转从位置 left 到位置 right 的链表节点，返回 反转后的链表 。
 // 输入：head = [1,2,3,4,5], left = 2, right = 4
 // 输出：[1,4,3,2,5]
@@ -52,15 +56,15 @@ func reverseN(head *ListNode, n int) *ListNode {
 		return head
 	}
 	var prev *ListNode
-	cur, next := head, head.Next
-	for n > 0 {
-		cur.Next = prev
-		prev = cur
-		cur = next
-		if next != nil {
-			next = next.Next
+	cur := head
+	for i := 0; i < n; i++ {
+		if cur == nil {
+			break
 		}
-		n--
+		next := cur.Next
+		cur.Next = prev // 修改cur指向，从指后修改为指前
+		prev = cur      // prev向后移
+		cur = next      // cur向后移
 	}
 	head.Next = cur
 	return prev

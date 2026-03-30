@@ -229,6 +229,33 @@ func detectCycle(head *ListNode) *ListNode {
 	return nil
 }
 
+// 287. 寻找重复数
+// https://leetcode.cn/problems/find-the-duplicate-number/description/
+// 给定一个包含 n + 1 个整数的数组 nums ，其数字都在 [1, n] 范围内（包括 1 和 n），可知至少存在一个重复的整数。
+// 假设 nums 只有 一个重复的整数 ，返回 这个重复的数 。
+// 你设计的解决方案必须 不修改 数组 nums 且只用常量级 O(1) 的额外空间。
+// 输入：nums = [1,3,4,2,2]
+// 输出：2
+func findDuplicate(nums []int) int {
+	slow, fast := 0, 0
+	for {
+		fast = nums[nums[fast]]
+		slow = nums[slow]
+		if fast == slow {
+			break
+		}
+	}
+	slow = 0
+	for slow != fast {
+		slow = nums[slow]
+		fast = nums[fast]
+		if slow == fast {
+			return slow
+		}
+	}
+	return -1
+}
+
 // 160. 两个链表是否相交
 // https://leetcode.cn/problems/intersection-of-two-linked-lists/
 // 和面试题 02.07. 链表相交相同：https://leetcode.cn/problems/intersection-of-two-linked-lists-lcci/description/

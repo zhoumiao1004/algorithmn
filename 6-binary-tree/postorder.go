@@ -35,23 +35,24 @@ func isBalanced(root *TreeNode) bool {
 }
 
 func isBalanced2(root *TreeNode) bool {
+	var maxDepth func(root *TreeNode) int
+	maxDepth = func(root *TreeNode) int {
+		if root == nil {
+			return 0
+		}
+		left := maxDepth(root.Left)
+		right := maxDepth(root.Right)
+		return max(left, right) + 1
+	}
 	if root == nil {
 		return true
 	}
-	left := getMaxDepth(root.Left)
-	right := getMaxDepth(root.Right)
+	left := maxDepth(root.Left)
+	right := maxDepth(root.Right)
 	if math.Abs(float64(left-right)) > 1 {
 		return false
 	}
 	return isBalanced(root.Left) && isBalanced(root.Right)
-}
-
-func getMaxDepth(root *TreeNode) int {
-	if root == nil {
-		return 0
-	}
-	left, right := getMaxDepth(root.Left), getMaxDepth(root.Right)
-	return max(left, right) + 1
 }
 
 // 508. 出现次数最多的子树元素和

@@ -1,103 +1,10 @@
 package main
 
-import (
-	"fmt"
-	"strings"
-)
+import "fmt"
 
 type ListNode struct {
 	Val  int
 	Next *ListNode
-}
-
-type List interface {
-	Get(index int) int
-	AddAtHead(val int)
-	AddAtTail(val int)
-	AddAtIndex(index int, val int)
-	DeleteAtIndex(index int)
-}
-
-func newMyLinkedList() List {
-	return &MyLinkedList{
-		dummy: &ListNode{},
-		Size:  0,
-	}
-}
-
-// 707.设计链表
-// https://leetcode.cn/problems/design-linked-list/description/
-type MyLinkedList struct {
-	dummy *ListNode
-	Size  int
-}
-
-func Constructor() MyLinkedList {
-	return MyLinkedList{
-		dummy: &ListNode{},
-		Size:  0,
-	}
-}
-
-func (l *MyLinkedList) String() string {
-	var vals []string
-	cur := l.dummy.Next
-	for cur != nil {
-		vals = append(vals, fmt.Sprintf("%d", cur.Val))
-		cur = cur.Next
-	}
-	return strings.Join(vals, "->")
-}
-func (l *MyLinkedList) Get(index int) int {
-	if l == nil || index < 0 || index >= l.Size {
-		return -1
-	}
-	cur := l.dummy.Next
-	for i := 0; i < index; i++ {
-		cur = cur.Next
-	}
-	return cur.Val
-}
-
-func (l *MyLinkedList) AddAtHead(val int) {
-	node := &ListNode{Val: val}
-	node.Next = l.dummy.Next
-	l.dummy.Next = node
-	l.Size++
-}
-
-func (l *MyLinkedList) AddAtTail(val int) {
-	cur := l.dummy
-	for cur.Next != nil {
-		cur = cur.Next
-	}
-	cur.Next = &ListNode{Val: val}
-	l.Size++
-}
-
-func (l *MyLinkedList) AddAtIndex(index int, val int) {
-	if index < 0 || index > l.Size { // 注意这里是大于
-		return
-	}
-	cur := l.dummy
-	for i := 0; i < index; i++ {
-		cur = cur.Next
-	}
-	node := &ListNode{Val: val, Next: cur.Next}
-	cur.Next = node
-	l.Size++
-}
-
-func (l *MyLinkedList) DeleteAtIndex(index int) {
-	if l == nil || index < 0 || index >= l.Size {
-		return
-	}
-	cur := l.dummy
-	for i := 0; i < index; i++ {
-		cur = cur.Next
-	}
-	cur.Next = cur.Next.Next
-	l.Size--
 }
 
 // 24. 两两交换链表中的节点
@@ -110,53 +17,6 @@ func swapPairs(head *ListNode) *ListNode {
 	head.Next = swapPairs(head.Next.Next)
 	next.Next = head
 	return next
-}
-
-// 234. 回文链表
-// 给你一个单链表的头节点 head ，请你判断该链表是否为回文链表。如果是，返回 true ；否则，返回 false 。
-// 输入：head = [1,2,2,1]
-// 输出：true
-// 找到中点，反转后半部份链表，双指针比较
-func isPalindrome(head *ListNode) bool {
-	if head == nil || head.Next == nil {
-		return true
-	}
-	mid := getMidNode(head)
-	next := mid.Next
-	mid.Next = nil
-	head2 := reverseList(next)
-	p1, p2 := head, head2
-	for p2 != nil {
-		if p1.Val != p2.Val {
-			return false
-		}
-		p1 = p1.Next
-		p2 = p2.Next
-	}
-	return true
-}
-
-// 后序遍历，模仿双指针实现回文判断的功能
-func isPalindrome2(head *ListNode) bool {
-	if head == nil {
-		return false
-	}
-	left := head
-	result := true
-	var dfs func(right *ListNode)
-	dfs = func(right *ListNode) {
-		if right == nil {
-			return
-		}
-		dfs(right.Next)
-		// 后序遍历位置
-		if left.Val != right.Val {
-			result = false
-		}
-		left = left.Next
-	}
-	dfs(head)
-	return result
 }
 
 // 143.重排链表
@@ -263,33 +123,6 @@ func addTwoNumbers2(l1 *ListNode, l2 *ListNode) *ListNode {
 		dummy.Next = &ListNode{Val: 1, Next: next}
 	}
 	return dummy.Next
-}
-
-// 287. 寻找重复数
-// https://leetcode.cn/problems/find-the-duplicate-number/description/
-// 给定一个包含 n + 1 个整数的数组 nums ，其数字都在 [1, n] 范围内（包括 1 和 n），可知至少存在一个重复的整数。
-// 假设 nums 只有 一个重复的整数 ，返回 这个重复的数 。
-// 你设计的解决方案必须 不修改 数组 nums 且只用常量级 O(1) 的额外空间。
-// 输入：nums = [1,3,4,2,2]
-// 输出：2
-func findDuplicate(nums []int) int {
-	slow, fast := 0, 0
-	for {
-		fast = nums[nums[fast]]
-		slow = nums[slow]
-		if fast == slow {
-			break
-		}
-	}
-	slow = 0
-	for slow != fast {
-		slow = nums[slow]
-		fast = nums[fast]
-		if slow == fast {
-			return slow
-		}
-	}
-	return -1
 }
 
 func main() {

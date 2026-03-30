@@ -19,19 +19,20 @@ func levelOrder(root *TreeNode) [][]int {
 	}
 	q := []*TreeNode{root}
 	for len(q) > 0 {
-		var next []*TreeNode
+		sz := len(q)
 		var tmp []int
-		for _, node := range q {
+		for i := 0; i < sz; i++ {
+			node := q[0]
+			q = q[1:]
 			tmp = append(tmp, node.Val)
 			if node.Left != nil {
-				next = append(next, node.Left)
+				q = append(q, node.Left)
 			}
 			if node.Right != nil {
-				next = append(next, node.Right)
+				q = append(q, node.Right)
 			}
 		}
 		results = append(results, tmp)
-		q = next
 	}
 	return results
 }
@@ -62,18 +63,19 @@ func zigzagLevelOrder(root *TreeNode) [][]int {
 	flag := true
 	q := []*TreeNode{root}
 	for len(q) > 0 {
+		sz := len(q)
 		var tmp []int
-		var next []*TreeNode
-		for _, node := range q {
+		for i := 0; i < sz; i++ {
+			node := q[0]
+			q = q[1:]
 			tmp = append(tmp, node.Val)
 			if node.Left != nil {
-				next = append(next, node.Left)
+				q = append(q, node.Left)
 			}
 			if node.Right != nil {
-				next = append(next, node.Right)
+				q = append(q, node.Right)
 			}
 		}
-		q = next
 		if !flag {
 			l, r := 0, len(tmp)-1
 			for l < r {
@@ -105,19 +107,21 @@ func connect(root *Node) *Node {
 	}
 	q := []*Node{root}
 	for len(q) > 0 {
-		var next []*Node
-		for i, node := range q {
+		sz := len(q)
+
+		for i := 0; i < sz; i++ {
+			node := q[0]
+			q = q[1:]
 			if node.Left != nil {
-				next = append(next, node.Left)
+				q = append(q, node.Left)
 			}
 			if node.Right != nil {
-				next = append(next, node.Right)
+				q = append(q, node.Right)
 			}
 			if i != len(q)-1 {
 				node.Next = q[i+1]
 			}
 		}
-		q = next
 	}
 	return root
 }
@@ -176,19 +180,20 @@ func largestValues(root *TreeNode) []int {
 	}
 	q := []*TreeNode{root}
 	for len(q) > 0 {
+		sz := len(q)
 		maxVal := math.MinInt
-		var next []*TreeNode
-		for _, node := range q {
+		for i := 0; i < sz; i++ {
+			node := q[0]
+			q = q[1:]
 			maxVal = max(maxVal, node.Val)
 			if node.Left != nil {
-				next = append(next, node.Left)
+				q = append(q, node.Left)
 			}
 			if node.Right != nil {
-				next = append(next, node.Right)
+				q = append(q, node.Right)
 			}
 		}
 		result = append(result, maxVal)
-		q = next
 	}
 	return result
 }
@@ -206,19 +211,20 @@ func averageOfLevels(root *TreeNode) []float64 {
 	}
 	q := []*TreeNode{root}
 	for len(q) > 0 {
+		sz := len(q)
 		s := 0
-		var next []*TreeNode
-		for _, node := range q {
+		for i := 0; i < sz; i++ {
+			node := q[0]
+			q = q[1:]
 			s += node.Val
 			if node.Left != nil {
-				next = append(next, node.Left)
+				q = append(q, node.Left)
 			}
 			if node.Right != nil {
-				next = append(next, node.Right)
+				q = append(q, node.Right)
 			}
 		}
 		result = append(result, float64(s)/float64(len(q)))
-		q = next
 	}
 	return result
 }
@@ -345,7 +351,7 @@ func isEvenOddTree(root *TreeNode) bool {
 // 输入：root1 = [3,5,1,6,2,9,8,null,null,7,4], root2 = [3,5,1,6,7,4,2,null,null,null,null,null,null,9,8]
 // 输出：true
 func leafSimilar(root1 *TreeNode, root2 *TreeNode) bool {
-    var dfs func(root *TreeNode, nums *[]int)
+	var dfs func(root *TreeNode, nums *[]int)
 	dfs = func(root *TreeNode, nums *[]int) {
 		if root == nil {
 			return
@@ -362,7 +368,7 @@ func leafSimilar(root1 *TreeNode, root2 *TreeNode) bool {
 	if len(nums1) != len(nums2) {
 		return false
 	}
-	for i := 0; i<len(nums1); i++ {
+	for i := 0; i < len(nums1); i++ {
 		if nums1[i] != nums2[i] {
 			return false
 		}

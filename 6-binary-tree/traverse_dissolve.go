@@ -203,7 +203,7 @@ func invertTree(root *TreeNode) *TreeNode {
 // https://leetcode.cn/problems/minimum-depth-of-binary-tree/
 // 输入：root = [3,9,20,null,null,15,7]
 // 输出：2
-// 后序遍历
+// 思路1:分解问题+后序遍历
 func minDepth(root *TreeNode) int {
 	if root == nil {
 		return 0
@@ -218,6 +218,33 @@ func minDepth(root *TreeNode) int {
 	}
 
 	return 1 + min(leftDepth, rightDepth)
+}
+
+// 思路2: 层序遍历BFS。遍历到的第一个叶子节点的深度
+func minDepth2(root *TreeNode) int {
+	if root == nil {
+		return 0
+	}
+	depth := 0
+	q := []*TreeNode{root}
+	for len(q) > 0 {
+		depth++
+		sz := len(q)
+		for i := 0; i < sz; i++ {
+			node := q[0]
+			if node.Left == nil && node.Right == nil {
+				return depth
+			}
+			q = q[1:]
+			if node.Left != nil {
+				q = append(q, node.Left)
+			}
+			if node.Right != nil {
+				q = append(q, node.Right)
+			}
+		}
+	}
+	return depth
 }
 
 // 222.完全二叉树的节点个数
