@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math"
+	"sort"
 )
 
 // 509. 斐波那契数
@@ -190,6 +192,120 @@ func minPathSum(grid [][]int) int {
 	}
 	fmt.Println(dp)
 	return dp[m-1][n-1]
+}
+
+// 1262. 可被三整除的最大和
+// https://leetcode.cn/problems/greatest-sum-divisible-by-three/
+// 输入：nums = [3,6,5,1,8]
+// 输出：18
+// 解释：选出数字 3, 6, 1 和 8，它们的和是 18（可被 3 整除的最大和）。
+func maxSumDivThree(nums []int) int {
+	n := len(nums)
+	// dp[i][j]含义：nums[0...i]中被3整除余数为j的最大和
+	dp := make([][3]int, n+1)
+	dp[0][0] = 0
+	dp[0][1] = math.MinInt
+	dp[0][2] = math.MinInt
+	for i := 1; i <= n; i++ {
+		if nums[i-1]%3 == 0 { // nums[i]能被3整除，必然选
+			dp[i][0] = dp[i-1][0] + nums[i-1]
+			dp[i][1] = dp[i-1][1] + nums[i-1]
+			dp[i][2] = dp[i-1][2] + nums[i-1]
+		} else if nums[i-1]%3 == 1 { // nums[i]被3整除余数为1，nums[i]有选和不选2种情况
+			dp[i][0] = max(dp[i-1][0], dp[i-1][2]+nums[i-1])
+			dp[i][1] = max(dp[i-1][1], dp[i-1][0]+nums[i-1])
+			dp[i][2] = max(dp[i-1][2], dp[i-1][1]+nums[i-1])
+		} else if nums[i-1]%3 == 2 {
+			dp[i][0] = max(dp[i-1][0], dp[i-1][1]+nums[i-1])
+			dp[i][1] = max(dp[i-1][1], dp[i-1][2]+nums[i-1])
+			dp[i][2] = max(dp[i-1][2], dp[i-1][0]+nums[i-1])
+		}
+	}
+	return dp[n][0]
+}
+
+// 120. 三角形最小路径和
+// https://leetcode.cn/problems/triangle/description/
+// 给定一个三角形 triangle ，找出自顶向下的最小路径和。
+// 每一步只能移动到下一行中相邻的结点上。相邻的结点 在这里指的是 下标 与 上一层结点下标 相同或者等于 上一层结点下标 + 1 的两个结点。也就是说，如果正位于当前行的下标 i ，那么下一步可以移动到下一行的下标 i 或 i + 1 。
+// 输入：triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]
+// 输出：11
+// 解释：如下面简图所示：
+//
+//	  2
+//	 3 4
+//	6 5 7
+//
+// 4 1 8 3
+// 自顶向下的最小路径和为 11（即，2 + 3 + 5 + 1 = 11）。
+func minimumTotal(triangle [][]int) int {
+	// dp[i][j]为第i行j列的最小路径和
+	// 递推公式：dp[i] = triangle[i][j] + min(dp[i-1][i-1], dp[i-1][j])
+	n := len(triangle)
+	dp := make([][]int, n)
+	for i := 0; i < n; i++ {
+		dp[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			dp[i][j] = math.MaxInt
+		}
+	}
+	dp[0][0] = triangle[0][0]
+	for i := 1; i < n; i++ {
+		for j := 0; j < len(triangle[i]); j++ {
+			if j == 0 {
+				dp[i][j] = triangle[i][j] + dp[i-1][j]
+			} else {
+				dp[i][j] = triangle[i][j] + min(dp[i-1][j-1], dp[i-1][j])
+			}
+		}
+	}
+	result := math.MaxInt
+	for j := 0; j < n; j++ {
+		result = min(result, dp[n-1][j])
+	}
+	return result
+}
+
+// 368. 最大整除子集
+// https://leetcode.cn/problems/largest-divisible-subset/
+// 给你一个由 无重复 正整数组成的集合 nums ，请你找出并返回其中最大的整除子集 answer ，子集中每一元素对 (answer[i], answer[j]) 都应当满足：
+// answer[i] % answer[j] == 0 ，或
+// answer[j] % answer[i] == 0
+// 如果存在多个有效解子集，返回其中任何一个均可。
+// 输入：nums = [1,2,3]
+// 输出：[1,2]
+// 解释：[1,3] 也会被视为正确答案。
+func largestDivisibleSubset(nums []int) []int {
+	n := len(nums)
+	sort.Ints(nums)
+	// dp[i]含义：以nums[i]这个数结尾的最长符合要求的子序列长度
+	dp := make([][]int, n)
+	for i := 0; i < n; i++ {
+		dp[i] = []int{}
+	}
+	// base case
+	dp[0] = []int{nums[0]}
+	// 递推公式：nums[0...n-1]中最长的子序列再加上nums[i]
+	for i := 1; i < n; i++ {
+		maxLen, index := 0, -1
+		for j := 0; j < i; j++ {
+			if nums[i]%nums[j] == 0 && len(dp[j]) > maxLen {
+				maxLen = len(dp[j])
+				index = j
+			}
+		}
+		if index != -1 {
+			dp[i] = append([]int{}, dp[index]...)
+		}
+		dp[i] = append(dp[i], nums[i])
+	}
+	result := dp[0]
+	for i := 1; i < n; i++ {
+		if len(result) < len(dp[i]) {
+			result = dp[i]
+		}
+	}
+	return result
 }
 
 func main() {

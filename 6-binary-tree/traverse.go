@@ -718,30 +718,27 @@ func countNode(root *TreeNode) int {
 // 输入：root = [3,4,5,1,2], subRoot = [4,1,2]
 // 输出：true
 func isSubtree(root *TreeNode, subRoot *TreeNode) bool {
-	var dfs func(root *TreeNode) bool
-	dfs = func(root *TreeNode) bool {
-		if root == nil {
+	var isSameTree func(p, q *TreeNode) bool
+	isSameTree = func(p, q *TreeNode) bool {
+		if p == nil && q == nil {
+			return true
+		}
+		if p == nil || q == nil {
 			return false
 		}
-		if isSameTree(root, subRoot) {
-			return true
-		}
-		if dfs(root.Left) {
-			return true
-		}
-		return dfs(root.Right)
+		return p.Val == q.Val && isSameTree(p.Left, q.Left) && isSameTree(p.Right, q.Right)
 	}
-	return dfs(root)
-}
 
-func isSameTree(p, q *TreeNode) bool {
-	if p == nil && q == nil {
-		return true
-	}
-	if p == nil || q == nil {
+	if root == nil {
 		return false
 	}
-	return p.Val == q.Val && isSameTree(p.Left, q.Left) && isSameTree(p.Right, q.Right)
+	if isSameTree(root, subRoot) {
+		return true
+	}
+	if isSubtree(root.Left, subRoot) {
+		return true
+	}
+	return isSubtree(root.Right, subRoot)
 }
 
 // 1367. 二叉树中的链表
@@ -750,7 +747,21 @@ func isSameTree(p, q *TreeNode) bool {
 // 如果在二叉树中，存在一条一直向下的路径，且每个点的数值恰好一一对应以 head 为首的链表中每个节点的值，那么请你返回 True ，否则返回 False 。
 // 一直向下的路径的意思是：从树中某个节点开始，一直连续向下的路径。
 func isSubPath(head *ListNode, root *TreeNode) bool {
-	// 本质：遍历二叉树的所有节点，每个节点用 check 函数判断是否能够将链表嵌进去。
+	// 思路：遍历二叉树的所有节点，每个节点用 check 函数判断是否能够将链表嵌进去。
+	var check func(head *ListNode, root *TreeNode) bool
+	check = func(head *ListNode, root *TreeNode) bool {
+		if head == nil {
+			return true
+		}
+		if root == nil {
+			return false
+		}
+		if head.Val == root.Val {
+			return check(head.Next, root.Left) || check(head.Next, root.Right)
+		}
+		return false
+	}
+
 	if head == nil {
 		return true
 	}
@@ -758,25 +769,12 @@ func isSubPath(head *ListNode, root *TreeNode) bool {
 		return false
 	}
 	// 中
-	if head.Va == root.Val {
+	if head.Val == root.Val {
 		if check(head, root) {
 			return true
 		}
 	}
 	return isSubPath(head, root.Left) || isSubPath(head, root.Right) // 左右
-}
-
-func check(head *ListNode, root *TreeNode) bool {
-	if head == nil {
-		return true
-	}
-	if root == nil {
-		return false
-	}
-	if head.Val == root.Val {
-		return check(head.Next, root.Left) || check(head.Next, root.Right)
-	}
-	return false
 }
 
 func main() {

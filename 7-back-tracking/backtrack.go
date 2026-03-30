@@ -60,7 +60,7 @@ func numsSameConsecDiff(n int, k int) []int {
 // 2. (0,0),(1,0),(2,0),(2,1),(1,1),(0,1),(0,2),(0,3),(1,3),(1,2),(2,2)
 func uniquePathsIII(grid [][]int) int {
 	m, n := len(grid), len(grid[0])
-	visited := make([][]bool, m)
+	visited := make([][]bool, m) // 标记是否已走过
 	for i := 0; i < m; i++ {
 		visited[i] = make([]bool, n)
 	}
@@ -98,12 +98,12 @@ func uniquePathsIII(grid [][]int) int {
 				result++
 			}
 		}
-		visited[i][j] = true
+		visited[i][j] = true // TODO：能否临时修改grid[i][j]=-1，遍历完再改回来？
 		visitedCount++
 		for _, dir := range dirs {
 			dfs(grid, i+dir[0], j+dir[1])
 		}
-		visited[i][j] = false
+		visited[i][j] = false // TODO
 		visitedCount--
 	}
 	dfs(grid, startx, starty)
@@ -144,6 +144,7 @@ func grayCode(n int) []int {
 }
 
 // 79. 单词搜索
+
 // 给定一个 m x n 二维字符网格 board 和一个字符串单词 word 。如果 word 存在于网格中，返回 true ；否则，返回 false 。
 // 单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
 // 输入：board = [['A','B','C','E'],['S','F','C','S'],['A','D','E','E']], word = "ABCCED"
@@ -166,12 +167,14 @@ func exist(board [][]byte, word string) bool {
 		if board[i][j] != word[p] {
 			return
 		}
+		// 做选择
 		original := board[i][j]
-		board[i][j] = '-'
-		dfs(board, i-1, j, p+1)
+		board[i][j] = '-'       // 技巧：起到了visted数组的作用，标记已走过，不走回头路
+		dfs(board, i-1, j, p+1) // 可以改写为for循环，p+1隐藏了回溯过程：可以改为全局变量进入节点时++，出节点时--
 		dfs(board, i+1, j, p+1)
 		dfs(board, i, j-1, p+1)
 		dfs(board, i, j+1, p+1)
+		// 撤销选择
 		board[i][j] = original
 	}
 
