@@ -53,6 +53,37 @@ func lowestCommonAncestorBST(root, p, q *TreeNode) *TreeNode {
 	return root
 }
 
+// 865. 具有所有最深节点的最小子树
+// https://leetcode.cn/problems/smallest-subtree-with-all-the-deepest-nodes/description/
+// 1123. 最深叶节点的最近公共祖先
+// https://leetcode.cn/problems/lowest-common-ancestor-of-deepest-leaves/description/
+// 给定一个根为 root 的二叉树，每个节点的深度是 该节点到根的最短距离 。
+// 返回包含原始树中所有 最深节点 的 最小子树 。
+// 如果一个节点在 整个树 的任意节点之间具有最大的深度，则该节点是 最深的 。
+// 一个节点的 子树 是该节点加上它的所有后代的集合。
+// 输入：root = [3,5,1,6,2,0,8,null,null,7,4]
+// 输出：[2,7,4]
+func subtreeWithAllDeepest(root *TreeNode) *TreeNode {
+	var maxDepthNode func(root *TreeNode) (*TreeNode, int)
+
+	maxDepthNode = func(root *TreeNode) (*TreeNode, int) {
+		if root == nil {
+			return nil, 0
+		}
+		left, depth1 := maxDepthNode(root.Left)
+		right, depth2 := maxDepthNode(root.Right)
+		if depth1 == depth2 {
+			return root, depth1 + 1
+		} else if depth1 < depth2 {
+			return right, depth2 + 1
+		}
+		return left, depth1 + 1
+	}
+
+	node, _ := maxDepthNode(root)
+	return node
+}
+
 func main() {
 	fmt.Println("Hello, World!")
 }

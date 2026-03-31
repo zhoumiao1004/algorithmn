@@ -1,6 +1,9 @@
 package main
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 /* 有些题目，你按照拍脑袋的方式去做，可能发现需要在递归代码中调用其他递归函数计算字数的信息。一般来说，出现这种情况时你可以考虑用后序遍历的思维方式来优化算法，利用后序遍历传递子树的信息，避免过高的时间复杂度。 */
 
@@ -35,13 +38,13 @@ func isBalanced(root *TreeNode) bool {
 }
 
 func isBalanced2(root *TreeNode) bool {
-	var maxDepth func(root *TreeNode) int
-	maxDepth = func(root *TreeNode) int {
-		if root == nil {
+	var maxDepth func(node *TreeNode) int
+	maxDepth = func(node *TreeNode) int {
+		if node == nil {
 			return 0
 		}
-		left := maxDepth(root.Left)
-		right := maxDepth(root.Right)
+		left := maxDepth(node.Left)
+		right := maxDepth(node.Right)
 		return max(left, right) + 1
 	}
 	if root == nil {
@@ -67,15 +70,15 @@ func findFrequentTreeSum(root *TreeNode) []int {
 	maxCnt := 0
 	maxSumCnt := make(map[int]int) // 记录和的次数
 
-	var traverse func(root *TreeNode) int
-	traverse = func(root *TreeNode) int {
-		if root == nil {
+	var traverse func(node *TreeNode) int
+	traverse = func(node *TreeNode) int {
+		if node == nil {
 			return 0
 		}
-		left := traverse(root.Left)
-		right := traverse(root.Right)
+		left := traverse(node.Left)
+		right := traverse(node.Right)
 		// 后序位置
-		s := root.Val + left + right
+		s := node.Val + left + right
 		maxSumCnt[s]++
 		if maxSumCnt[s] == maxCnt {
 			results = append(results, s)
@@ -97,17 +100,17 @@ func findFrequentTreeSum(root *TreeNode) []int {
 // 整个树 的坡度就是其所有节点的坡度之和。
 func findTilt(root *TreeNode) int {
 	result := 0
-	var traverse func(root *TreeNode) int
+	var traverse func(node *TreeNode) int
 
-	traverse = func(root *TreeNode) int {
-		if root == nil {
+	traverse = func(node *TreeNode) int {
+		if node == nil {
 			return 0
 		}
-		left := traverse(root.Left)
-		right := traverse(root.Right)
+		left := traverse(node.Left)
+		right := traverse(node.Right)
 		// 后序位置
 		result += int(math.Abs(float64(left) - float64(right)))
-		return left + right + root.Val
+		return left + right + node.Val
 	}
 
 	traverse(root)
@@ -164,66 +167,56 @@ func removeLeafNodes(root *TreeNode, target int) *TreeNode {
 // 两个节点之间的路径长度 由它们之间的边数表示。
 // 输入：root = [5,4,5,1,1,5]
 // 输出：2
-// 思路:分解问题+后序,这题不适合用遍历的思路，因为需要从子树获取最长路径长度
+// 思路1:分解问题+后序
 func longestUnivaluePath(root *TreeNode) int {
 	res := 0
+	var maxLen func(node *TreeNode, parentVal int) int
+	// 定义：计算以 root 为根的这棵二叉树中，从 root 开始值为 parentVal 的最长树枝长度
+	maxLen = func(node *TreeNode, parentVal int) int {
+		if node == nil {
+			return 0
+		}
+
+		// 利用函数定义，计算左右子树值为 root.val 的最长树枝长度
+		leftLen := maxLen(node.Left, node.Val)
+		rightLen := maxLen(node.Right, node.Val)
+
+		// 后序位置
+		if node.Val != parentVal {
+			return 0
+		}
+		res = max(res, leftLen+rightLen)
+
+		return 1 + max(leftLen, rightLen)
+	}
+
 	if root == nil {
 		return res
 	}
-	var maxLen func(root *TreeNode, parentVal int) int
-	// 定义：计算以 root 为根的这棵二叉树中，从 root 开始值为 parentVal 的最长树枝长度
-	maxLen = func(root *TreeNode, parentVal int) int {
-		if root == nil {
-			return 0
-		}
-		// 利用函数定义，计算左右子树值为 root.val 的最长树枝长度
-		leftLen := maxLen(root.Left, root.Val)
-		rightLen := maxLen(root.Right, root.Val)
-
-		// 后序遍历位置顺便更新全局变量
-		// 同值路径就是左右同值树枝长度之和
-		res = max(res, leftLen+rightLen)
-		// 如果 root 本身和上级值不同，那么整棵子树都不可能有同值树枝
-		if root.Val != parentVal {
-			return 0
-		}
-		// 实现函数的定义：
-		// 以 root 为根的二叉树从 root 开始值为 parentVal 的最长树枝长度
-		// 等于左右子树的最长树枝长度的最大值加上 root 节点本身
-		return 1 + max(leftLen, rightLen)
-	}
-	// 在后序遍历的位置更新 res
 	maxLen(root, root.Val)
 	return res
 }
 
-// 865. 具有所有最深节点的最小子树
-// https://leetcode.cn/problems/smallest-subtree-with-all-the-deepest-nodes/description/
-// 1123. 最深叶节点的最近公共祖先
-// https://leetcode.cn/problems/lowest-common-ancestor-of-deepest-leaves/description/
-// 给定一个根为 root 的二叉树，每个节点的深度是 该节点到根的最短距离 。
-// 返回包含原始树中所有 最深节点 的 最小子树 。
-// 如果一个节点在 整个树 的任意节点之间具有最大的深度，则该节点是 最深的 。
-// 一个节点的 子树 是该节点加上它的所有后代的集合。
-// 输入：root = [3,5,1,6,2,0,8,null,null,7,4]
-// 输出：[2,7,4]
-func subtreeWithAllDeepest(root *TreeNode) *TreeNode {
-	node, _ := maxDepthNode(root)
-	return node
-}
+// 思路2:遍历整棵树
+func longestUnivaluePath2(root *TreeNode) int {
+	result := 0
+	var traverse func(node *TreeNode, parentVal, cnt int)
 
-func maxDepthNode(root *TreeNode) (*TreeNode, int) {
-	if root == nil {
-		return nil, 0
+	traverse = func(node *TreeNode, parentVal, cnt int) {
+		if node == nil {
+			return
+		}
+		if node.Val != parentVal {
+			return
+		}
+		cnt++
+		result = max(result, cnt)
+		traverse(node.Left, node.Val, cnt)  // 左
+		traverse(node.Right, node.Val, cnt) // 右
 	}
-	left, depth1 := maxDepthNode(root.Left)
-	right, depth2 := maxDepthNode(root.Right)
-	if depth1 == depth2 {
-		return root, depth1 + 1
-	} else if depth1 < depth2 {
-		return right, depth2 + 1
-	}
-	return left, depth1 + 1
+
+	traverse(root, root.Val, 0)
+	return result
 }
 
 // 1026. 节点与其祖先之间的最大差值
@@ -235,49 +228,30 @@ func maxDepthNode(root *TreeNode) (*TreeNode, int) {
 // 0 <= Node.val <= 100000
 func maxAncestorDiff(root *TreeNode) int {
 	res := 0
-	getMinMax(root, &res)
+	// 定义：输入一棵二叉树，返回该二叉树中节点的最小值和最大值，
+	var getMinMax func(root *TreeNode) (int, int)
+
+	getMinMax = func(root *TreeNode) (int, int) {
+		if root == nil {
+			return math.MinInt, math.MaxInt // Integer.MAX_VALUE, Integer.MIN_VALUE in Go
+		}
+		leftMin, leftMax := getMinMax(root.Left)
+		rightMin, rightMax := getMinMax(root.Right)
+
+		// 后序位置
+		rootMin := min(root.Val, leftMin, rightMin)
+		rootMax := max(root.Val, leftMax, rightMax)
+		// 在后序位置顺便判断所有差值的最大值
+		res = max(res, rootMax-root.Val, root.Val-rootMin)
+
+		return rootMin, rootMax
+	}
+
+	getMinMax(root)
 	return res
 }
 
-// 定义：输入一棵二叉树，返回该二叉树中节点的最小值和最大值，
-// 第一个元素是最小值，第二个值是最大值
-func getMinMax(root *TreeNode, res *int) (int, int) {
-	if root == nil {
-		return int(^uint(0) >> 1), -int(^uint(0)>>1) - 1 // Integer.MAX_VALUE, Integer.MIN_VALUE in Go
-	}
-	leftMin, leftMax := getMinMax(root.Left, res)
-	rightMin, rightMax := getMinMax(root.Right, res)
-	// 以 root 为根的这棵树的最大值和最小值可以通过左右子树的最大最小值推导出来
-	rootMin := min3(root.Val, leftMin, rightMin)
-	rootMax := max3(root.Val, leftMax, rightMax)
-	// 在后序位置顺便判断所有差值的最大值
-	*res = max3(*res, rootMax-root.Val, root.Val-rootMin)
-
-	return rootMin, rootMax
-}
-
-func min3(a, b, c int) int {
-	if a < b {
-		if a < c {
-			return a
-		}
-		return c
-	}
-	if b < c {
-		return b
-	}
-	return c
-}
-
-func max3(a, b, c int) int {
-	if a > b {
-		if a > c {
-			return a
-		}
-		return c
-	}
-	if b > c {
-		return b
-	}
-	return c
+func main() {
+	fmt.Println("hello world")
+	// maxAncestorDiff()
 }
