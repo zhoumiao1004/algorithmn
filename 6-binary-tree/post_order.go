@@ -7,6 +7,44 @@ import (
 
 /* 有些题目，你按照拍脑袋的方式去做，可能发现需要在递归代码中调用其他递归函数计算字数的信息。一般来说，出现这种情况时你可以考虑用后序遍历的思维方式来优化算法，利用后序遍历传递子树的信息，避免过高的时间复杂度。 */
 
+// 652. 寻找重复的子树
+// https://leetcode.cn/problems/find-duplicate-subtrees/description/
+// 给你一棵二叉树的根节点 root ，返回所有 重复的子树 。
+// 对于同一类的重复子树，你只需要返回其中任意 一棵 的根结点即可。
+// 如果两棵树具有 相同的结构 和 相同的结点值 ，则认为二者是 重复 的。
+// 输入：root = [1,2,3,4,null,2,4,null,null,4]
+// 输出：[[2,4],[4]]
+func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
+	var result []*TreeNode
+	subMap := make(map[string]int)
+	var serialize func(node *TreeNode) string
+	var traverse func(node *TreeNode)
+	serialize = func(node *TreeNode) string {
+		if node == nil {
+			return "#"
+		}
+		left := serialize(node.Left)
+		right := serialize(node.Right)
+		return fmt.Sprintf("%d,%d,%d", left, right, node.Val)
+	}
+	traverse = func(node *TreeNode) {
+		if node == nil {
+			return
+		}
+		s := serialize(node)
+		cnt, ok := subMap[s]
+		if ok && cnt == 1 {
+			result = append(result, node)
+		}
+		subMap[s]++
+		traverse(node.Left)
+		traverse(node.Right)
+	}
+
+	traverse(root)
+	return result
+}
+
 // 110. 平衡二叉树
 // https://leetcode.cn/problems/balanced-binary-tree/description/
 // 对于树中的每个节点：左和右子树高度差不超过1
@@ -161,64 +199,6 @@ func removeLeafNodes(root *TreeNode, target int) *TreeNode {
 	return root
 }
 
-// 687. 最长同值路径
-// https://leetcode.cn/problems/longest-univalue-path/description/
-// 给定一个二叉树的 root ，返回 最长的路径的长度 ，这个路径中的 每个节点具有相同值 。 这条路径可以经过也可以不经过根节点。
-// 两个节点之间的路径长度 由它们之间的边数表示。
-// 输入：root = [5,4,5,1,1,5]
-// 输出：2
-// 思路1:分解问题+后序
-func longestUnivaluePath(root *TreeNode) int {
-	res := 0
-	var maxLen func(node *TreeNode, parentVal int) int
-	// 定义：计算以 root 为根的这棵二叉树中，从 root 开始值为 parentVal 的最长树枝长度
-	maxLen = func(node *TreeNode, parentVal int) int {
-		if node == nil {
-			return 0
-		}
-
-		// 利用函数定义，计算左右子树值为 root.val 的最长树枝长度
-		leftLen := maxLen(node.Left, node.Val)
-		rightLen := maxLen(node.Right, node.Val)
-
-		// 后序位置
-		if node.Val != parentVal {
-			return 0
-		}
-		res = max(res, leftLen+rightLen)
-
-		return 1 + max(leftLen, rightLen)
-	}
-
-	if root == nil {
-		return res
-	}
-	maxLen(root, root.Val)
-	return res
-}
-
-// 思路2:遍历整棵树
-func longestUnivaluePath2(root *TreeNode) int {
-	result := 0
-	var traverse func(node *TreeNode, parentVal, cnt int)
-
-	traverse = func(node *TreeNode, parentVal, cnt int) {
-		if node == nil {
-			return
-		}
-		if node.Val != parentVal {
-			return
-		}
-		cnt++
-		result = max(result, cnt)
-		traverse(node.Left, node.Val, cnt)  // 左
-		traverse(node.Right, node.Val, cnt) // 右
-	}
-
-	traverse(root, root.Val, 0)
-	return result
-}
-
 // 1026. 节点与其祖先之间的最大差值
 // https://leetcode.cn/problems/maximum-difference-between-node-and-ancestor/description/
 // 给定二叉树的根节点 root，找出存在于 不同 节点 A 和 B 之间的最大值 V，其中 V = |A.val - B.val|，且 A 是 B 的祖先。
@@ -233,7 +213,7 @@ func maxAncestorDiff(root *TreeNode) int {
 
 	getMinMax = func(root *TreeNode) (int, int) {
 		if root == nil {
-			return math.MinInt, math.MaxInt // Integer.MAX_VALUE, Integer.MIN_VALUE in Go
+			return math.MaxInt, math.MinInt
 		}
 		leftMin, leftMax := getMinMax(root.Left)
 		rightMin, rightMax := getMinMax(root.Right)
@@ -249,6 +229,51 @@ func maxAncestorDiff(root *TreeNode) int {
 
 	getMinMax(root)
 	return res
+}
+
+// 1339. 分裂二叉树的最大乘积
+// https://leetcode.cn/problems/maximum-product-of-splitted-binary-tree/description/
+// 给你一棵二叉树，它的根为 root 。请你删除 1 条边，使二叉树分裂成两棵子树，且它们子树和的乘积尽可能大。
+// 由于答案可能会很大，请你将结果对 10^9 + 7 取模后再返回。
+// 输入：root = [1,2,3,4,5,6]
+// 输出：110
+// 解释：删除红色的边，得到 2 棵子树，和分别为 11 和 10 。它们的乘积是 110 （11*10）
+func maxProduct(root *TreeNode) int {
+	// 先求整个树的和
+	var result int64
+	var getTreeSum func(node *TreeNode) int
+	var getSum func(node *TreeNode, s int) int
+	/*
+		var traverse func(node *TreeNode)
+		traverse = func(node *TreeNode) {
+			if node == nil {
+				return
+			}
+			s += node.Val
+			traverse(node.Left)
+			traverse(node.Right)
+		}*/
+	getTreeSum = func(node *TreeNode) int {
+		if node == nil {
+			return 0
+		}
+		return getTreeSum(node.Left) + getTreeSum(node.Right) + node.Val
+	}
+
+	getSum = func(node *TreeNode, treeSum int) int {
+		if node == nil {
+			return 0
+		}
+		leftSum := getSum(node.Left, treeSum)
+		rightSum := getSum(node.Right, treeSum)
+		rootSum := leftSum + rightSum + node.Val
+		result = max(result, int64(rootSum)*(int64(treeSum)-int64(rootSum)))
+		return rootSum
+	}
+
+	treeSum := getTreeSum(root)
+	getSum(root, treeSum)
+	return int(result % (1e9 + 7))
 }
 
 func main() {

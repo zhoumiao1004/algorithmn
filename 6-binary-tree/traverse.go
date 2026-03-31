@@ -17,7 +17,6 @@ type TreeNode struct {
 // https://leetcode.cn/problems/binary-tree-paths/description/
 // 输入：root = [1,2,3,null,5]
 // 输出：["1->2->5","1->3"]
-// 先序遍历
 func binaryTreePaths(root *TreeNode) []string {
 	var results []string
 	var path []string
@@ -27,7 +26,7 @@ func binaryTreePaths(root *TreeNode) []string {
 		if root == nil {
 			return
 		}
-		// 中
+		// 前序位置
 		path = append(path, fmt.Sprintf("%d", root.Val))
 		if root.Left == nil && root.Right == nil {
 			results = append(results, strings.Join(path, "->")) // 注意不能return，因为还要回溯
@@ -60,6 +59,7 @@ func sumNumbers(root *TreeNode) int {
 		if root == nil {
 			return
 		}
+		// 前序位置
 		path = append(path, root.Val)
 		if root.Left == nil && root.Right == nil {
 			s := 0
@@ -68,8 +68,8 @@ func sumNumbers(root *TreeNode) int {
 			}
 			result += s
 		}
-		traverse(root.Left)
-		traverse(root.Right)
+		traverse(root.Left)  // 左
+		traverse(root.Right) // 右
 		path = path[:len(path)-1]
 	}
 
@@ -79,7 +79,31 @@ func sumNumbers(root *TreeNode) int {
 
 // 199. 二叉树的右视图
 // https://leetcode.cn/problems/binary-tree-right-side-view/
+// 输入：root = [1,2,3,null,5,null,4]
+// 输出：[1,3,4]
+// 思路1: 遍历
 func rightSideView(root *TreeNode) []int {
+	maxDepth := math.MinInt
+	var result []int
+	var traverse func(node *TreeNode, depth int)
+
+	traverse = func(node *TreeNode, depth int) {
+		if node == nil {
+			return
+		}
+		if depth > maxDepth {
+			result = append(result, node.Val)
+			maxDepth = depth
+		}
+		traverse(node.Right, depth+1) // 右
+		traverse(node.Left, depth+1)  // 左
+	}
+	traverse(root, 0)
+	return result
+}
+
+// 思路2: BFS层序遍历
+func rightSideView2(root *TreeNode) []int {
 	var results []int
 	if root == nil {
 		return results
@@ -110,7 +134,17 @@ func rightSideView(root *TreeNode) []int {
 func smallestFromLeaf(root *TreeNode) string {
 	var path []byte
 	result := ""
+	var reverse func(s []byte)
 	var traverse func(node *TreeNode)
+
+	reverse = func(s []byte) {
+		left, right := 0, len(s)-1
+		for left < right {
+			s[left], s[right] = s[right], s[left]
+			left++
+			right--
+		}
+	}
 
 	traverse = func(node *TreeNode) {
 		if node == nil {
@@ -131,15 +165,6 @@ func smallestFromLeaf(root *TreeNode) string {
 
 	traverse(root)
 	return result
-}
-
-func reverse(s []byte) {
-	left, right := 0, len(s)-1
-	for left < right {
-		s[left], s[right] = s[right], s[left]
-		left++
-		right--
-	}
 }
 
 // 1022. 从根到叶的二进制数之和
@@ -220,7 +245,8 @@ func pseudoPalindromicPaths(root *TreeNode) int {
 // https://leetcode.cn/problems/sum-of-left-leaves/
 // 输入: root = [3,9,20,null,null,15,7]
 // 输出: 24
-// 后序遍历
+// 关键问题：如何知道遍历的节点是左叶子？两种思路：1.上一层父节点传入isLeft，节点层判断 2.在父节点判断是否有左叶子
+// 思路1: 传入isLeft给下一层
 func sumOfLeftLeaves(root *TreeNode) int {
 	s := 0
 	var traverse func(*TreeNode, bool)
@@ -243,7 +269,7 @@ func sumOfLeftLeaves(root *TreeNode) int {
 	return s
 }
 
-// 递归，有左孩子时，判断一下是否是叶子节点
+// 思路2: 在父节点检查左孩子是不是叶子节点
 func sumOfLeftLeaves2(root *TreeNode) int {
 	s := 0
 	var traverse func(*TreeNode)
@@ -438,8 +464,8 @@ func isCousins(root *TreeNode, x int, y int) bool {
 // 输出：18
 func sumEvenGrandparent(root *TreeNode) int {
 	result := 0
-	var dfs func(root *TreeNode)
-	dfs = func(root *TreeNode) {
+	var traverse func(root *TreeNode)
+	traverse = func(root *TreeNode) {
 		if root == nil {
 			return
 		}
@@ -461,11 +487,11 @@ func sumEvenGrandparent(root *TreeNode) int {
 				}
 			}
 		}
-		dfs(root.Left)
-		dfs(root.Right)
+		traverse(root.Left)
+		traverse(root.Right)
 	}
 
-	dfs(root)
+	traverse(root)
 	return result
 }
 
@@ -478,8 +504,9 @@ func sumEvenGrandparent(root *TreeNode) int {
 func goodNodes(root *TreeNode) int {
 	result := 0
 	preMax := math.MinInt
-	var dfs func(root *TreeNode)
-	dfs = func(root *TreeNode) {
+	var traverse func(root *TreeNode)
+
+	traverse = func(root *TreeNode) {
 		if root == nil {
 			return
 		}
@@ -488,11 +515,12 @@ func goodNodes(root *TreeNode) int {
 			preMax = root.Val
 			result++
 		}
-		dfs(root.Left)
-		dfs(root.Right)
+		traverse(root.Left)
+		traverse(root.Right)
 		preMax = tmp
 	}
-	dfs(root)
+
+	traverse(root)
 	return result
 }
 
@@ -759,6 +787,38 @@ func isSubPath(head *ListNode, root *TreeNode) bool {
 		return true
 	}
 	return isSubPath(head, root.Left) || isSubPath(head, root.Right) // 左右
+}
+
+// 116. 填充每个节点的下一个右侧节点指针
+// https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/description/
+// 给定一个 完美二叉树 ，其所有叶子节点都在同一层，每个父节点都有两个子节点。二叉树定义如下
+// 输入：root = [1,2,3,4,5,6,7]
+// 输出：[1,#,2,3,#,4,5,6,7,#]
+// 解释：给定二叉树如图 A 所示，你的函数应该填充它的每个 next 指针，以指向其下一个右侧节点，如图 B 所示。序列化的输出按层序遍历排列，同一层节点由 next 指针连接，'#' 标志着每一层的结束。
+func connect(root *Node) *Node {
+	var traverse func(root *Node)
+
+	traverse = func(root *Node) {
+		if root == nil {
+			return
+		}
+		// 前序位置
+		if root.Left != nil {
+			root.Left.Next = root.Right
+		}
+		if root.Right != nil {
+			if root.Next != nil {
+				root.Right.Next = root.Next.Left
+			} else {
+				root.Right.Next = nil
+			}
+		}
+		traverse(root.Left)  // 左
+		traverse(root.Right) // 右
+	}
+
+	traverse(root)
+	return root
 }
 
 func main() {

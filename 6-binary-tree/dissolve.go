@@ -1,30 +1,40 @@
 package main
 
-import (
-	"strings"
-)
-
-// 331. 验证二叉树的前序序列化
-// 序列化二叉树的一种方法是使用 前序遍历 。当我们遇到一个非空节点时，我们可以记录下这个节点的值。如果它是一个空节点，我们可以使用一个标记值记录，例如 #。
-// 输入: preorder = "9,3,4,#,#,1,#,#,2,#,6,#,#"
-// 输出: true
-func isValidSerialization(preorder string) bool {
-	edge := 1
-	for _, c := range strings.Split(preorder, ",") {
-		if c == "#" {
-			edge--
-			if edge < 0 {
-				return false
-			}
-		} else {
-			edge--
-			if edge < 0 {
-				return false
-			}
-			edge += 2
-		}
+// 226. 翻转二叉树
+// https://leetcode.cn/problems/invert-binary-tree/description/
+// 思路：分解问题+后序
+func invertTree(root *TreeNode) *TreeNode {
+	if root == nil {
+		return nil
 	}
-	return edge == 0
+	left := invertTree(root.Left)   // 左
+	right := invertTree(root.Right) // 右
+
+	// 后序位置
+	root.Left = right
+	root.Right = left
+
+	return root
+}
+
+// 思路：遍历
+func invertTree2(root *TreeNode) *TreeNode {
+	var traverse func(node *TreeNode)
+
+	traverse = func(node *TreeNode) {
+		if node == nil {
+			return
+		}
+		traverse(node.Left)
+		traverse(node.Right)
+		node.Left, node.Right = node.Right, node.Left // 前/后序都可以
+	}
+
+	if root == nil {
+		return nil
+	}
+	traverse(root)
+	return root
 }
 
 // 998. 最大二叉树 II
@@ -53,30 +63,33 @@ func insertIntoMaxTree(root *TreeNode, val int) *TreeNode {
 // 输出：[[1,2,null,4],[6],[7]]
 func delNodes(root *TreeNode, to_delete []int) []*TreeNode {
 	var results []*TreeNode
-	if root == nil {
-		return results
-	}
 	delSet := make(map[int]bool)
 	for _, val := range to_delete {
 		delSet[val] = true
 	}
-	var doDelete func(root *TreeNode, hasParent bool) *TreeNode
-	doDelete = func(root *TreeNode, hasParent bool) *TreeNode {
-		if root == nil {
+	// 定义函数，对以node为根的二叉树，删除集合中的节点，hasParent用来传递父节点有没有被删除
+	var doDelete func(node *TreeNode, hasParent bool) *TreeNode
+
+	doDelete = func(node *TreeNode, hasParent bool) *TreeNode {
+		if node == nil {
 			return nil
 		}
-		deleted := delSet[root.Val]
+		deleted := delSet[node.Val] // 标记node的值在不在删除集合中
 		if !deleted && !hasParent {
-			results = append(results, root) // 父节点被删除了就成了一颗新树
+			results = append(results, node) // node不删除，父节点被删除了node就成了一颗新树
 		}
-		root.Left = doDelete(root.Left, !deleted)
-		root.Right = doDelete(root.Right, !deleted)
+		node.Left = doDelete(node.Left, !deleted)
+		node.Right = doDelete(node.Right, !deleted)
 		if deleted {
 			return nil // 被删除，返回nil给父节点
 		}
-		return root
+		return node
 	}
-	doDelete(root, false)
+
+	if root == nil {
+		return results
+	}
+	doDelete(root, false) // root初始化为父节点被删除是为了把root加入结果列表
 	return results
 }
 
@@ -89,11 +102,8 @@ func delNodes(root *TreeNode, to_delete []int) []*TreeNode {
 // 输入：p = [1,2,3], q = [1,2,3]
 // 输出：true
 func isSameTree(p *TreeNode, q *TreeNode) bool {
-	if p == nil && q == nil {
-		return true
-	}
 	if p == nil || q == nil {
-		return false
+		return p == q
 	}
 	return p.Val == q.Val && isSameTree(p.Left, q.Left) && isSameTree(p.Right, q.Right)
 }
@@ -103,22 +113,20 @@ func isSameTree(p *TreeNode, q *TreeNode) bool {
 // 输入：root = [1,2,2,3,4,4,3]
 // 输出：true
 func isSymmetric(root *TreeNode) bool {
-	var compare func(left, right *TreeNode) bool
-	compare = func(left, right *TreeNode) bool {
-		if left == nil || right == nil {
-			return left == right
+	// 定义check：返回两个子树是否对称
+	var check func(p, q *TreeNode) bool
+
+	check = func(p, q *TreeNode) bool {
+		if p == nil || q == nil {
+			return p == q
 		}
-		if left.Val != right.Val {
-			return false
-		}
-		outside := compare(left.Left, right.Right)
-		inside := compare(left.Right, right.Left)
-		return outside && inside
+		return p.Val == q.Val && check(p.Left, q.Right) && check(p.Right, q.Left)
 	}
+
 	if root == nil {
 		return false
 	}
-	return compare(root.Left, root.Right)
+	return check(root.Left, root.Right)
 }
 
 // 951. 翻转等价二叉树
@@ -130,11 +138,8 @@ func isSymmetric(root *TreeNode) bool {
 // 输出：true
 // 解释：我们翻转值为 1，3 以及 5 的三个节点。
 func flipEquiv(root1 *TreeNode, root2 *TreeNode) bool {
-	if root1 == nil && root2 == nil {
-		return true
-	}
 	if root1 == nil || root2 == nil {
-		return false
+		return root1 == root2
 	}
 	if root1.Val != root2.Val {
 		return false
