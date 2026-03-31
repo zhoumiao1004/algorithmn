@@ -529,7 +529,7 @@ func goodNodes(root *TreeNode) int {
 // 给定一个二叉树，在树的最后一行找到最左边的值。
 // 输入: [1,2,3,4,null,5,6,null,null,7]
 // 输出: 7
-// 思路1:层序遍历
+// 思路1:层序遍历BFS
 func findBottomLeftValue(root *TreeNode) int {
 	result := 0
 	q := []*TreeNode{root}
@@ -578,51 +578,6 @@ func findBottomLeftValue3(root *TreeNode) int {
 	return result
 }
 
-// 1261. 在受污染的二叉树中查找元素
-// https://leetcode.cn/problems/find-elements-in-a-contaminated-binary-tree/description/
-// 给出一个满足下述规则的二叉树：
-// root.val == 0
-// 对于任意 treeNode：
-// 如果 treeNode.val 为 x 且 treeNode.left != null，那么 treeNode.left.val == 2 * x + 1
-// 如果 treeNode.val 为 x 且 treeNode.right != null，那么 treeNode.right.val == 2 * x + 2
-// 现在这个二叉树受到「污染」，所有的 treeNode.val 都变成了 -1。
-// 请你先还原二叉树，然后实现 FindElements 类：
-// FindElements(TreeNode* root) 用受污染的二叉树初始化对象，你需要先把它还原。
-// bool find(int target) 判断目标值 target 是否存在于还原后的二叉树中并返回结果。
-// 输入：
-// ["FindElements","find","find"]
-// [[[-1,null,-1]],[1],[2]]
-// 输出：
-// [null,false,true]
-// 解释：
-// FindElements findElements = new FindElements([-1,null,-1]);
-// findElements.find(1); // return False
-// findElements.find(2); // return True
-type FindElements struct {
-	values map[int]bool
-}
-
-func Constructor(root *TreeNode) FindElements {
-	// 还原二叉树中的值
-	fe := FindElements{values: make(map[int]bool)}
-	fe.traverse(root, 0)
-	return fe
-}
-
-func (this *FindElements) traverse(root *TreeNode, val int) {
-	if root == nil {
-		return
-	}
-	root.Val = val
-	this.values[root.Val] = true
-	this.traverse(root.Left, 2*val+1)
-	this.traverse(root.Right, 2*val+2)
-}
-
-func (this *FindElements) Find(target int) bool {
-	return this.values[target]
-}
-
 // 386. 字典序排数
 // https://leetcode.cn/problems/lexicographical-numbers/
 // 给你一个整数 n ，按字典序返回范围 [1, n] 内所有整数。
@@ -649,39 +604,6 @@ func lexicalOrder(n int) []int {
 	return results
 }
 
-// 1104. 二叉树寻路
-// https://leetcode.cn/problems/path-in-zigzag-labelled-binary-tree/description/
-// 在一棵无限的二叉树上，每个节点都有两个子节点，树中的节点 逐行 依次按 “之” 字形进行标记。
-// 如下图所示，在奇数行（即，第一行、第三行、第五行……）中，按从左到右的顺序进行标记；
-// 而偶数行（即，第二行、第四行、第六行……）中，按从右到左的顺序进行标记。
-func pathInZigZagTree(label int) []int {
-	var path []int
-	for label >= 1 {
-		path = append(path, label)
-		label /= 2
-		depth := log(label)
-		rangeVals := getLevelRange(depth)
-		label = rangeVals[1] - (label - rangeVals[0])
-	}
-	reverseInts(path)
-	return path
-}
-
-func log(x int) int { return int(math.Log(float64(x)) / math.Log(float64(2))) }
-
-func getLevelRange(n int) []int {
-	p := int(math.Pow(2, float64(n)))
-	return []int{p, 2*p - 1}
-}
-func reverseInts(nums []int) {
-	left, right := 0, len(nums)-1
-	for left < right {
-		nums[left], nums[right] = nums[right], nums[left]
-		left++
-		right--
-	}
-}
-
 // 1145. 二叉树着色游戏
 // 有两位极客玩家参与了一场「二叉树着色」的游戏。游戏中，给出二叉树的根节点 root，树上总共有 n 个节点，且 n 为奇数，其中每个节点上的值从 1 到 n 各不相同。
 // 最开始时：
@@ -696,37 +618,42 @@ func reverseInts(nums []int) {
 // 输出：true
 // 解释：第二个玩家可以选择值为 2 的节点。
 func btreeGameWinningMove(root *TreeNode, n int, x int) bool {
+
+	// 函数定义：返回以 root 为根的二叉树中值为 x 的节点
+	var find func(root *TreeNode, x int) *TreeNode
+	// 函数定义：返回以 root 为根的二叉树的节点总数
+	var countNode func(root *TreeNode) int
+
+	find = func(root *TreeNode, x int) *TreeNode {
+		if root == nil {
+			return nil
+		}
+		if root.Val == x {
+			return root
+		}
+		// 去左子树找
+		left := find(root.Left, x)
+		if left != nil {
+			return left
+		}
+		// 左子树找不到的话去右子树找
+		return find(root.Right, x)
+	}
+
+	// 定义：计算以 root 为根的二叉树的节点总数
+	countNode = func(root *TreeNode) int {
+		if root == nil {
+			return 0
+		}
+		return 1 + countNode(root.Left) + countNode(root.Right)
+	}
+
 	node := find(root, x)
 	leftCount := countNode(node.Left)
 	rightCount := countNode(node.Right)
 	otherCount := n - 1 - leftCount - rightCount
 
-	return max(leftCount, max(rightCount, otherCount)) > n/2
-}
-
-// 定义：在以 root 为根的二叉树中搜索值为 x 的节点并返回
-func find(root *TreeNode, x int) *TreeNode {
-	if root == nil {
-		return nil
-	}
-	if root.Val == x {
-		return root
-	}
-	// 去左子树找
-	left := find(root.Left, x)
-	if left != nil {
-		return left
-	}
-	// 左子树找不到的话去右子树找
-	return find(root.Right, x)
-}
-
-// 定义：计算以 root 为根的二叉树的节点总数
-func countNode(root *TreeNode) int {
-	if root == nil {
-		return 0
-	}
-	return 1 + countNode(root.Left) + countNode(root.Right)
+	return max(leftCount, rightCount, otherCount) > n/2
 }
 
 // 572. 另一棵树的子树
@@ -736,11 +663,8 @@ func countNode(root *TreeNode) int {
 func isSubtree(root *TreeNode, subRoot *TreeNode) bool {
 	var isSameTree func(p, q *TreeNode) bool
 	isSameTree = func(p, q *TreeNode) bool {
-		if p == nil && q == nil {
-			return true
-		}
 		if p == nil || q == nil {
-			return false
+			return p == q
 		}
 		return p.Val == q.Val && isSameTree(p.Left, q.Left) && isSameTree(p.Right, q.Right)
 	}
@@ -748,11 +672,10 @@ func isSubtree(root *TreeNode, subRoot *TreeNode) bool {
 	if root == nil {
 		return false
 	}
-	// 中
 	if isSameTree(root, subRoot) {
 		return true
 	}
-	return isSubtree(root.Left, subRoot) || isSubtree(root.Right, subRoot) // 左右
+	return isSubtree(root.Left, subRoot) || isSubtree(root.Right, subRoot)
 }
 
 // 1367. 二叉树中的链表
@@ -760,9 +683,10 @@ func isSubtree(root *TreeNode, subRoot *TreeNode) bool {
 // 给你一棵以 root 为根的二叉树和一个 head 为第一个节点的链表。
 // 如果在二叉树中，存在一条一直向下的路径，且每个点的数值恰好一一对应以 head 为首的链表中每个节点的值，那么请你返回 True ，否则返回 False 。
 // 一直向下的路径的意思是：从树中某个节点开始，一直连续向下的路径。
+// 思路：遍历二叉树的所有节点，每个节点用 check 函数判断是否能够将链表嵌进去。
 func isSubPath(head *ListNode, root *TreeNode) bool {
-	// 思路：遍历二叉树的所有节点，每个节点用 check 函数判断是否能够将链表嵌进去。
 	var check func(head *ListNode, root *TreeNode) bool
+
 	check = func(head *ListNode, root *TreeNode) bool {
 		if head == nil {
 			return true
@@ -782,7 +706,6 @@ func isSubPath(head *ListNode, root *TreeNode) bool {
 	if root == nil {
 		return false
 	}
-	// 中
 	if check(head, root) {
 		return true
 	}

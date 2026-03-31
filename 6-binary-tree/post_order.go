@@ -5,7 +5,11 @@ import (
 	"math"
 )
 
-/* 有些题目，你按照拍脑袋的方式去做，可能发现需要在递归代码中调用其他递归函数计算字数的信息。一般来说，出现这种情况时你可以考虑用后序遍历的思维方式来优化算法，利用后序遍历传递子树的信息，避免过高的时间复杂度。 */
+/* 有些题目，你按照拍脑袋的方式去做，可能发现需要在递归代码中调用其他递归函数计算字数的信息。
+一般来说，出现这种情况时你可以考虑用后序遍历的思维方式来优化算法，利用后序遍历传递子树的信息，避免过高的时间复杂度。
+前序位置的代码只能从函数参数中获取父节点传递来的数据，而后序位置的代码不仅可以获取参数数据，还可以获取到子树通过函数返回值传递回来的数据。
+一旦你发现题目和子树有关，那大概率要给函数设置合理的定义和返回值，在后序位置写代码了。
+*/
 
 // 652. 寻找重复的子树
 // https://leetcode.cn/problems/find-duplicate-subtrees/description/
@@ -19,6 +23,7 @@ func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
 	subMap := make(map[string]int)
 	var serialize func(node *TreeNode) string
 	var traverse func(node *TreeNode)
+
 	serialize = func(node *TreeNode) string {
 		if node == nil {
 			return "#"
@@ -27,6 +32,7 @@ func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
 		right := serialize(node.Right)
 		return fmt.Sprintf("%d,%d,%d", left, right, node.Val)
 	}
+
 	traverse = func(node *TreeNode) {
 		if node == nil {
 			return
@@ -51,32 +57,9 @@ func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
 // 输入：root = [3,9,20,null,null,15,7]
 // 输出：true
 func isBalanced(root *TreeNode) bool {
-	if root == nil {
-		return true
-	}
+	// 定义函数：返回以node为根的子树的最大深度
 	var maxDepth func(node *TreeNode) int
-	maxDepth = func(node *TreeNode) int {
-		if node == nil {
-			return 0
-		}
-		left := maxDepth(node.Left)
-		if left == -1 {
-			return -1
-		}
-		right := maxDepth(node.Right)
-		if right == -1 {
-			return -1
-		}
-		if left-right > 1 || left-right < -1 {
-			return -1
-		}
-		return max(left, right) + 1
-	}
-	return maxDepth(root) != -1
-}
 
-func isBalanced2(root *TreeNode) bool {
-	var maxDepth func(node *TreeNode) int
 	maxDepth = func(node *TreeNode) int {
 		if node == nil {
 			return 0
@@ -85,12 +68,13 @@ func isBalanced2(root *TreeNode) bool {
 		right := maxDepth(node.Right)
 		return max(left, right) + 1
 	}
+
 	if root == nil {
 		return true
 	}
-	// 中
 	left := maxDepth(root.Left)
 	right := maxDepth(root.Right)
+	// 后序位置
 	if math.Abs(float64(left-right)) > 1 {
 		return false
 	}
@@ -107,8 +91,9 @@ func findFrequentTreeSum(root *TreeNode) []int {
 	var results []int
 	maxCnt := 0
 	maxSumCnt := make(map[int]int) // 记录和的次数
-
+	// 定义函数：返回以node为根的二叉树的元素和
 	var traverse func(node *TreeNode) int
+
 	traverse = func(node *TreeNode) int {
 		if node == nil {
 			return 0
@@ -147,7 +132,7 @@ func findTilt(root *TreeNode) int {
 		left := traverse(node.Left)
 		right := traverse(node.Right)
 		// 后序位置
-		result += int(math.Abs(float64(left) - float64(right)))
+		result += int(math.Abs(float64(left) - float64(right))) // 顺便累加坡度和
 		return left + right + node.Val
 	}
 
@@ -166,10 +151,11 @@ func pruneTree(root *TreeNode) *TreeNode {
 	if root == nil {
 		return nil
 	}
-	left := pruneTree(root.Left)
-	right := pruneTree(root.Right)
+	// 函数定义：返回以root为根的二叉树剪枝后的原二叉树
+	left := pruneTree(root.Left)   // 左子树剪枝
+	right := pruneTree(root.Right) // 右子树剪枝
 	// 后序位置
-	if root.Val == 0 && left == nil && right == nil {
+	if root.Val == 0 && left == nil && right == nil { // 剪枝条件：叶子节点值为0
 		return nil // return nil 相当于删除节点
 	}
 	root.Left = left   // 接住左子树
@@ -243,16 +229,7 @@ func maxProduct(root *TreeNode) int {
 	var result int64
 	var getTreeSum func(node *TreeNode) int
 	var getSum func(node *TreeNode, s int) int
-	/*
-		var traverse func(node *TreeNode)
-		traverse = func(node *TreeNode) {
-			if node == nil {
-				return
-			}
-			s += node.Val
-			traverse(node.Left)
-			traverse(node.Right)
-		}*/
+
 	getTreeSum = func(node *TreeNode) int {
 		if node == nil {
 			return 0

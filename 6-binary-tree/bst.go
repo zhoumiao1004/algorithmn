@@ -528,6 +528,8 @@ func sortedArrayToBST(nums []int) *TreeNode {
 func balanceBST(root *TreeNode) *TreeNode {
 	var nums []int
 	var traverse func(root *TreeNode)
+	var buildTree func(nums []int) *TreeNode
+
 	traverse = func(root *TreeNode) {
 		if root == nil {
 			return
@@ -536,8 +538,7 @@ func balanceBST(root *TreeNode) *TreeNode {
 		nums = append(nums, root.Val)
 		traverse(root.Right)
 	}
-	traverse(root)
-	var buildTree func(nums []int) *TreeNode
+
 	buildTree = func(nums []int) *TreeNode {
 		n := len(nums)
 		if n == 0 {
@@ -550,6 +551,8 @@ func balanceBST(root *TreeNode) *TreeNode {
 		root.Right = buildTree(nums[n/2+1:])
 		return root
 	}
+
+	traverse(root)
 	return buildTree(nums)
 }
 
@@ -620,12 +623,11 @@ func getAllElements(root1 *TreeNode, root2 *TreeNode) []int {
 // 输入：root = [10,5,15,3,7,null,18], low = 7, high = 15
 // 输出：32
 // 对比 669. 修剪二叉搜索树 https://leetcode.cn/problems/trim-a-binary-search-tree/description/
+// 思路1：遍历
 func rangeSumBST2(root *TreeNode, low int, high int) int {
-	if root == nil {
-		return 0
-	}
 	result := 0
 	var traverse func(root *TreeNode)
+
 	traverse = func(root *TreeNode) {
 		if root == nil {
 			return
@@ -636,16 +638,22 @@ func rangeSumBST2(root *TreeNode, low int, high int) int {
 		traverse(root.Left)
 		traverse(root.Right)
 	}
+
+	if root == nil {
+		return 0
+	}
 	traverse(root)
 	return result
 }
 
+// 思路2: 分解问题的思路
 func rangeSumBST(root *TreeNode, low int, high int) int {
 	if root == nil {
 		return 0
 	}
 	left := rangeSumBST(root.Right, low, high)
 	right := rangeSumBST(root.Left, low, high)
+	// 后序位置
 	s := left + right
 	if root.Val >= low && root.Val <= high {
 		s += root.Val
