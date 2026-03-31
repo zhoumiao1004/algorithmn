@@ -13,16 +13,16 @@ func isBalanced(root *TreeNode) bool {
 	if root == nil {
 		return true
 	}
-	var getDepth func(node *TreeNode) int
-	getDepth = func(node *TreeNode) int {
+	var maxDepth func(node *TreeNode) int
+	maxDepth = func(node *TreeNode) int {
 		if node == nil {
 			return 0
 		}
-		left := getDepth(node.Left)
+		left := maxDepth(node.Left)
 		if left == -1 {
 			return -1
 		}
-		right := getDepth(node.Right)
+		right := maxDepth(node.Right)
 		if right == -1 {
 			return -1
 		}
@@ -31,7 +31,7 @@ func isBalanced(root *TreeNode) bool {
 		}
 		return max(left, right) + 1
 	}
-	return getDepth(root) != -1
+	return maxDepth(root) != -1
 }
 
 func isBalanced2(root *TreeNode) bool {
@@ -47,12 +47,13 @@ func isBalanced2(root *TreeNode) bool {
 	if root == nil {
 		return true
 	}
+	// 中
 	left := maxDepth(root.Left)
 	right := maxDepth(root.Right)
 	if math.Abs(float64(left-right)) > 1 {
 		return false
 	}
-	return isBalanced(root.Left) && isBalanced(root.Right)
+	return isBalanced(root.Left) && isBalanced(root.Right) // 左右
 }
 
 // 508. 出现次数最多的子树元素和
@@ -64,14 +65,16 @@ func isBalanced2(root *TreeNode) bool {
 func findFrequentTreeSum(root *TreeNode) []int {
 	var results []int
 	maxCnt := 0
-	maxSumCnt := make(map[int]int)
-	var dfs func(root *TreeNode) int
-	dfs = func(root *TreeNode) int {
+	maxSumCnt := make(map[int]int) // 记录和的次数
+
+	var traverse func(root *TreeNode) int
+	traverse = func(root *TreeNode) int {
 		if root == nil {
 			return 0
 		}
-		left := dfs(root.Left)
-		right := dfs(root.Right)
+		left := traverse(root.Left)
+		right := traverse(root.Right)
+		// 后序位置
 		s := root.Val + left + right
 		maxSumCnt[s]++
 		if maxSumCnt[s] == maxCnt {
@@ -82,7 +85,8 @@ func findFrequentTreeSum(root *TreeNode) []int {
 		}
 		return s
 	}
-	dfs(root)
+
+	traverse(root)
 	return results
 }
 
@@ -93,17 +97,20 @@ func findFrequentTreeSum(root *TreeNode) []int {
 // 整个树 的坡度就是其所有节点的坡度之和。
 func findTilt(root *TreeNode) int {
 	result := 0
-	var dfs func(root *TreeNode) int
-	dfs = func(root *TreeNode) int {
+	var traverse func(root *TreeNode) int
+
+	traverse = func(root *TreeNode) int {
 		if root == nil {
 			return 0
 		}
-		left := dfs(root.Left)
-		right := dfs(root.Right)
+		left := traverse(root.Left)
+		right := traverse(root.Right)
+		// 后序位置
 		result += int(math.Abs(float64(left) - float64(right)))
 		return left + right + root.Val
 	}
-	dfs(root)
+
+	traverse(root)
 	return result
 }
 
@@ -120,30 +127,13 @@ func pruneTree(root *TreeNode) *TreeNode {
 	}
 	left := pruneTree(root.Left)
 	right := pruneTree(root.Right)
+	// 后序位置
 	if root.Val == 0 && left == nil && right == nil {
-		return nil
+		return nil // return nil 相当于删除节点
 	}
-	root.Left = left
-	root.Right = right
+	root.Left = left   // 接住左子树
+	root.Right = right // 接住右子树
 	return root
-}
-
-func pruneTree2(root *TreeNode) *TreeNode {
-	var dfs func(root *TreeNode) *TreeNode
-	dfs = func(root *TreeNode) *TreeNode {
-		if root == nil {
-			return nil
-		}
-		left := pruneTree(root.Left)
-		right := pruneTree(root.Right)
-		if root.Val == 0 && left == nil && right == nil {
-			return nil
-		}
-		root.Left = left
-		root.Right = right
-		return root
-	}
-	return dfs(root)
 }
 
 // 1325. 删除给定值的叶子节点
@@ -159,11 +149,12 @@ func removeLeafNodes(root *TreeNode, target int) *TreeNode {
 	}
 	left := removeLeafNodes(root.Left, target)
 	right := removeLeafNodes(root.Right, target)
+	// 后序位置
 	if root.Val == target && left == nil && right == nil {
-		return nil
+		return nil // return nil 相当于删除节点
 	}
-	root.Left = left
-	root.Right = right
+	root.Left = left   // 接住左子树
+	root.Right = right // 接住右子树
 	return root
 }
 
@@ -173,41 +164,8 @@ func removeLeafNodes(root *TreeNode, target int) *TreeNode {
 // 两个节点之间的路径长度 由它们之间的边数表示。
 // 输入：root = [5,4,5,1,1,5]
 // 输出：2
+// 思路:分解问题+后序,这题不适合用遍历的思路，因为需要从子树获取最长路径长度
 func longestUnivaluePath(root *TreeNode) int {
-	if root == nil {
-		return 0
-	}
-	result := 0
-	var dfs func(root *TreeNode) int
-	dfs = func(root *TreeNode) int {
-		if root == nil {
-			return 0
-		}
-		if root.Left == nil && root.Right == nil {
-			return 1
-		}
-		// 计算节点相同值的高度
-		maxCnt := 0
-		depth := 1
-		left := dfs(root.Left)
-		right := dfs(root.Right)
-		if root.Left != nil && root.Val == root.Left.Val {
-			maxCnt += left
-			depth = max(depth, left+1)
-		}
-		if root.Right != nil && root.Val == root.Right.Val {
-			maxCnt += right
-			depth = max(depth, right+1)
-		}
-		result = max(result, maxCnt) // 顺便统计以节点为根的路径长度
-		// 返回以节点为边的相同值的路径长度
-		return depth
-	}
-	dfs(root)
-	return result
-}
-
-func longestUnivaluePath2(root *TreeNode) int {
 	res := 0
 	if root == nil {
 		return res
