@@ -501,36 +501,35 @@ func goodNodes(root *TreeNode) int {
 // 给定一个二叉树，在树的最后一行找到最左边的值。
 // 输入: [1,2,3,4,null,5,6,null,null,7]
 // 输出: 7
-// 方法1:层序遍历
+// 思路1:层序遍历
 func findBottomLeftValue(root *TreeNode) int {
 	result := 0
 	q := []*TreeNode{root}
 	for len(q) > 0 {
-		var next []*TreeNode
+		sz := len(q)
+		node := q[0]
+		q = q[1:]
 		result = q[0].Val
-		for _, node := range q {
+		for i := 0; i < sz; i++ {
 			if node.Left != nil {
-				next = append(next, node.Left)
+				q = append(q, node.Left)
 			}
 			if node.Right != nil {
-				next = append(next, node.Right)
+				q = append(q, node.Right)
 			}
 		}
-		q = next
 	}
 	return result
 }
 
-// 方法2:递归遍历
+// 思路2:遍历整棵二叉树，用变量记录深度
 func findBottomLeftValue3(root *TreeNode) int {
 	maxDepth := 0
 	depth := 0
 	result := 0
-	if root == nil {
-		return result
-	}
-	var dfs func(node *TreeNode)
-	dfs = func(node *TreeNode) {
+	var traverse func(node *TreeNode)
+
+	traverse = func(node *TreeNode) {
 		if node == nil {
 			return
 		}
@@ -539,11 +538,15 @@ func findBottomLeftValue3(root *TreeNode) int {
 			maxDepth = depth
 			result = node.Val
 		}
-		dfs(node.Left)
-		dfs(node.Right)
+		traverse(node.Left)
+		traverse(node.Right)
 		depth--
 	}
-	dfs(root)
+
+	if root == nil {
+		return result
+	}
+	traverse(root)
 	return result
 }
 
@@ -600,18 +603,20 @@ func (this *FindElements) Find(target int) bool {
 // 输出：[1,10,11,12,13,2,3,4,5,6,7,8,9]
 func lexicalOrder(n int) []int {
 	var results []int
-	var dfs func(root, n int)
-	dfs = func(root, n int) {
+	var traverse func(root, n int)
+
+	traverse = func(root, n int) {
 		if root > n {
 			return
 		}
 		results = append(results, root)
 		for child := root * 10; child < root*10+10; child++ {
-			dfs(child, n)
+			traverse(child, n)
 		}
 	}
+
 	for i := 1; i <= 9; i++ {
-		dfs(i, n)
+		traverse(i, n)
 	}
 	return results
 }

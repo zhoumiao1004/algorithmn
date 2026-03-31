@@ -10,26 +10,28 @@ type TreeNode struct {
 
 // 104. 二叉树的最大深度
 // https://leetcode.cn/problems/maximum-depth-of-binary-tree/
-// 1.遍历的思路（回溯）
+// 思路1:遍历整棵树，外部变量记录递归深度
 func maxDepth(root *TreeNode) int {
 	result := 0
 	depth := 0
-	var dfs func(node *TreeNode)
-	dfs = func(node *TreeNode) {
+	var traverse func(node *TreeNode)
+
+	traverse = func(node *TreeNode) {
 		if node == nil {
 			result = max(result, depth)
 			return
 		}
 		depth++
-		dfs(node.Left)
-		dfs(node.Right)
+		traverse(node.Left)
+		traverse(node.Right)
 		depth--
 	}
-	dfs(root)
+
+	traverse(root)
 	return result
 }
 
-// 2.分解子问题的思路(dp)后序遍历
+// 思路2:分解问题+后序
 func maxDepth2(root *TreeNode) int {
 	if root == nil {
 		return 0
@@ -47,7 +49,7 @@ func maxDepth2(root *TreeNode) int {
 // 注意: 合并过程必须从两个树的根节点开始。
 // 输入：root1 = [1,3,2,5], root2 = [2,1,3,null,4,null,7]
 // 输出：[3,4,5,5,4,null,7]
-// 前序遍历
+// 思路：分解问题+前序
 func mergeTrees(root1 *TreeNode, root2 *TreeNode) *TreeNode {
 	if root1 == nil {
 		return root2
@@ -65,43 +67,49 @@ func mergeTrees(root1 *TreeNode, root2 *TreeNode) *TreeNode {
 // 给你一棵二叉搜索树的 root ，请你 按中序遍历 将其重新排列为一棵递增顺序搜索树，使树中最左边的节点成为树的根节点，并且每个节点没有左子节点，只有一个右子节点。
 // 输入：root = [5,3,6,2,4,null,8,1,null,null,null,7,9]
 // 输出：[1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9]
-// 方法1:遍历
+// 思路1:遍历整棵树，创建一颗新树
 func increasingBST2(root *TreeNode) *TreeNode {
 	dummy := &TreeNode{}
 	cur := dummy
-	var dfs func(root *TreeNode)
-	dfs = func(root *TreeNode) {
-		if root == nil {
+	var traverse func(node *TreeNode)
+
+	traverse = func(node *TreeNode) {
+		if node == nil {
 			return
 		}
-		dfs(root.Left) // 左
-		cur.Right = &TreeNode{Val: root.Val}
+		traverse(node.Left) // 左
+
+		// 中序位置
+		cur.Right = &TreeNode{Val: node.Val}
 		cur = cur.Right
-		dfs(root.Right) // 右
+
+		traverse(root.Right) // 右
 	}
-	dfs(root)
+
+	traverse(root)
 	return dummy.Right
 }
 
-// 方法2:分解
+// 思路2:分解问题+后序，修改原树
 func increasingBST(root *TreeNode) *TreeNode {
 	if root == nil {
 		return nil
 	}
 	// 左右子树拉平
-	left := increasingBST(root.Left)
-	root.Left = nil // 注意左子树置为空！
-	right := increasingBST(root.Right)
+	left := increasingBST(root.Left)   // 左
+	root.Left = nil                    // 注意左子树置为空！
+	right := increasingBST(root.Right) // 右
 	root.Right = right
+
+	// 后序位置
 	if left == nil {
 		return root
 	}
-	// 中: root节点挂到左子树最右边的节点上
 	cur := left
 	for cur.Right != nil {
 		cur = cur.Right
 	}
-	cur.Right = root
+	cur.Right = root // 节点挂到左子树最右边的节点上
 	return left
 }
 
@@ -112,12 +120,15 @@ func increasingBST(root *TreeNode) *TreeNode {
 // 展开后的单链表应该与二叉树 先序遍历 顺序相同。
 // 输入：root = [1,2,5,3,4,null,6]
 // 输出：[1,null,2,null,3,null,4,null,5,null,6]
+// 思路：分解问题+后序
 func flatten(root *TreeNode) {
 	if root == nil {
 		return
 	}
-	flatten(root.Left)
-	flatten(root.Right)
+	flatten(root.Left)  // 左
+	flatten(root.Right) // 右
+
+	// 后序位置
 	if root.Left == nil {
 		return
 	}
@@ -128,36 +139,6 @@ func flatten(root *TreeNode) {
 	cur.Right = root.Right
 	root.Right = root.Left
 	root.Left = nil // 注意需要清空左节点
-}
-
-// 429. N 叉树的层序遍历
-// 给定一个 N 叉树，返回其节点值的层序遍历。（即从左到右，逐层遍历）。
-// 树的序列化输入是用层序遍历，每组子节点都由 null 值分隔（参见示例）。
-type NTreeNode struct {
-	Val      int
-	Children []*NTreeNode
-}
-
-func levelOrderNTree(root *NTreeNode) [][]int {
-	var result [][]int
-	if root == nil {
-		return result
-	}
-	q := []*NTreeNode{root}
-	for len(q) > 0 {
-		sz := len(q)
-		var tmp []int
-		for i := 0; i < sz; i++ {
-			node := q[i]
-			q = q[1:]
-			tmp = append(tmp, node.Val)
-			for _, c := range node.Children {
-				q = append(q, c)
-			}
-		}
-		result = append(result, tmp)
-	}
-	return result
 }
 
 // 116. 填充每个节点的下一个右侧节点指针
@@ -187,13 +168,14 @@ func levelOrderNTree(root *NTreeNode) [][]int {
 
 // 226. 翻转二叉树
 // https://leetcode.cn/problems/invert-binary-tree/description/
-// 后序遍历
+// 思路：分解问题+后序
 func invertTree(root *TreeNode) *TreeNode {
 	if root == nil {
 		return nil
 	}
 	left := invertTree(root.Left)   // 左
 	right := invertTree(root.Right) // 右
+	// 中序位置
 	root.Left = right
 	root.Right = left
 	return root
@@ -203,7 +185,7 @@ func invertTree(root *TreeNode) *TreeNode {
 // https://leetcode.cn/problems/minimum-depth-of-binary-tree/
 // 输入：root = [3,9,20,null,null,15,7]
 // 输出：2
-// 思路1:分解问题+后序遍历
+// 思路1:分解问题+后序
 func minDepth(root *TreeNode) int {
 	if root == nil {
 		return 0

@@ -50,6 +50,36 @@ func levelOrderBottom(root *TreeNode) [][]int {
 	return results
 }
 
+// 429. N 叉树的层序遍历
+// 给定一个 N 叉树，返回其节点值的层序遍历。（即从左到右，逐层遍历）。
+// 树的序列化输入是用层序遍历，每组子节点都由 null 值分隔（参见示例）。
+type NTreeNode struct {
+	Val      int
+	Children []*NTreeNode
+}
+
+func levelOrderNTree(root *NTreeNode) [][]int {
+	var result [][]int
+	if root == nil {
+		return result
+	}
+	q := []*NTreeNode{root}
+	for len(q) > 0 {
+		sz := len(q)
+		var tmp []int
+		for i := 0; i < sz; i++ {
+			node := q[i]
+			q = q[1:]
+			tmp = append(tmp, node.Val)
+			for _, c := range node.Children {
+				q = append(q, c)
+			}
+		}
+		result = append(result, tmp)
+	}
+	return result
+}
+
 // 103. 二叉树的锯齿形层序遍历
 // https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/submissions/
 // 给你二叉树的根节点 root ，返回其节点值的 锯齿形层序遍历 。（即先从左往右，再从右往左进行下一层遍历，以此类推，层与层之间交替进行）。
