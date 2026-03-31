@@ -21,8 +21,9 @@ type TreeNode struct {
 func binaryTreePaths(root *TreeNode) []string {
 	var results []string
 	var path []string
-	var dfs func(*TreeNode)
-	dfs = func(root *TreeNode) {
+	var traverse func(*TreeNode)
+
+	traverse = func(root *TreeNode) {
 		if root == nil {
 			return
 		}
@@ -31,11 +32,12 @@ func binaryTreePaths(root *TreeNode) []string {
 		if root.Left == nil && root.Right == nil {
 			results = append(results, strings.Join(path, "->")) // 注意不能return，因为还要回溯
 		}
-		dfs(root.Left)  // 左
-		dfs(root.Right) // 右
+		traverse(root.Left)  // 左
+		traverse(root.Right) // 右
 		path = path[:len(path)-1]
 	}
-	dfs(root)
+
+	traverse(root)
 	return results
 }
 
@@ -52,8 +54,9 @@ func binaryTreePaths(root *TreeNode) []string {
 func sumNumbers(root *TreeNode) int {
 	result := 0
 	var path []int
-	var dfs func(root *TreeNode)
-	dfs = func(root *TreeNode) {
+	var traverse func(root *TreeNode)
+
+	traverse = func(root *TreeNode) {
 		if root == nil {
 			return
 		}
@@ -65,11 +68,12 @@ func sumNumbers(root *TreeNode) int {
 			}
 			result += s
 		}
-		dfs(root.Left)
-		dfs(root.Right)
+		traverse(root.Left)
+		traverse(root.Right)
 		path = path[:len(path)-1]
 	}
-	dfs(root)
+
+	traverse(root)
 	return result
 }
 
@@ -82,17 +86,18 @@ func rightSideView(root *TreeNode) []int {
 	}
 	q := []*TreeNode{root}
 	for len(q) > 0 {
+		sz := len(q)
+		node := q[0]
+		q = q[1:]
 		results = append(results, q[len(q)-1].Val)
-		var next []*TreeNode
-		for _, node := range q {
+		for i := 0; i < sz; i++ {
 			if node.Left != nil {
-				next = append(next, node.Left)
+				q = append(q, node.Left)
 			}
 			if node.Right != nil {
-				next = append(next, node.Right)
+				q = append(q, node.Right)
 			}
 		}
-		q = next
 	}
 	return results
 }
@@ -105,8 +110,9 @@ func rightSideView(root *TreeNode) []int {
 func smallestFromLeaf(root *TreeNode) string {
 	var path []byte
 	result := ""
-	var dfs func(node *TreeNode)
-	dfs = func(node *TreeNode) {
+	var traverse func(node *TreeNode)
+
+	traverse = func(node *TreeNode) {
 		if node == nil {
 			return
 		}
@@ -118,11 +124,12 @@ func smallestFromLeaf(root *TreeNode) string {
 				result = string(tmp)
 			}
 		}
-		dfs(node.Left)
-		dfs(node.Right)
+		traverse(node.Left)
+		traverse(node.Right)
 		path = path[:len(path)-1]
 	}
-	dfs(root)
+
+	traverse(root)
 	return result
 }
 
@@ -147,8 +154,9 @@ func reverse(s []byte) {
 func sumRootToLeaf(root *TreeNode) int {
 	var path []int
 	result := 0
-	var dfs func(node *TreeNode)
-	dfs = func(node *TreeNode) {
+	var traverse func(node *TreeNode)
+
+	traverse = func(node *TreeNode) {
 		if node == nil {
 			return
 		}
@@ -160,11 +168,12 @@ func sumRootToLeaf(root *TreeNode) int {
 			}
 			result += s
 		}
-		dfs(node.Left)
-		dfs(node.Right)
+		traverse(node.Left)
+		traverse(node.Right)
 		path = path[:len(path)-1]
 	}
-	dfs(root)
+
+	traverse(root)
 	return result
 }
 
@@ -178,8 +187,9 @@ func pseudoPalindromicPaths(root *TreeNode) int {
 	var path []int
 	result := 0
 	var hash [10]int
-	var dfs func(node *TreeNode)
-	dfs = func(node *TreeNode) {
+	var traverse func(node *TreeNode)
+
+	traverse = func(node *TreeNode) {
 		if node == nil {
 			return
 		}
@@ -196,12 +206,13 @@ func pseudoPalindromicPaths(root *TreeNode) int {
 				result++
 			}
 		}
-		dfs(node.Left)
-		dfs(node.Right)
+		traverse(node.Left)
+		traverse(node.Right)
 		path = path[:len(path)-1]
 		hash[node.Val]--
 	}
-	dfs(root)
+
+	traverse(root)
 	return result
 }
 
@@ -211,46 +222,50 @@ func pseudoPalindromicPaths(root *TreeNode) int {
 // 输出: 24
 // 后序遍历
 func sumOfLeftLeaves(root *TreeNode) int {
+	s := 0
+	var traverse func(*TreeNode, bool)
+
+	traverse = func(node *TreeNode, isLeft bool) {
+		if node == nil {
+			return
+		}
+		if node.Left == nil && node.Right == nil && isLeft {
+			s += node.Val
+		}
+		traverse(node.Left, true)
+		traverse(node.Right, false)
+	}
+
 	if root == nil {
 		return 0
 	}
-	s := 0
-	var dfs func(*TreeNode, bool)
-	dfs = func(root *TreeNode, isLeft bool) {
-		if root == nil {
-			return
-		}
-		if root.Left == nil && root.Right == nil && isLeft {
-			s += root.Val
-		}
-		dfs(root.Left, true)
-		dfs(root.Right, false)
-	}
-	dfs(root, false)
+	traverse(root, false)
 	return s
 }
 
 // 递归，有左孩子时，判断一下是否是叶子节点
 func sumOfLeftLeaves2(root *TreeNode) int {
+	s := 0
+	var traverse func(*TreeNode)
+
+	traverse = func(node *TreeNode) {
+		if node == nil {
+			return
+		}
+		if node.Left == nil && node.Right == nil {
+			return
+		}
+		if node.Left != nil && node.Left.Left == nil && node.Left.Right == nil {
+			s += node.Left.Val
+		}
+		traverse(node.Left)
+		traverse(node.Right)
+	}
+
 	if root == nil {
 		return 0
 	}
-	s := 0
-	var dfs func(*TreeNode)
-	dfs = func(root *TreeNode) {
-		if root == nil {
-			return
-		}
-		if root.Left == nil && root.Right == nil {
-			return
-		}
-		if root.Left != nil && root.Left.Left == nil && root.Left.Right == nil {
-			s += root.Left.Val
-		}
-		dfs(root.Left)
-		dfs(root.Right)
-	}
-	dfs(root)
+	traverse(root)
 	return s
 }
 
@@ -269,8 +284,8 @@ func addOneRow(root *TreeNode, val int, depth int) *TreeNode {
 	if root == nil {
 		return nil
 	}
-	var dfs func(node *TreeNode, level int)
-	dfs = func(node *TreeNode, level int) {
+	var traverse func(node *TreeNode, level int)
+	traverse = func(node *TreeNode, level int) {
 		if node == nil {
 			return
 		}
@@ -281,11 +296,11 @@ func addOneRow(root *TreeNode, val int, depth int) *TreeNode {
 			node.Right = newRight
 			return
 		}
-		dfs(node.Left, level+1)
-		dfs(node.Right, level+1)
+		traverse(node.Left, level+1)
+		traverse(node.Right, level+1)
 	}
 	dummy := &TreeNode{Left: root}
-	dfs(dummy, 0)
+	traverse(dummy, 0)
 	return dummy.Left
 }
 
@@ -300,8 +315,8 @@ func flipMatchVoyage(root *TreeNode, voyage []int) []int {
 	var results []int
 	canFlip := true
 	i := 0
-	var dfs func(node *TreeNode)
-	dfs = func(node *TreeNode) {
+	var traverse func(node *TreeNode)
+	traverse = func(node *TreeNode) {
 		if node == nil || !canFlip {
 			return
 		}
@@ -314,10 +329,10 @@ func flipMatchVoyage(root *TreeNode, voyage []int) []int {
 			node.Left, node.Right = node.Right, node.Left
 			results = append(results, node.Val)
 		}
-		dfs(node.Left)
-		dfs(node.Right)
+		traverse(node.Left)
+		traverse(node.Right)
 	}
-	dfs(root)
+	traverse(root)
 	if canFlip {
 		return results
 	}
@@ -343,16 +358,18 @@ func verticalTraversal(root *TreeNode) [][]int {
 		node     *TreeNode
 	}
 	var nodes []*Triple
-	var dfs func(root *TreeNode, i, j int)
-	dfs = func(root *TreeNode, i, j int) {
-		if root == nil {
+	var traverse func(node *TreeNode, i, j int)
+
+	traverse = func(node *TreeNode, i, j int) {
+		if node == nil {
 			return
 		}
-		nodes = append(nodes, &Triple{i, j, root})
-		dfs(root.Left, i+1, j-1)
-		dfs(root.Right, i+1, j+1)
+		nodes = append(nodes, &Triple{i, j, node})
+		traverse(node.Left, i+1, j-1)
+		traverse(node.Right, i+1, j+1)
 	}
-	dfs(root, 0, 0)
+
+	traverse(root, 0, 0)
 	// 排序
 	sort.Slice(nodes, func(i, j int) bool {
 		if nodes[i].col == nodes[j].col && nodes[i].row == nodes[j].row {
@@ -388,29 +405,31 @@ func isCousins(root *TreeNode, x int, y int) bool {
 		depth  int
 		father *TreeNode
 	}
-	if root == nil {
-		return true
-	}
-	var node1, node2 *Node
-	var dfs func(root, father *TreeNode, x, y, depth int)
-	dfs = func(root, father *TreeNode, x, y, depth int) {
-		if root == nil {
+	var p, q *Node
+	var traverse func(node, father *TreeNode, x, y, depth int)
+
+	traverse = func(node, father *TreeNode, x, y, depth int) {
+		if node == nil {
 			return
 		}
 		depth++
-		if root.Val == x {
-			node1 = &Node{father: father, depth: depth}
-		} else if root.Val == y {
-			node2 = &Node{father: father, depth: depth}
+		if node.Val == x {
+			p = &Node{father: father, depth: depth}
+		} else if node.Val == y {
+			q = &Node{father: father, depth: depth}
 		}
-		dfs(root.Left, root, x, y, depth)
-		dfs(root.Right, root, x, y, depth)
+		traverse(node.Left, node, x, y, depth)
+		traverse(node.Right, node, x, y, depth)
 	}
-	dfs(root, nil, x, y, 0)
-	if node1 == nil || node2 == nil {
+
+	if root == nil {
+		return true
+	}
+	traverse(root, nil, x, y, 0)
+	if p == nil || q == nil {
 		return false
 	}
-	return node1.father != node2.father && node1.depth == node2.depth
+	return p.father != q.father && p.depth == q.depth
 }
 
 // 1315. 祖父节点值为偶数的节点和
