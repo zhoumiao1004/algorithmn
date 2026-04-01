@@ -148,3 +148,59 @@ func flipEquiv(root1 *TreeNode, root2 *TreeNode) bool {
 	flip := flipEquiv(root1.Left, root2.Right) && flipEquiv(root1.Right, root2.Left)
 	return unflip || flip
 }
+
+// 1609. 奇偶树
+// https://leetcode.cn/problems/even-odd-tree/
+// 如果一棵二叉树满足下述几个条件，则可以称为 奇偶树 ：
+// 二叉树根节点所在层下标为 0 ，根的子节点所在层下标为 1 ，根的孙节点所在层下标为 2 ，依此类推。
+// 偶数下标 层上的所有节点的值都是 奇 整数，从左到右按顺序 严格递增
+// 奇数下标 层上的所有节点的值都是 偶 整数，从左到右按顺序 严格递减
+// 给你二叉树的根节点，如果二叉树为 奇偶树 ，则返回 true ，否则返回 false 。
+// 输入：root = [1,10,4,3,null,7,9,12,8,6,null,null,2]
+// 输出：true
+// 解释：每一层的节点值分别是：
+// 0 层：[1]
+// 1 层：[10,4]
+// 2 层：[3,7,9]
+// 3 层：[12,8,6,2]
+// 由于 0 层和 2 层上的节点值都是奇数且严格递增，而 1 层和 3 层上的节点值都是偶数且严格递减，因此这是一棵奇偶树。
+func isEvenOddTree(root *TreeNode) bool {
+	return true
+}
+
+// 872. 叶子相似的树
+// https://leetcode.cn/problems/leaf-similar-trees/description/
+// 输入：root1 = [3,5,1,6,2,9,8,null,null,7,4], root2 = [3,5,1,6,7,4,2,null,null,null,null,null,null,9,8]
+// 输出：true
+// 思路：遍历两颗二叉树，对比叶子节点集合
+func leafSimilar(root1 *TreeNode, root2 *TreeNode) bool {
+
+	var getLeafVal func(node *TreeNode) []int
+
+	getLeafVal = func(node *TreeNode) []int {
+		var result []int
+		if node == nil {
+			return result
+		}
+		if node.Left == nil && node.Right == nil {
+			result = append(result, node.Val)
+		}
+		left := getLeafVal(node.Left)
+		right := getLeafVal(node.Right)
+		result = append(result, left...)
+		result = append(result, right...)
+		return result
+	}
+
+	nums1 := getLeafVal(root1)
+	nums2 := getLeafVal(root2)
+	if len(nums1) != len(nums2) {
+		return false
+	}
+	for i := 0; i < len(nums1); i++ {
+		if nums1[i] != nums2[i] {
+			return false
+		}
+	}
+	return true
+}
