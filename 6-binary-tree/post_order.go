@@ -123,20 +123,20 @@ func findFrequentTreeSum(root *TreeNode) []int {
 // 整个树 的坡度就是其所有节点的坡度之和。
 func findTilt(root *TreeNode) int {
 	result := 0
-	var traverse func(node *TreeNode) int
+	var getSum func(node *TreeNode) int
 
-	traverse = func(node *TreeNode) int {
+	getSum = func(node *TreeNode) int {
 		if node == nil {
 			return 0
 		}
-		left := traverse(node.Left)
-		right := traverse(node.Right)
+		left := getSum(node.Left)
+		right := getSum(node.Right)
 		// 后序位置
 		result += int(math.Abs(float64(left) - float64(right))) // 顺便累加坡度和
 		return left + right + node.Val
 	}
 
-	traverse(root)
+	getSum(root)
 	return result
 }
 

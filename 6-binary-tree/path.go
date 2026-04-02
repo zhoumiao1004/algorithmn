@@ -112,7 +112,7 @@ func hasPathSum(root *TreeNode, targetSum int) bool {
 	if root == nil {
 		return false
 	}
-	// 中
+	// 前序位置
 	if root.Left == nil && root.Right == nil {
 		return root.Val == targetSum
 	}
@@ -130,6 +130,7 @@ func pathSumII(root *TreeNode, targetSum int) [][]int {
 	var path []int
 	s := 0
 	var traverse func(root *TreeNode)
+
 	traverse = func(root *TreeNode) {
 		if root == nil {
 			return
@@ -144,6 +145,7 @@ func pathSumII(root *TreeNode, targetSum int) [][]int {
 		path = path[:len(path)-1]
 		s -= root.Val
 	}
+
 	traverse(root)
 	return results
 }
@@ -154,22 +156,25 @@ func pathSumII(root *TreeNode, targetSum int) [][]int {
 // 二叉树中的 路径 被定义为一条节点序列，序列中每对相邻节点之间都存在一条边。同一个节点在一条路径序列中 至多出现一次 。该路径 至少包含一个 节点，且不一定经过根节点。
 // 路径和 是路径中各节点值的总和。
 // 给你一个二叉树的根节点 root ，返回其 最大路径和 。
+// 思路：分解问题，明确函数定义：以 node 为根节点的二叉树，返回双边最大和
 func maxPathSum(root *TreeNode) int {
 	result := math.MinInt
-	var dfs func(root *TreeNode) int
-	dfs = func(root *TreeNode) int {
-		if root == nil {
+	var maxSum func(node *TreeNode) int
+
+	maxSum = func(node *TreeNode) int {
+		if node == nil {
 			return 0
 		}
-		left := max(0, dfs(root.Left))
-		right := max(0, dfs(root.Right))
-		// 后序位置顺便计算双边最大路径和
-		maxSum := left + right + root.Val
-		result = max(result, maxSum)
-		// 返回单边最大路径和
-		return max(left, right) + root.Val
+		left := max(0, maxSum(node.Left))
+		right := max(0, maxSum(node.Right))
+
+		// 后序位置
+		result = max(result, left+right+node.Val) // 顺便计算双边最大路径和
+
+		return max(left, right) + node.Val // 返回单边最大路径和
 	}
-	dfs(root)
+
+	maxSum(root)
 	return result
 }
 

@@ -13,32 +13,6 @@ type ListNode struct {
 6、判断单链表是否包含环并找出环起点
 7、判断两个单链表是否相交并找出交点*/
 
-// 21. 合并两个有序链表
-// https://leetcode.cn/problems/merge-two-sorted-lists/
-// 将两个升序链表合并为一个新的 升序 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。
-// 输入：l1 = [1,2,4], l2 = [1,3,4]
-// 输出：[1,1,2,3,4,4]
-func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
-	var dummy *ListNode
-	cur := dummy
-	for list1 != nil && list2 != nil {
-		if list1.Val < list2.Val {
-			cur.Next = list1
-			list1 = list1.Next
-		} else {
-			cur.Next = list2
-			list2 = list2.Next
-		}
-		cur = cur.Next
-	}
-	if list1 != nil {
-		cur.Next = list1
-	} else {
-		cur.Next = list2
-	}
-	return dummy.Next
-}
-
 // 86. 分隔链表
 // https://leetcode.cn/problems/partition-list/description/
 // 给你一个链表的头节点 head 和一个特定值 x ，请你对链表进行分隔，使得所有 小于 x 的节点都出现在 大于或等于 x 的节点之前。

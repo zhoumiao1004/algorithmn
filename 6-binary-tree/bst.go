@@ -2,6 +2,11 @@ package main
 
 import "math"
 
+type ListNode struct {
+	Val  int
+	Next *ListNode
+}
+
 type TreeNode struct {
 	Val   int
 	Left  *TreeNode
@@ -20,7 +25,7 @@ func kthSmallest(root *TreeNode, k int) int {
 			return
 		}
 		traverse(node.Left)
-		// 中
+		// 中序位置
 		k--
 		if k == 0 {
 			result = node.Val
@@ -52,10 +57,10 @@ func convertBST(root *TreeNode) *TreeNode {
 			return
 		}
 		traverse(node.Right) // 右
-		// 中
+		// 中序位置
 		s += node.Val
 		node.Val = s
-		traverse(node.Left)
+		traverse(node.Left) // 左
 	}
 
 	traverse(root)
@@ -70,25 +75,29 @@ func convertBST(root *TreeNode) *TreeNode {
 // 所有左子树和右子树自身必须也是二叉搜索树。
 func isValidBST(root *TreeNode) bool {
 	var prev *TreeNode
-	var traverse func(*TreeNode) bool
-	traverse = func(root *TreeNode) bool {
-		if root == nil {
+	// 定义函数：返回以 node 节点为根的二叉树是不是bst
+	var isBST func(node *TreeNode) bool
+
+	isBST = func(node *TreeNode) bool {
+		if node == nil {
 			return true
 		}
-		if !traverse(root.Left) {
+		if !isBST(node.Left) {
 			return false
 		}
-		if prev != nil && root.Val <= prev.Val {
+		if prev != nil && node.Val <= prev.Val {
 			return false
 		}
-		prev = root
-		return traverse(root.Right)
+		prev = node
+		return isBST(node.Right)
 	}
-	return traverse(root)
+
+	return isBST(root)
 }
 
 // 700.二叉搜索树中的搜索
 // https://leetcode.cn/problems/search-in-a-binary-search-tree/description/
+// 明确函数定义：以 root 为根的二叉树中，返回值为val的节点
 func searchBST(root *TreeNode, val int) *TreeNode {
 	if root == nil {
 		return nil
@@ -104,14 +113,15 @@ func searchBST(root *TreeNode, val int) *TreeNode {
 
 // 701.二叉搜索树中的插入操作
 // https://leetcode.cn/problems/insert-into-a-binary-search-tree/description/
+// 明确函数定义：返回以 root 节点为根的二叉树中，返回插入val后的根节点
 func insertIntoBST(root *TreeNode, val int) *TreeNode {
 	if root == nil {
 		return &TreeNode{Val: val}
 	}
 	if root.Val < val {
-		root.Right = insertIntoBST(root.Right, val)
+		root.Right = insertIntoBST(root.Right, val) // 返回右子树中，插入val后的根节点
 	} else {
-		root.Left = insertIntoBST(root.Left, val)
+		root.Left = insertIntoBST(root.Left, val) // 返回左子树中，插入val后的根节点
 	}
 	return root
 }
@@ -321,11 +331,13 @@ func recoverTree(root *TreeNode) {
 	var prev *TreeNode
 	var first, second *TreeNode
 	var traverse func(root *TreeNode)
+
 	traverse = func(root *TreeNode) {
 		if root == nil {
 			return
 		}
 		traverse(root.Left)
+		// 中序位置
 		if prev != nil && prev.Val > root.Val {
 			if first == nil {
 				first = prev
@@ -335,6 +347,7 @@ func recoverTree(root *TreeNode) {
 		prev = root
 		traverse(root.Right)
 	}
+
 	traverse(root)
 	if first != nil && second != nil {
 		first.Val, second.Val = second.Val, first.Val
@@ -351,11 +364,9 @@ func trimBST(root *TreeNode, low int, high int) *TreeNode {
 		return nil
 	}
 	if root.Val < low {
-		// 左边更小了，右子树中可能有，返回右子树中>low的节点
-		return trimBST(root.Right, low, high)
+		return trimBST(root.Right, low, high) // 左边更小了，右子树中可能有，返回右子树中>low的节点
 	} else if root.Val > high {
-		// 右边更大了，左子树中可能还有在区间内的节点
-		return trimBST(root.Left, low, high)
+		return trimBST(root.Left, low, high) // 右边更大了，左子树中可能还有在区间内的节点
 	}
 	root.Left = trimBST(root.Left, low, root.Val)
 	root.Right = trimBST(root.Right, root.Val, high)
@@ -401,6 +412,7 @@ func findMode(root *TreeNode) []int {
 	cnt := 0
 	var prev *TreeNode
 	var traverse func(*TreeNode)
+
 	traverse = func(root *TreeNode) {
 		if root == nil {
 			return
@@ -420,6 +432,7 @@ func findMode(root *TreeNode) []int {
 		prev = root
 		traverse(root.Right)
 	}
+
 	traverse(root)
 	return results
 }
@@ -430,6 +443,7 @@ func getMinimumDifference(root *TreeNode) int {
 	result := math.MaxInt
 	var prev *TreeNode
 	var traverse func(*TreeNode)
+
 	traverse = func(root *TreeNode) {
 		if root == nil {
 			return
@@ -441,6 +455,7 @@ func getMinimumDifference(root *TreeNode) int {
 		prev = root
 		traverse(root.Right)
 	}
+
 	traverse(root)
 	return result
 }
@@ -450,6 +465,7 @@ func getMinimumDifference(root *TreeNode) int {
 // 给定一个二叉搜索树 root 和一个目标结果 k，如果二叉搜索树中存在两个元素且它们的和等于给定的目标结果，则返回 true。
 // 输入: root = [5,3,6,2,4,null,7], k = 9
 // 输出: true
+// 思路1: 利用bst中序有序的特点，输出到数组+双指针
 func findTarget(root *TreeNode, k int) bool {
 	var nums []int
 	var traverse func(root *TreeNode)
@@ -462,6 +478,7 @@ func findTarget(root *TreeNode, k int) bool {
 		traverse(root.Right)
 	}
 	traverse(root)
+
 	left, right := 0, len(nums)-1
 	for left < right {
 		if nums[left]+nums[right] == k {
@@ -473,6 +490,53 @@ func findTarget(root *TreeNode, k int) bool {
 		}
 	}
 	return false
+}
+
+// 思路2: 分解问题（一般二叉树解法），明确函数定义：以 root 为根节点的二叉树，返回是否存在2个节点和为k
+func findTarget2(root *TreeNode, k int) bool {
+	m := make(map[int]bool)
+	// 明确函数定义：返回以 node 节点为根的二叉树是否包含2个节点和为k
+	var check func(node *TreeNode) bool
+
+	check = func(node *TreeNode) bool {
+		if node == nil {
+			return false
+		}
+		// 前序位置
+		if m[k-node.Val] {
+			return true
+		}
+		m[node.Val] = true
+		return check(node.Left) || check(node.Right)
+	}
+
+	if root == nil {
+		return false
+	}
+	return check(root)
+}
+
+// 思路3: 遍历 + hashmap（一般二叉树解法）
+func findTarget3(root *TreeNode, k int) bool {
+	result := false
+	m := make(map[int]bool)
+	var traverse func(node *TreeNode)
+
+	traverse = func(node *TreeNode) {
+		if node == nil {
+			return
+		}
+		traverse(node.Left)
+		// 中序位置
+		if m[k-node.Val] {
+			result = true
+		}
+		m[node.Val] = true
+		traverse(node.Right)
+	}
+
+	traverse(root)
+	return result
 }
 
 // 1008. 前序遍历构造二叉搜索树
@@ -556,11 +620,6 @@ func balanceBST(root *TreeNode) *TreeNode {
 	return buildTree(nums)
 }
 
-type ListNode struct {
-	Val  int
-	Next *ListNode
-}
-
 // 109. 有序链表转换二叉搜索树
 // https://leetcode.cn/problems/convert-sorted-list-to-binary-search-tree/description/
 // 给定一个单链表的头节点  head ，其中的元素 按升序排序 ，将其转换为 平衡 二叉搜索树。
@@ -623,8 +682,49 @@ func getAllElements(root1 *TreeNode, root2 *TreeNode) []int {
 // 输入：root = [10,5,15,3,7,null,18], low = 7, high = 15
 // 输出：32
 // 对比 669. 修剪二叉搜索树 https://leetcode.cn/problems/trim-a-binary-search-tree/description/
-// 思路1：遍历
+// 思路1: 遍历，利用bst的特性
+func rangeSumBST(root *TreeNode, low int, high int) int {
+	result := 0
+	var traverse func(node *TreeNode, low, high int)
+	
+	traverse = func(node *TreeNode, low, high int) {
+		if node == nil {
+			return
+		}
+		if node.Val < low {
+			traverse(node.Right, low, high)
+		} else if node.Val > high {
+			traverse(node.Left, low, high)
+		} else {
+			result += node.Val
+			traverse(node.Left, low, node.Val-1)
+			traverse(node.Right, node.Val+1, high)
+		}
+	}
+	
+	if root == nil {
+		return 0
+	}
+	traverse(root, low, high)
+	return result
+}
+
+// 思路2:分解问题，利用bst的特性
 func rangeSumBST2(root *TreeNode, low int, high int) int {
+	if root == nil {
+		return 0
+	}
+	if root.Val < low {
+		return rangeSumBST2(root.Right, low, high)
+	} else if root.Val > high {
+		return rangeSumBST2(root.Left, low, high)
+	} else {
+		return root.Val + rangeSumBST2(root.Left, low, root.Val) + rangeSumBST2(root.Right, root.Val, high)
+	}
+}
+
+// 思路3：遍历，一般二叉树解法，没有利用bst特性
+func rangeSumBST3(root *TreeNode, low int, high int) int {
 	result := 0
 	var traverse func(root *TreeNode)
 
@@ -646,13 +746,13 @@ func rangeSumBST2(root *TreeNode, low int, high int) int {
 	return result
 }
 
-// 思路2: 分解问题的思路
-func rangeSumBST(root *TreeNode, low int, high int) int {
+// 思路4: 分解问题的思路，明确函数定义：返回以 root 节点为根的二叉树在[low...high]区间内的节点
+func rangeSumBST4(root *TreeNode, low int, high int) int {
 	if root == nil {
 		return 0
 	}
-	left := rangeSumBST(root.Right, low, high)
-	right := rangeSumBST(root.Left, low, high)
+	left := rangeSumBST4(root.Right, low, high)
+	right := rangeSumBST4(root.Left, low, high)
 	// 后序位置
 	s := left + right
 	if root.Val >= low && root.Val <= high {

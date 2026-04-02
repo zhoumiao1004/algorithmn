@@ -63,7 +63,9 @@ func lowestCommonAncestorBST(root, p, q *TreeNode) *TreeNode {
 // 一个节点的 子树 是该节点加上它的所有后代的集合。
 // 输入：root = [3,5,1,6,2,0,8,null,null,7,4]
 // 输出：[2,7,4]
+// 思路：分解问题
 func subtreeWithAllDeepest(root *TreeNode) *TreeNode {
+	// 明确函数定义：以 node 节点为根的二叉树，返回包含所有最深节点的子树和深度
 	var maxDepthNode func(root *TreeNode) (*TreeNode, int)
 
 	maxDepthNode = func(root *TreeNode) (*TreeNode, int) {
@@ -72,12 +74,13 @@ func subtreeWithAllDeepest(root *TreeNode) *TreeNode {
 		}
 		left, depth1 := maxDepthNode(root.Left)
 		right, depth2 := maxDepthNode(root.Right)
+		// 后序位置
 		if depth1 == depth2 {
-			return root, depth1 + 1
+			return root, depth1 + 1 // 把自己往上报
 		} else if depth1 < depth2 {
-			return right, depth2 + 1
+			return right, depth2 + 1 // 把右节点往上报
 		}
-		return left, depth1 + 1
+		return left, depth1 + 1 // 把左节点往上报
 	}
 
 	node, _ := maxDepthNode(root)
