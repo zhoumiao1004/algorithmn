@@ -16,7 +16,7 @@ type ListNode struct {
 // 给你一个整数数组 nums 和一个整数 k ，请你返回其中出现频率前 k 高的元素。你可以按 任意顺序 返回答案。
 // 输入：nums = [1,1,1,2,2,3], k = 2
 // 输出：[1,2]
-// 方法1:排序O(nlogn)
+// 思路1: hashmap统计元素频率，再按频率排序，时间复杂度O(nlogn)
 func topKFrequent(nums []int, k int) []int {
 	var results []int
 	cntMap := make(map[int]int)
@@ -33,56 +33,40 @@ func topKFrequent(nums []int, k int) []int {
 	return results[:k]
 }
 
-// 方法2:小顶堆
-// 时间复杂度: O(nlogk)
-// 空间复杂度: O(n)
-func topKFrequent2(nums []int, k int) []int {
-	m := make(map[int]int)
-	//记录每个元素出现的次数
-	for _, val := range nums {
-		m[val]++
-	}
-	h := &IHeap{}
-	heap.Init(h)
-	//所有元素入堆，堆的长度为k
-	for key, val := range m {
-		heap.Push(h, [2]int{key, val})
-		if h.Len() > k {
-			heap.Pop(h)
-		}
-	}
-	result := make([]int, k)
-	//按顺序返回堆中的元素
-	for i := k - 1; i >= 0; i-- {
-		result[i] = heap.Pop(h).([2]int)[0]
-	}
-	return result
-}
-
-// 构建小顶堆
+// 思路2: 小顶堆，时间复杂度: O(nlogk) 空间复杂度: O(n)
 type IHeap [][2]int
 
-func (h IHeap) Len() int {
-	return len(h)
-}
-
-func (h IHeap) Less(i, j int) bool {
-	return h[i][1] < h[j][1] // 小顶堆
-}
-
-func (h IHeap) Swap(i, j int) {
-	h[i], h[j] = h[j], h[i]
-}
-
-func (h *IHeap) Push(x interface{}) {
-	*h = append(*h, x.([2]int))
-}
+func (h IHeap) Len() int            { return len(h) }
+func (h IHeap) Less(i, j int) bool  { return h[i][1] < h[j][1] } // 按频率比较大小
+func (h IHeap) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
+func (h *IHeap) Push(x interface{}) { *h = append(*h, x.([2]int)) }
 func (h *IHeap) Pop() interface{} {
 	old := *h
 	n := len(old)
 	x := old[n-1]
 	*h = old[0 : n-1]
 	return x
+}
+
+func topKFrequent2(nums []int, k int) []int {
+	m := make(map[int]int) // 统计每个元素的次数(频率)
+	for _, val := range nums {
+		m[val]++
+	}
+	// 所有元素依次入堆，堆内仅维持k个最大元素
+	h := &IHeap{}
+	heap.Init(h)
+	for key, val := range m {
+		heap.Push(h, [2]int{key, val})
+		if h.Len() > k {
+			heap.Pop(h) // 二叉堆中超过k个元素就pop最小元素
+		}
+	}
+	result := make([]int, k) // 按频率高到低返回
+	for i := k - 1; i >= 0; i-- {
+		result[i] = heap.Pop(h).([2]int)[0]
+	}
+	return result
 }
 
 // 378. 有序矩阵中第 K 小的元素
@@ -95,12 +79,10 @@ func (h *IHeap) Pop() interface{} {
 // 解释：矩阵中的元素为 [1,5,9,10,11,12,13,13,15]，第 8 小元素是 13
 type NumsHeap [][]int
 
-func (h NumsHeap) Len() int           { return len(h) }
-func (h NumsHeap) Less(i, j int) bool { return h[i][0] < h[j][0] } // 比较第一个元素的大小
-func (h NumsHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-func (h *NumsHeap) Push(x interface{}) {
-	*h = append(*h, x.([]int))
-}
+func (h NumsHeap) Len() int            { return len(h) }
+func (h NumsHeap) Less(i, j int) bool  { return h[i][0] < h[j][0] } // 比较第一个元素的大小
+func (h NumsHeap) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
+func (h *NumsHeap) Push(x interface{}) { *h = append(*h, x.([]int)) }
 func (h *NumsHeap) Pop() interface{} {
 	old := *h
 	n := len(old)
@@ -109,10 +91,10 @@ func (h *NumsHeap) Pop() interface{} {
 	return x
 }
 
+// 思路：小顶堆，全部入堆后，pop第k次就是第k小的元素
 func kthSmallest(matrix [][]int, k int) int {
 	h := &NumsHeap{}
 	heap.Init(h)
-	// 初始化优先级队列
 	for i := 0; i < len(matrix); i++ {
 		heap.Push(h, matrix[i])
 	}
@@ -135,27 +117,17 @@ func kthSmallest(matrix [][]int, k int) int {
 // 输入：lists = [[1,4,5],[1,3,4],[2,6]]
 // 输出：[1,1,2,3,4,4,5,6]
 // 解释：链表数组如下：
-// [
-//
-//	1->4->5,
-//	1->3->4,
-//	2->6
-//
-// ]
+// [1->4->5, 1->3->4, 2->6]
 // 将它们合并到一个有序链表中得到。
 // 1->1->2->3->4->4->5->6
 // 思路1：优先级队列，时间复杂度O(Nlogk)
-type PriorityQueue []*ListNode
+type ListHeap []*ListNode
 
-func (pq PriorityQueue) Len() int           { return len(pq) }
-func (pq PriorityQueue) Less(i, j int) bool { return pq[i].Val < pq[j].Val }
-func (pq PriorityQueue) Swap(i, j int)      { pq[i], pq[j] = pq[j], pq[i] }
-
-func (pq *PriorityQueue) Push(x interface{}) {
-	*pq = append(*pq, x.(*ListNode))
-}
-
-func (pq *PriorityQueue) Pop() interface{} {
+func (pq ListHeap) Len() int            { return len(pq) }
+func (pq ListHeap) Less(i, j int) bool  { return pq[i].Val < pq[j].Val }
+func (pq ListHeap) Swap(i, j int)       { pq[i], pq[j] = pq[j], pq[i] }
+func (pq *ListHeap) Push(x interface{}) { *pq = append(*pq, x.(*ListNode)) }
+func (pq *ListHeap) Pop() interface{} {
 	old := *pq
 	n := len(old)
 	x := old[n-1]
@@ -163,24 +135,26 @@ func (pq *PriorityQueue) Pop() interface{} {
 	return x
 }
 
+// 思路：小顶堆
 func mergeKLists(lists []*ListNode) *ListNode {
 	if len(lists) == 0 {
 		return nil
 	}
 	dummy := &ListNode{}
 	cur := dummy
-	pq := &PriorityQueue{}
-	heap.Init(pq)
+
+	h := &ListHeap{}
+	heap.Init(h)
 	for _, head := range lists {
 		if head != nil {
-			heap.Push(pq, head)
+			heap.Push(h, head)
 		}
 	}
-	for pq.Len() > 0 {
-		node := heap.Pop(pq).(*ListNode)
+	for h.Len() > 0 {
+		node := heap.Pop(h).(*ListNode)
 		cur.Next = node
 		if node.Next != nil {
-			heap.Push(pq, node.Next)
+			heap.Push(h, node.Next) // 加入链表后面的元素
 		}
 		cur = cur.Next
 	}
@@ -218,12 +192,10 @@ func mergeKLists3(lists []*ListNode, start, end int) *ListNode {
 // 输出: [[1,2],[1,4],[1,6]]
 type NumsHeap2 [][]int
 
-func (h NumsHeap2) Len() int           { return len(h) }
-func (h NumsHeap2) Less(i, j int) bool { return h[i][0]+h[i][1] < h[j][0]+h[j][1] } // 比较和的大小
-func (h NumsHeap2) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-func (h *NumsHeap2) Push(x interface{}) {
-	*h = append(*h, x.([]int))
-}
+func (h NumsHeap2) Len() int            { return len(h) }
+func (h NumsHeap2) Less(i, j int) bool  { return h[i][0]+h[i][1] < h[j][0]+h[j][1] } // 比较和的大小
+func (h NumsHeap2) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
+func (h *NumsHeap2) Push(x interface{}) { *h = append(*h, x.([]int)) }
 func (h *NumsHeap2) Pop() interface{} {
 	old := *h
 	n := len(old)
@@ -255,17 +227,13 @@ func kSmallestPairs(nums1 []int, nums2 []int, k int) [][]int {
 	return result
 }
 
-type PriorityQueue []int // 定义一个类型
+type IntHeap []int
 
-func (h PriorityQueue) Len() int { return len(h) } // 绑定len方法,返回长度
-func (h PriorityQueue) Less(i, j int) bool { // 绑定less方法
-	return h[i] < h[j] // 如果h[i]<h[j]生成的就是小根堆，如果h[i]>h[j]生成的就是大根堆
-}
-func (h PriorityQueue) Swap(i, j int) { // 绑定swap方法，交换两个元素位置
-	h[i], h[j] = h[j], h[i]
-}
-
-func (h *PriorityQueue) Pop() interface{} { // 绑定pop方法，从最后拿出一个元素并返回
+func (h IntHeap) Len() int            { return len(h) }
+func (h IntHeap) Less(i, j int) bool  { return h[i] < h[j] }      // 小顶堆
+func (h IntHeap) Swap(i, j int)       { h[i], h[j] = h[j], h[i] } // 绑定swap方法，交换两个元素位置
+func (h *IntHeap) Push(x interface{}) { *h = append(*h, x.(int)) }
+func (h *IntHeap) Pop() interface{} {
 	old := *h
 	n := len(old)
 	x := old[n-1]
@@ -273,13 +241,9 @@ func (h *PriorityQueue) Pop() interface{} { // 绑定pop方法，从最后拿出
 	return x
 }
 
-func (h *PriorityQueue) Push(x interface{}) { // 绑定push方法，插入新元素
-	*h = append(*h, x.(int))
-}
-
 func main() {
-	h := &PriorityQueue{2, 1, 5, 6, 4, 3, 7, 9, 8, 0} // 创建slice
-	heap.Init(h)                                      // 初始化heap
+	h := &IntHeap{2, 1, 5, 6, 4, 3, 7, 9, 8, 0} // 创建slice
+	heap.Init(h)                                // 初始化heap
 	fmt.Println(*h)
 	fmt.Println(heap.Pop(h)) // 调用pop
 	heap.Push(h, 6)          // 调用push

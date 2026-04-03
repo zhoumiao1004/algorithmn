@@ -17,7 +17,29 @@ package main
 //	1  3  -1  -3 [5  3  6] 7       6
 //	1  3  -1  -3  5 [3  6  7]      7
 //
-// 思路1: 封装单调队列的方式解题
+// 思路1: 单调队列
+type MonoQueue struct {
+	deque []int
+}
+
+func (m *MonoQueue) Front() int  { return m.deque[0] }
+func (m *MonoQueue) Back() int   { return m.deque[len(m.deque)-1] }
+func (m *MonoQueue) Empty() bool { return len(m.deque) == 0 }
+func (m *MonoQueue) Push(val int) {
+	// 从后往前把小于val的元素都弹出
+	for !m.Empty() && val > m.Back() {
+		m.deque = m.deque[:len(m.deque)-1]
+	}
+	m.deque = append(m.deque, val)
+}
+
+func (m *MonoQueue) Pop(val int) {
+	// 由于小的队尾的元素已经在push的时候被卷走了，只需要判断pop的是不是队首的最大元素
+	if !m.Empty() && val == m.Front() {
+		m.deque = m.deque[1:]
+	}
+}
+
 func maxSlidingWindow(nums []int, k int) []int {
 	n := len(nums) - k + 1
 	result := make([]int, n)
@@ -32,37 +54,6 @@ func maxSlidingWindow(nums []int, k int) []int {
 		result[i-k+1] = q.Front()
 	}
 	return result
-}
-
-type MonoQueue struct {
-	deque []int
-}
-
-func (m *MonoQueue) Front() int {
-	return m.deque[0]
-}
-
-func (m *MonoQueue) Back() int {
-	return m.deque[len(m.deque)-1]
-}
-
-func (m *MonoQueue) Empty() bool {
-	return len(m.deque) == 0
-}
-
-func (m *MonoQueue) Push(val int) {
-	// 从后往前把小于val的元素都弹出
-	for !m.Empty() && val > m.Back() {
-		m.deque = m.deque[:len(m.deque)-1]
-	}
-	m.deque = append(m.deque, val)
-}
-
-func (m *MonoQueue) Pop(val int) {
-	// 由于小的队尾的元素已经在push的时候被卷走了，只需要判断pop的是不是队首的最大元素
-	if !m.Empty() && val == m.Front() {
-		m.deque = m.deque[1:]
-	}
 }
 
 // 代码模拟单调队列过程，不易理解

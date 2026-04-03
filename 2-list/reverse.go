@@ -1,6 +1,22 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
+
+type ListNode struct {
+	Val  int
+	Next *ListNode
+}
+
+func (l *ListNode) Print() {
+	var strs []string
+	for cur := l; cur != nil; cur = cur.Next {
+		strs = append(strs, fmt.Sprintf("%d", cur.Val))
+	}
+	fmt.Println(strings.Join(strs, "->"))
+}
 
 // 206. 反转链表
 // https://leetcode.cn/problems/reverse-linked-list/
@@ -61,7 +77,7 @@ func reverseBetween(head *ListNode, left int, right int) *ListNode {
 	if left == 1 {
 		return reverseN(head, right)
 	}
-	// 找到第m-1个节点
+	// 找到第left-1个节点，注：left从1开始
 	prev := head
 	for i := 1; i < left-1; i++ {
 		prev = prev.Next
@@ -91,5 +107,18 @@ func reverseKGroup(head *ListNode, k int) *ListNode {
 }
 
 func main() {
-	fmt.Println("hello world")
+	head := buildList([]int{1, 2, 3, 4, 5})
+	head.Print()
+	head2 := reverseBetween(head, 2, 4)
+	head2.Print() // 1->4->3->2->5
+}
+
+func buildList(nums []int) *ListNode {
+	dummy := &ListNode{}
+	cur := dummy
+	for i := 0; i < len(nums); i++ {
+		cur.Next = &ListNode{Val: nums[i]}
+		cur = cur.Next
+	}
+	return dummy.Next
 }
