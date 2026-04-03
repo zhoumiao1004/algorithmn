@@ -1,10 +1,29 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type ListNode struct {
 	Val  int
 	Next *ListNode
+}
+
+func (l *ListNode) Print() {
+	var strs []string
+	for cur := l; cur != nil; cur = cur.Next {
+		strs = append(strs, fmt.Sprintf("%d", cur.Val))
+	}
+	fmt.Println(strings.Join(strs, "->"))
+}
+
+func (l *ListNode) String() string {
+	var strs []string
+	for cur := l; cur != nil; cur = cur.Next {
+		strs = append(strs, fmt.Sprintf("%d", cur.Val))
+	}
+	return strings.Join(strs, "->")
 }
 
 // 24. 两两交换链表中的节点
@@ -28,114 +47,93 @@ func swapPairs(head *ListNode) *ListNode {
 // 请将其重新排列后变为：
 // L0 → Ln → L1 → Ln - 1 → L2 → Ln - 2 → …
 // 不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。
+// 思路1：反转后半部分链表，再拉拉链合并2个列表
 func reorderList(head *ListNode) {
+	var getMidNode func(node *ListNode) *ListNode
+	var reverseList func(node *ListNode) *ListNode
+
+	getMidNode = func(node *ListNode) *ListNode {
+		if node == nil {
+			return nil
+		}
+		dummy := &ListNode{Next: node}
+		slow, fast := dummy, dummy
+		// slow, fast := head, head
+		for fast != nil && fast.Next != nil {
+			slow = slow.Next
+			fast = fast.Next.Next
+		}
+		return slow
+	}
+
+	reverseList = func(node *ListNode) *ListNode {
+		if node == nil {
+			return nil
+		}
+		var prev *ListNode
+		cur := node
+		for cur != nil {
+			next := cur.Next
+			cur.Next = prev
+			prev = cur
+			cur = next
+		}
+		return prev
+	}
+
 	mid := getMidNode(head)
+	fmt.Println(mid.Val)
 	head2 := reverseList(mid.Next)
 	mid.Next = nil
+	fmt.Println(head.Val, head2.Val)
 	p1, p2 := head, head2
-	for p2 != nil {
+	for p1 != nil && p2 != nil {
 		next1 := p1.Next
 		next2 := p2.Next
-		p1.Next = p2
 		p2.Next = next1
+		p1.Next = p2
 		p1 = next1
 		p2 = next2
 	}
 }
 
-func getMidNode(head *ListNode) *ListNode {
-	slow, fast := head, head
-	for fast != nil && fast.Next != nil {
-		slow = slow.Next
-		fast = fast.Next.Next
+// 思路2：栈
+func reorderList2(head *ListNode) {
+	var st []*ListNode
+	n := 0
+	for cur := head; cur != nil; cur = cur.Next {
+		st = append(st, cur)
+		n++
 	}
-	if fast != nil {
-		slow = slow.Next
-	}
-	return slow
-}
 
-// 2. 两数相加
-// 给你两个 非空 的链表，表示两个非负的整数。它们每位数字都是按照 逆序 的方式存储的，并且每个节点只能存储 一位 数字。
-// 请你将两个数相加，并以相同形式返回一个表示和的链表。
-// 你可以假设除了数字 0 之外，这两个数都不会以 0 开头。
-// 输入：l1 = [2,4,3], l2 = [5,6,4]
-// 输出：[7,0,8]
-// 解释：342 + 465 = 807.
-func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
-	p1, p2 := l1, l2
-	dummy := &ListNode{}
-	cur := dummy
-	flag := 0
-	for p1 != nil || p2 != nil {
-		val := flag
-		if p1 != nil {
-			val += p1.Val
-			p1 = p1.Next
+	cur := head
+	for cur != nil {
+		last := st[len(st)-1]
+		st = st[:len(st)-1]
+		next := cur.Next                       // 保存下个节点
+		if last == next || last.Next == next { // 奇数：last == next, 偶数：last.Next == next
+			last.Next = nil
+			break
 		}
-		if p2 != nil {
-			val += p2.Val
-			p2 = p2.Next
-		}
-		flag = val / 10
-		cur.Next = &ListNode{Val: val % 10}
-		cur = cur.Next
+		last.Next = next
+		cur.Next = last
+		cur = next
 	}
-	if flag == 1 {
-		cur.Next = &ListNode{Val: 1}
-	}
-	return dummy.Next
-}
-
-// 445. 两数相加 II
-// https://leetcode.cn/problems/add-two-numbers-ii/description/
-// 给你两个 非空 链表来代表两个非负整数。数字最高位位于链表开始位置。它们的每个节点只存储一位数字。将这两数相加会返回一个新的链表。
-// 你可以假设除了数字 0 之外，这两个数字都不会以零开头。
-// 输入：l1 = [7,2,4,3], l2 = [5,6,4]
-// 输出：[7,8,0,7]
-func addTwoNumbers2(l1 *ListNode, l2 *ListNode) *ListNode {
-	var st1, st2 []int
-	for cur := l1; cur != nil; cur = cur.Next {
-		st1 = append(st1, cur.Val)
-	}
-	for cur := l2; cur != nil; cur = cur.Next {
-		st2 = append(st2, cur.Val)
-	}
-	dummy := &ListNode{}
-	carry := 0
-	for len(st1) > 0 || len(st2) > 0 {
-		val := carry
-		if len(st1) > 0 {
-			val += st1[len(st1)-1]
-			st1 = st1[:len(st1)-1]
-		}
-		if len(st2) > 0 {
-			val += st2[len(st2)-1]
-			st2 = st2[:len(st2)-1]
-		}
-		carry = val / 10
-		// 头插法
-		next := dummy.Next
-		dummy.Next = &ListNode{Val: val % 10, Next: next}
-	}
-	if carry == 1 {
-		next := dummy.Next
-		dummy.Next = &ListNode{Val: 1, Next: next}
-	}
-	return dummy.Next
 }
 
 func main() {
-	myList := Constructor()
-	myList.AddAtTail(3)
-	myList.AddAtHead(2)
-	myList.AddAtHead(1)
-	myList.AddAtTail(4)
-	myList.AddAtTail(5)
-	fmt.Println(myList.String())
-	fmt.Println(myList.Get(1))
-	myList.AddAtIndex(2, 9)
-	fmt.Println(myList.String())
-	myList.DeleteAtIndex(4)
-	fmt.Println(myList.String())
+	head := buildList([]int{1, 2, 3, 4, 5})
+	head.Print()
+	reorderList2(head)
+	head.Print()
+}
+
+func buildList(nums []int) *ListNode {
+	dummy := &ListNode{}
+	cur := dummy
+	for i := 0; i < len(nums); i++ {
+		cur.Next = &ListNode{Val: nums[i]}
+		cur = cur.Next
+	}
+	return dummy.Next
 }

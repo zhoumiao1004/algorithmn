@@ -99,3 +99,18 @@ func (l *MyLinkedList) DeleteAtIndex(index int) {
 	cur.Next = cur.Next.Next
 	l.Size--
 }
+
+func main() {
+	myList := Constructor()
+	myList.AddAtTail(3)
+	myList.AddAtHead(2)
+	myList.AddAtHead(1)
+	myList.AddAtTail(4)
+	myList.AddAtTail(5)
+	fmt.Println(myList.String())
+	fmt.Println(myList.Get(1))
+	myList.AddAtIndex(2, 9)
+	fmt.Println(myList.String())
+	myList.DeleteAtIndex(4)
+	fmt.Println(myList.String())
+}

@@ -19,19 +19,20 @@ import (
 func combine(n int, k int) [][]int {
 	var results [][]int
 	var path []int
-	var dfs func(int, int, int)
-	dfs = func(n, k, startIndex int) {
+	var backtrack func(int, int, int)
+
+	backtrack = func(n, k, startIndex int) {
 		if len(path) == k {
 			results = append(results, append([]int{}, path...))
 			return
 		}
 		for i := startIndex; i <= n; i++ {
 			path = append(path, i)
-			dfs(n, k, i+1) // 只能取一次
+			backtrack(n, k, i+1) // 只能取一次
 			path = path[:len(path)-1]
 		}
 	}
-	dfs(n, k, 1)
+	backtrack(n, k, 1)
 	return results
 }
 
@@ -39,8 +40,9 @@ func combine(n int, k int) [][]int {
 func combine2(n int, k int) [][]int {
 	var results [][]int
 	var path []int
-	var dfs func(int, int, int)
-	dfs = func(n, k, startIndex int) {
+	var backtrack func(int, int, int)
+
+	backtrack = func(n, k, startIndex int) {
 		if len(path) == k {
 			results = append(results, append([]int{}, path...))
 			return
@@ -52,19 +54,20 @@ func combine2(n int, k int) [][]int {
 				break
 			}
 			path = append(path, i)
-			dfs(n, k, i+1)
+			backtrack(n, k, i+1)
 			path = path[:len(path)-1]
 		}
 	}
-	dfs(n, k, 1)
+	backtrack(n, k, 1)
 	return results
 }
 
 func combine3(n int, k int) [][]int {
 	var results [][]int
 	var path []int
-	var dfs func(int, int, int)
-	dfs = func(n, k, startIndex int) {
+	var backtrack func(int, int, int)
+
+	backtrack = func(n, k, startIndex int) {
 		if len(path) == k {
 			results = append(results, append([]int{}, path...))
 			return
@@ -72,11 +75,12 @@ func combine3(n int, k int) [][]int {
 		// 目标是选k个数，已经选了len(path)个数，还要选k-len(path)个数
 		for i := startIndex; i <= n-(k-len(path))+1; i++ {
 			path = append(path, i)
-			dfs(n, k, i+1)
+			backtrack(n, k, i+1)
 			path = path[:len(path)-1]
 		}
 	}
-	dfs(n, k, 1)
+
+	backtrack(n, k, 1)
 	return results
 }
 
@@ -89,8 +93,9 @@ func combinationSum3(k int, n int) [][]int {
 	var results [][]int
 	var path []int
 	s := 0
-	var dfs func(k, n, startIndex int)
-	dfs = func(k, n, startIndex int) {
+	var backtrack func(k, n, startIndex int)
+
+	backtrack = func(k, n, startIndex int) {
 		if len(path) == k && s == n {
 			results = append(results, append([]int{}, path...))
 			return
@@ -98,12 +103,13 @@ func combinationSum3(k int, n int) [][]int {
 		for i := startIndex; i <= 9 && s+i <= n; i++ {
 			path = append(path, i)
 			s += i
-			dfs(k, n, i+1) // 每个数字只能用一次，所以i+1
+			backtrack(k, n, i+1) // 每个数字只能用一次，所以i+1
 			s -= i
 			path = path[:len(path)-1]
 		}
 	}
-	dfs(k, n, 1)
+
+	backtrack(k, n, 1)
 	return results
 }
 
@@ -115,9 +121,9 @@ func letterCombinations(digits string) []string {
 	arr := []string{"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"}
 	var results []string
 	var path []byte
-	// start记录digits中第几个数字
-	var dfs func(digits string, startIndex int)
-	dfs = func(digits string, startIndex int) {
+	var backtrack func(digits string, startIndex int)
+
+	backtrack = func(digits string, startIndex int) {
 		if len(path) == len(digits) {
 			results = append(results, string(path))
 			return
@@ -126,11 +132,11 @@ func letterCombinations(digits string) []string {
 		s := arr[n]
 		for i := 0; i < len(s); i++ {
 			path = append(path, s[i])
-			dfs(digits, startIndex+1) // 只能用一次
+			backtrack(digits, startIndex+1) // 只能用一次
 			path = path[:len(path)-1]
 		}
 	}
-	dfs(digits, 0)
+	backtrack(digits, 0)
 	return results
 }
 
@@ -142,36 +148,39 @@ func letterCombinations(digits string) []string {
 // 输入：candidates = [2,3,6,7], target = 7
 // 输出：[[2,2,3],[7]]
 // 注意：候选值可以选多次，目标和为target
-// 方法1：排序
+// 思路1：排序
 func combinationSum(candidates []int, target int) [][]int {
 	sort.Ints(candidates) // 排序
 	var results [][]int
 	var path []int
 	s := 0
-	var dfs func([]int, int, int)
-	dfs = func(candidates []int, target int, startIndex int) {
+	var backtrack func([]int, int, int)
+
+	backtrack = func(candidates []int, target int, startIndex int) {
 		if s == target {
 			results = append(results, append([]int{}, path...))
 		}
 		for i := startIndex; i < len(candidates) && s+candidates[i] <= target; i++ {
 			path = append(path, candidates[i])
 			s += candidates[i]
-			dfs(candidates, target, i) // 可以用多次
+			backtrack(candidates, target, i) // 可以用多次
 			s -= candidates[i]
 			path = path[:len(path)-1]
 		}
 	}
-	dfs(candidates, target, 0)
+
+	backtrack(candidates, target, 0)
 	return results
 }
 
-// 方法2：不排序,利用元素都是正数来剪枝，但剪枝效率不如排序，不推荐
+// 思路2：不排序,利用元素都是正数来剪枝，但剪枝效率不如排序，不推荐
 func combinationSumWithoutSort(candidates []int, target int) [][]int {
 	var results [][]int
 	var path []int
 	s := 0
-	var dfs func([]int, int, int)
-	dfs = func(candidates []int, target int, startIndex int) {
+	var backtrack func([]int, int, int)
+
+	backtrack = func(candidates []int, target int, startIndex int) {
 		if s > target {
 			return // 因为题目中说所有元素都是正整数才能这么剪枝
 		}
@@ -181,12 +190,13 @@ func combinationSumWithoutSort(candidates []int, target int) [][]int {
 		for i := startIndex; i < len(candidates); i++ {
 			path = append(path, candidates[i])
 			s += candidates[i]
-			dfs(candidates, target, i) // 可以用多次
+			backtrack(candidates, target, i) // 可以用多次
 			s -= candidates[i]
 			path = path[:len(path)-1]
 		}
 	}
-	dfs(candidates, target, 0)
+
+	backtrack(candidates, target, 0)
 	return results
 }
 
@@ -208,8 +218,9 @@ func combinationSum2(candidates []int, target int) [][]int {
 	var path []int
 	used := make([]bool, len(candidates))
 	s := 0
-	var dfs func(candidates []int, target int, startIndex int)
-	dfs = func(candidates []int, target, startIndex int) {
+	var backtrack func(candidates []int, target int, startIndex int)
+
+	backtrack = func(candidates []int, target, startIndex int) {
 		if s == target {
 			results = append(results, append([]int{}, path...))
 		}
@@ -220,14 +231,15 @@ func combinationSum2(candidates []int, target int) [][]int {
 			}
 			path = append(path, candidates[i])
 			s += candidates[i]
-			used[i] = true               // 标记上一个数用过了
-			dfs(candidates, target, i+1) // 只能用一次
+			used[i] = true                     // 标记上一个数用过了
+			backtrack(candidates, target, i+1) // 只能用一次
 			used[i] = false
 			s -= candidates[i]
 			path = path[:len(path)-1]
 		}
 	}
-	dfs(candidates, target, 0)
+
+	backtrack(candidates, target, 0)
 	return results
 }
 
@@ -237,36 +249,38 @@ func combinationSum2(candidates []int, target int) [][]int {
 func partition(s string) [][]string {
 	var results [][]string
 	var path []string
-	var dfs func(s string, start int)
-	dfs = func(s string, start int) {
+	var backtrack func(s string, start int)
+	var isPalindrome func(s string) bool
+
+	isPalindrome = func(s string) bool {
+		left, right := 0, len(s)-1
+		for left < right {
+			if s[left] != s[right] {
+				return false
+			}
+			left++
+			right--
+		}
+		return true
+	}
+
+	backtrack = func(s string, start int) {
 		if start == len(s) {
-			tmp := make([]string, len(path))
-			copy(tmp, path)
-			results = append(results, tmp)
+			results = append(results, append([]string{}, path...))
 			return
 		}
 		for i := start; i < len(s); i++ {
-			if isPalindrome(s[start : i+1]) {
-				path = append(path, s[start:i+1])
-				dfs(s, i+1)
-				path = path[:len(path)-1]
+			if !isPalindrome(s[start : i+1]) { // 剪枝：分割出的子串不是回文串
+				continue
 			}
+			path = append(path, s[start:i+1])
+			backtrack(s, i+1)
+			path = path[:len(path)-1]
 		}
 	}
-	dfs(s, 0)
-	return results
-}
 
-func isPalindrome(s string) bool {
-	left, right := 0, len(s)-1
-	for left < right {
-		if s[left] != s[right] {
-			return false
-		}
-		left++
-		right--
-	}
-	return true
+	backtrack(s, 0)
+	return results
 }
 
 // 93.复原IP地址
@@ -278,8 +292,20 @@ func isPalindrome(s string) bool {
 func restoreIpAddresses(s string) []string {
 	var results []string
 	var path []string
-	var dfs func(s string, startIndex int)
-	dfs = func(s string, startIndex int) {
+	var isValidIp func(s string) bool
+	var backtrack func(s string, startIndex int)
+
+	isValidIp = func(s string) bool {
+		// 不能前导0
+		if len(s) > 1 && s[0] == '0' {
+			return false
+		}
+		// 0-255之间
+		n, _ := strconv.Atoi(s)
+		return n <= 255
+	}
+
+	backtrack = func(s string, startIndex int) {
 		if startIndex == len(s) && len(path) == 4 {
 			results = append(results, strings.Join(path, "."))
 			return
@@ -288,23 +314,14 @@ func restoreIpAddresses(s string) []string {
 			ip := s[startIndex : i+1]
 			if isValidIp(ip) {
 				path = append(path, ip)
-				dfs(s, i+1)
+				backtrack(s, i+1)
 				path = path[:len(path)-1]
 			}
 		}
 	}
-	dfs(s, 0)
-	return results
-}
 
-func isValidIp(s string) bool {
-	// 不能前导0
-	if len(s) > 1 && s[0] == '0' {
-		return false
-	}
-	// 0-255之间
-	n, _ := strconv.Atoi(s)
-	return n <= 255
+	backtrack(s, 0)
+	return results
 }
 
 // 491. 非递减子序列
@@ -364,8 +381,9 @@ func solveNQueens(n int) [][]string {
 			chessboard[i][j] = '.'
 		}
 	}
-	var dfs func(chessboard [][]byte, n int, row int)
-	dfs = func(chessboard [][]byte, n int, row int) {
+	var backtrack func(chessboard [][]byte, n int, row int)
+
+	backtrack = func(chessboard [][]byte, n int, row int) {
 		if row == n {
 			tmp := make([]string, n)
 			for i := 0; i < n; i++ {
@@ -377,12 +395,13 @@ func solveNQueens(n int) [][]string {
 		for i := 0; i < n; i++ {
 			if isValid(n, row, i, chessboard) {
 				chessboard[row][i] = 'Q'
-				dfs(chessboard, n, row+1)
+				backtrack(chessboard, n, row+1)
 				chessboard[row][i] = '.'
 			}
 		}
 	}
-	dfs(chessboard, n, 0)
+
+	backtrack(chessboard, n, 0)
 	return results
 }
 
@@ -434,7 +453,6 @@ func main() {
 	target := 7
 	fmt.Println(combinationSum(candidates, target))
 	fmt.Println(combinationSum2([]int{10, 1, 2, 7, 6, 1, 5}, 8))
-	fmt.Println(isPalindrome("a"))
 	fmt.Println(partition("aab"))
 	fmt.Println(restoreIpAddresses("25525511135"))
 	fmt.Println(findSubsequences([]int{4, 6, 7, 7}))

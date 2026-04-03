@@ -32,24 +32,6 @@ func reverseListRecursively(head *ListNode) *ListNode {
 	return newHead
 }
 
-// 92. 反转链表 II
-// https://leetcode.cn/problems/reverse-linked-list-ii/
-// 给你单链表的头指针 head 和两个整数 left 和 right ，其中 left <= right 。请你反转从位置 left 到位置 right 的链表节点，返回 反转后的链表 。
-// 输入：head = [1,2,3,4,5], left = 2, right = 4
-// 输出：[1,4,3,2,5]
-func reverseBetween(head *ListNode, left int, right int) *ListNode {
-	if left == 1 {
-		return reverseN(head, right)
-	}
-	// 找到第m-1个节点
-	prev := head
-	for i := 1; i < left-1; i++ {
-		prev = prev.Next
-	}
-	prev.Next = reverseN(prev.Next, right-left+1)
-	return head
-}
-
 // 反转链表前 N 个节点
 func reverseN(head *ListNode, n int) *ListNode {
 	if head == nil || head.Next == nil {
@@ -68,6 +50,24 @@ func reverseN(head *ListNode, n int) *ListNode {
 	}
 	head.Next = cur
 	return prev
+}
+
+// 92. 反转链表 II
+// https://leetcode.cn/problems/reverse-linked-list-ii/
+// 给你单链表的头指针 head 和两个整数 left 和 right ，其中 left <= right 。请你反转从位置 left 到位置 right 的链表节点，返回 反转后的链表 。
+// 输入：head = [1,2,3,4,5], left = 2, right = 4
+// 输出：[1,4,3,2,5]
+func reverseBetween(head *ListNode, left int, right int) *ListNode {
+	if left == 1 {
+		return reverseN(head, right)
+	}
+	// 找到第m-1个节点
+	prev := head
+	for i := 1; i < left-1; i++ {
+		prev = prev.Next
+	}
+	prev.Next = reverseN(prev.Next, right-left+1)
+	return head
 }
 
 // 25. K 个一组翻转链表

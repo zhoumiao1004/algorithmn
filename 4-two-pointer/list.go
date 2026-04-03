@@ -5,9 +5,13 @@ type ListNode struct {
 	Next *ListNode
 }
 
-/*1、合并两个有序链表
+/*
+1、合并两个有序链表
+https://leetcode.cn/problems/merge-two-sorted-lists/
 2、链表的分解
+https://leetcode.cn/problems/partition-list/description/
 3、合并 k 个有序链表
+https://leetcode.com/problems/merge-k-sorted-lists/
 4、寻找单链表的倒数第 k 个节点
 5、寻找单链表的中点
 6、判断单链表是否包含环并找出环起点

@@ -5,57 +5,6 @@ import (
 	"strings"
 )
 
-// 344. 反转字符串
-// https://leetcode.cn/problems/reverse-string/description/
-// 编写一个函数，其作用是将输入的字符串反转过来。输入字符串以字符数组 s 的形式给出。
-// 不要给另外的数组分配额外的空间，你必须原地修改输入数组、使用 O(1) 的额外空间解决这一问题。
-func reverseString(s []byte) {
-	left, right := 0, len(s)-1
-	for left < right {
-		s[left], s[right] = s[right], s[left]
-		left++
-		right--
-	}
-}
-
-// 5. 最长回文子串
-// 给你一个字符串 s，找到 s 中最长的 回文 子串。
-// 输入：s = "babad"
-// 输出："bab"
-// 解释："aba" 同样是符合题意的答案。
-func longestPalindrome(s string) string {
-	var palindrome func(s string, l, r int) string
-	palindrome = func(s string, l, r int) string {
-		// 防止索引越界
-		for l >= 0 && r < len(s) && s[l] == s[r] {
-			// 向两边展开
-			l--
-			r++
-		}
-		// 此时 s[l+1..r-1] 就是最长回文串
-		return s[l+1 : r]
-	}
-	res := ""
-	for i := 0; i < len(s); i++ {
-		// 以 s[i] 为中心的最长回文子串
-		s1 := palindrome(s, i, i)
-		// 以 s[i] 和 s[i+1] 为中心的最长回文子串
-		s2 := palindrome(s, i, i+1)
-		// res = longest(res, s1, s2)
-		if len(res) > len(s1) {
-			res = res
-		} else {
-			res = s1
-		}
-		if len(res) > len(s2) {
-			res = res
-		} else {
-			res = s2
-		}
-	}
-	return res
-}
-
 // 125. 验证回文串
 // https://leetcode.cn/problems/valid-palindrome/description/
 // 如果在将所有大写字符转换为小写字符、并移除所有非字母数字字符之后，短语正着读和反着读都一样。则可以认为该短语是一个 回文串 。

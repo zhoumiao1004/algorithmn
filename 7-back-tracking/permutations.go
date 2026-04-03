@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"sort"
 )
 
@@ -122,6 +123,45 @@ func permuteUnique(nums []int) [][]int {
 		}
 	}
 	dfs(nums)
+	return results
+}
+
+// 967. 连续差相同的数字
+// https://leetcode.cn/problems/numbers-with-same-consecutive-differences/description/
+// 返回所有长度为 n 且满足其每两个连续位上的数字之间的差的绝对值为 k 的 非负整数 。
+// 请注意，除了 数字 0 本身之外，答案中的每个数字都 不能 有前导零。例如，01 有一个前导零，所以是无效的；但 0 是有效的。
+// 你可以按 任何顺序 返回答案。
+// 输入：n = 3, k = 7
+// 输出：[181,292,707,818,929]
+// 解释：注意，070 不是一个有效的数字，因为它有前导零。
+func numsSameConsecDiff(n int, k int) []int {
+	var results []int
+	var path []int
+	var backtrack func(n, k int)
+
+	backtrack = func(n, k int) {
+		if len(path) == n { // 符合长度n条件
+			s := 0
+			for i := 0; i < n; i++ {
+				s = 10*s + path[i]
+			}
+			results = append(results, s)
+			return
+		}
+		for i := 0; i <= 9; i++ { // 类全排列，每次都能选0-9
+			if len(path) == 0 && i == 0 { // 不能前导0
+				continue
+			}
+			if len(path) > 0 && int(math.Abs(float64(path[len(path)-1])-float64(i))) != k { // 符合相差为k
+				continue
+			}
+			path = append(path, i)
+			backtrack(n, k)
+			path = path[:len(path)-1]
+		}
+	}
+
+	backtrack(n, k)
 	return results
 }
 

@@ -49,9 +49,6 @@ func moveZeroes(nums []int) {
 // 输入：head = [1,2,6,3,4,5,6], val = 6
 // 输出：[1,2,3,4,5]
 func removeElements(head *ListNode, val int) *ListNode {
-	if head == nil {
-		return nil
-	}
 	dummy := &ListNode{Next: head}
 	slow := dummy
 	fast := head
@@ -80,6 +77,20 @@ func removeElements2(head *ListNode, val int) *ListNode {
 			for cur.Next != nil && cur.Next.Val == val {
 				cur.Next = cur.Next.Next
 			}
+		}
+	}
+	return dummy.Next
+}
+
+// 最简明
+func removeElements3(head *ListNode, val int) *ListNode {
+	dummy := &ListNode{Next: head}
+	cur := dummy
+	for cur.Next != nil {
+		if cur.Next.Val != val {
+			cur = cur.Next
+		} else {
+			cur.Next = cur.Next.Next // 跳过下个元素，即删除下个元素
 		}
 	}
 	return dummy.Next
@@ -143,8 +154,8 @@ func removeDuplicatesII2(nums []int) int {
 			count = 0
 		}
 	}
-	// 数组长度为索引 + 1
-	return slow + 1
+
+	return slow + 1 // 数组长度为索引 + 1
 }
 
 // 思路2
@@ -212,14 +223,14 @@ func deleteDuplicatesII(head *ListNode) *ListNode {
 	return p1
 }
 
-// 思路2:上题的变体，快慢指针
+// 思路2: 快慢指针
 func deleteDuplicatesII2(head *ListNode) *ListNode {
 	if head == nil {
 		return nil
 	}
 	dummy := &ListNode{Next: head}
 	slow := dummy // slow始终指向和下个节点值不同的节点
-	fast := head
+	fast := head  // fast在前面探路，和后一个节点值比较
 	for fast != nil && fast.Next != nil {
 		if fast.Val != fast.Next.Val {
 			slow = slow.Next
@@ -230,11 +241,49 @@ func deleteDuplicatesII2(head *ListNode) *ListNode {
 		for fast.Next != nil && fast.Val == fast.Next.Val {
 			fast = fast.Next
 		}
-		// 此时fast是最后一个值相同的节点，需要跳过
-		fast = fast.Next
-		slow.Next = fast
+		slow.Next = fast.Next // fast.Next是第一个值不重复的节点
 	}
 	return dummy.Next
+}
+
+// 思路3: 2次遍历，hashmap记录重复的元素，再遍历一次删除重复元素
+func deleteDuplicatesII3(head *ListNode) *ListNode {
+	// 记录次数
+	m := make(map[int]int)
+	for cur := head; cur != nil; cur = cur.Next {
+		m[cur.Val]++
+	}
+	// 再遍历一次删除次数>1的节点
+	dummy := &ListNode{Next: head}
+	cur := dummy
+	for cur != nil {
+		for cur.Next != nil && m[cur.Next.Val] > 1 {
+			cur.Next = cur.Next.Next
+		}
+		cur = cur.Next
+	}
+	return dummy.Next
+}
+
+// 思路4: 递归解法
+func deleteDuplicates3(head *ListNode) *ListNode {
+	// 定义：输入一条单链表头结点，返回去重之后的单链表头结点
+	// base case
+	if head == nil || head.Next == nil {
+		return head
+	}
+	if head.Val != head.Next.Val {
+		// 如果头结点和身后节点的值不同，则对之后的链表去重即可
+		head.Next = deleteDuplicates3(head.Next)
+		return head
+	}
+	// 如果如果头结点和身后节点的值相同，则说明从 head 开始存在若干重复节点
+	// 越过重复节点，找到 head 之后那个不重复的节点
+	for head.Next != nil && head.Val == head.Next.Val {
+		head = head.Next
+	}
+	// 直接返回那个不重复节点开头的链表的去重结果，就把重复节点删掉了
+	return deleteDuplicates3(head.Next)
 }
 
 // 75. 颜色分类
