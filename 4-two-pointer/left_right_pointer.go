@@ -1,5 +1,27 @@
 package main
 
+// 977.有序数组的平方
+// https://leetcode.cn/problems/squares-of-a-sorted-array/description/
+// 输入：nums = [-4,-1,0,3,10]
+// 输出：[0,1,9,16,100]
+func sortedSquares(nums []int) []int {
+	n := len(nums)
+	results := make([]int, n)
+	left, right := 0, n-1
+	k := n - 1
+	for left <= right {
+		if nums[left]*nums[left] < nums[right]*nums[right] {
+			results[k] = nums[right] * nums[right]
+			right--
+		} else {
+			results[k] = nums[left] * nums[left]
+			left++
+		}
+		k--
+	}
+	return results
+}
+
 // 167. 两数之和 II - 输入有序数组
 // https://leetcode.cn/problems/two-sum-ii-input-array-is-sorted/
 // 给你一个下标从 1 开始的整数数组 numbers ，该数组已按 非递减顺序排列  ，请你从数组中找出满足相加之和等于目标数 target 的两个数。如果设这两个数分别是 numbers[index1] 和 numbers[index2] ，则 1 <= index1 < index2 <= numbers.length 。
