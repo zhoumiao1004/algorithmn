@@ -1,6 +1,9 @@
 package main
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type TreeNode struct {
 	Val   int
@@ -51,6 +54,7 @@ func levelOrderBottom(root *TreeNode) [][]int {
 }
 
 // 429. N 叉树的层序遍历
+// https://leetcode.cn/problems/n-ary-tree-level-order-traversal/description/
 // 给定一个 N 叉树，返回其节点值的层序遍历。（即从左到右，逐层遍历）。
 // 树的序列化输入是用层序遍历，每组子节点都由 null 值分隔（参见示例）。
 type NTreeNode struct {
@@ -68,11 +72,11 @@ func levelOrderNTree(root *NTreeNode) [][]int {
 		sz := len(q)
 		var tmp []int
 		for i := 0; i < sz; i++ {
-			node := q[i]
+			node := q[0]
 			q = q[1:]
 			tmp = append(tmp, node.Val)
 			for _, c := range node.Children {
-				q = append(q, c)
+				q = append(q, c) // 注：无需判断c != nil, 因为Children里不可能有nil
 			}
 		}
 		result = append(result, tmp)
@@ -355,4 +359,9 @@ func deepestLeavesSum(root *TreeNode) int {
 		result = s
 	}
 	return result
+}
+
+func main() {
+	q := []*Node{nil}
+	fmt.Println(len(q))
 }

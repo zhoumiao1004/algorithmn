@@ -67,8 +67,7 @@ func delNodes(root *TreeNode, to_delete []int) []*TreeNode {
 	for _, val := range to_delete {
 		delSet[val] = true
 	}
-	// 定义函数，对以node为根的二叉树，删除集合中的节点，hasParent用来传递父节点有没有被删除
-	var doDelete func(node *TreeNode, hasParent bool) *TreeNode
+	var doDelete func(node *TreeNode, hasParent bool) *TreeNode // 明确函数定义：对以node为根的二叉树，删除集合中的节点，hasParent用来传递父节点有没有被删除
 
 	doDelete = func(node *TreeNode, hasParent bool) *TreeNode {
 		if node == nil {

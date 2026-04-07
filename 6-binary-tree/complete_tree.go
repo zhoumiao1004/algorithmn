@@ -29,6 +29,16 @@ func countNodes(root *TreeNode) int {
 	return 1 + leftNum + rightNum
 }
 
+// 普通二叉树的节点个数
+func countNodesNormal(root *TreeNode) int {
+	if root == nil {
+		return 0
+	}
+	leftNum := countNodes(root.Left)
+	rightNum := countNodes(root.Right)
+	return 1 + leftNum + rightNum
+}
+
 // 1104. 二叉树寻路
 // https://leetcode.cn/problems/path-in-zigzag-labelled-binary-tree/description/
 // 在一棵无限的二叉树上，每个节点都有两个子节点，树中的节点 逐行 依次按 “之” 字形进行标记。

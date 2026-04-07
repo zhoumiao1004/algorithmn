@@ -113,7 +113,7 @@ func rightSideView2(root *TreeNode) []int {
 		sz := len(q)
 		node := q[0]
 		q = q[1:]
-		results = append(results, q[len(q)-1].Val)
+		results = append(results, q[len(q)-1].Val) // 每一行最后一个元素
 		for i := 0; i < sz; i++ {
 			if node.Left != nil {
 				q = append(q, node.Left)

@@ -3,7 +3,7 @@ package main
 // 144. 二叉树的前序遍历
 // https://leetcode.cn/problems/binary-tree-preorder-traversal/description/
 // 给你二叉树的根节点 root ，返回它节点值的 前序 遍历。
-// 2种思维模式理解递归：遍历的思维模式
+// 思路1：遍历
 func preorderTraversal(root *TreeNode) []int {
 	var result []int
 	var traverse func(node *TreeNode)
@@ -19,7 +19,7 @@ func preorderTraversal(root *TreeNode) []int {
 	return result
 }
 
-// 2种思维模式理解递归：分解问题的思维模式
+// 思路2：分解问题
 func preorderTraversal1(root *TreeNode) []int {
 	if root == nil {
 		return []int{}
@@ -53,6 +53,7 @@ func preorderTraversal2(root *TreeNode) []int {
 
 // 145. 二叉树的后序遍历
 // https://leetcode.cn/problems/binary-tree-postorder-traversal/description/
+// 思路1: 遍历
 func postorderTraversal(root *TreeNode) []int {
 	var result []int
 	var traverse func(node *TreeNode)
@@ -97,6 +98,7 @@ func postorderTraversal2(root *TreeNode) []int {
 
 // 94. 二叉树的中序遍历
 // https://leetcode.cn/problems/binary-tree-inorder-traversal/description/
+// 思路1: 遍历
 func inorderTraversal(root *TreeNode) []int {
 	var result []int
 	var traverse func(node *TreeNode)

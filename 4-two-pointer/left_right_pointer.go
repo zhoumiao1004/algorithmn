@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // 977.有序数组的平方
 // https://leetcode.cn/problems/squares-of-a-sorted-array/description/
 // 输入：nums = [-4,-1,0,3,10]
@@ -180,4 +182,10 @@ func sortColors(nums []int) {
 			p = p0
 		}
 	}
+}
+
+func main() {
+	nums := []int{2, 0, 2, 1, 1, 0}
+	sortColors(nums)
+	fmt.Println(nums)
 }

@@ -56,9 +56,10 @@ func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
 // 对于树中的每个节点：左和右子树高度差不超过1
 // 输入：root = [3,9,20,null,null,15,7]
 // 输出：true
+// 思路：分解问题
 func isBalanced(root *TreeNode) bool {
-	// 定义函数：返回以node为根的子树的最大深度
-	var maxDepth func(node *TreeNode) int
+	flag := true
+	var maxDepth func(node *TreeNode) int // 明确函数定义：返回以 node 为根的子树的最大深度
 
 	maxDepth = func(node *TreeNode) int {
 		if node == nil {
@@ -66,19 +67,15 @@ func isBalanced(root *TreeNode) bool {
 		}
 		left := maxDepth(node.Left)
 		right := maxDepth(node.Right)
+		// 后序位置顺便判断是否平衡
+		if math.Abs(float64(left-right)) > 1 {
+			flag = false
+		}
 		return max(left, right) + 1
 	}
 
-	if root == nil {
-		return true
-	}
-	left := maxDepth(root.Left)
-	right := maxDepth(root.Right)
-	// 后序位置
-	if math.Abs(float64(left-right)) > 1 {
-		return false
-	}
-	return isBalanced(root.Left) && isBalanced(root.Right) // 左右
+	maxDepth(root)
+	return flag
 }
 
 // 508. 出现次数最多的子树元素和
@@ -90,17 +87,16 @@ func isBalanced(root *TreeNode) bool {
 func findFrequentTreeSum(root *TreeNode) []int {
 	var results []int
 	maxCnt := 0
-	maxSumCnt := make(map[int]int) // 记录和的次数
-	// 定义函数：返回以node为根的二叉树的元素和
-	var traverse func(node *TreeNode) int
+	maxSumCnt := make(map[int]int)      // 记录和的次数
+	var getSum func(node *TreeNode) int // 明确函数定义：返回以 node 为根的二叉树的元素和
 
-	traverse = func(node *TreeNode) int {
+	getSum = func(node *TreeNode) int {
 		if node == nil {
 			return 0
 		}
-		left := traverse(node.Left)
-		right := traverse(node.Right)
-		// 后序位置
+		left := getSum(node.Left)
+		right := getSum(node.Right)
+		// 后序位置顺便更新最大子树元素和
 		s := node.Val + left + right
 		maxSumCnt[s]++
 		if maxSumCnt[s] == maxCnt {
@@ -112,7 +108,7 @@ func findFrequentTreeSum(root *TreeNode) []int {
 		return s
 	}
 
-	traverse(root)
+	getSum(root)
 	return results
 }
 
@@ -131,8 +127,8 @@ func findTilt(root *TreeNode) int {
 		}
 		left := getSum(node.Left)
 		right := getSum(node.Right)
-		// 后序位置
-		result += int(math.Abs(float64(left) - float64(right))) // 顺便累加坡度和
+		// 后序位置顺便累加坡度和
+		result += int(math.Abs(float64(left) - float64(right)))
 		return left + right + node.Val
 	}
 
@@ -147,15 +143,15 @@ func findTilt(root *TreeNode) int {
 // 节点 node 的子树为 node 本身加上所有 node 的后代。
 // 输入：root = [1,null,0,0,1]
 // 输出：[1,null,0,null,1]
+// 思路：分解问题，明确函数定义：返回以 root 为根的二叉树剪枝后的原二叉树
 func pruneTree(root *TreeNode) *TreeNode {
 	if root == nil {
 		return nil
 	}
-	// 函数定义：返回以root为根的二叉树剪枝后的原二叉树
 	left := pruneTree(root.Left)   // 左子树剪枝
 	right := pruneTree(root.Right) // 右子树剪枝
 	// 后序位置
-	if root.Val == 0 && left == nil && right == nil { // 剪枝条件：叶子节点值为0
+	if root.Val == 0 && left == nil && right == nil {
 		return nil // return nil 相当于删除节点
 	}
 	root.Left = left   // 接住左子树
@@ -225,32 +221,32 @@ func maxAncestorDiff(root *TreeNode) int {
 // 输出：110
 // 解释：删除红色的边，得到 2 棵子树，和分别为 11 和 10 。它们的乘积是 110 （11*10）
 func maxProduct(root *TreeNode) int {
-	// 先求整个树的和
 	var result int64
-	var getTreeSum func(node *TreeNode) int
-	var getSum func(node *TreeNode, s int) int
-
-	getTreeSum = func(node *TreeNode) int {
-		if node == nil {
-			return 0
-		}
-		return getTreeSum(node.Left) + getTreeSum(node.Right) + node.Val
-	}
+	treeSum := getTreeSum(root)
+	var getSum func(node *TreeNode, treeSum int) int // 明确函数定义：返回以 node 为根的子树的元素和
 
 	getSum = func(node *TreeNode, treeSum int) int {
 		if node == nil {
 			return 0
 		}
-		leftSum := getSum(node.Left, treeSum)
-		rightSum := getSum(node.Right, treeSum)
-		rootSum := leftSum + rightSum + node.Val
+		left := getSum(node.Left, treeSum)
+		right := getSum(node.Right, treeSum)
+		rootSum := node.Val + left + right
 		result = max(result, int64(rootSum)*(int64(treeSum)-int64(rootSum)))
 		return rootSum
 	}
 
-	treeSum := getTreeSum(root)
 	getSum(root, treeSum)
 	return int(result % (1e9 + 7))
+}
+
+func getTreeSum(node *TreeNode) int {
+	if node == nil {
+		return 0
+	}
+	left := getTreeSum(node.Left)
+	right := getTreeSum(node.Right)
+	return node.Val + left + right
 }
 
 func main() {

@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 type ListNode struct {
 	Val  int
 	Next *ListNode
@@ -298,7 +294,5 @@ func deleteDuplicates3(head *ListNode) *ListNode {
 }
 
 func main() {
-	nums := []int{2, 0, 2, 1, 1, 0}
-	sortColors(nums)
-	fmt.Println(nums)
+
 }
