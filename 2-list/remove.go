@@ -106,17 +106,12 @@ func removeElements3(head *ListNode, val int) *ListNode {
 // 解释：函数应该返回新的长度 2 ，并且原数组 nums 的前两个元素被修改为 1, 2 。不需要考虑数组中超出新长度后面的元素。
 // 快慢指针，注意：和27移除元素的区别，本题要求移除多余重复的元素
 func removeDuplicates(nums []int) int {
-	if len(nums) == 0 {
-		return 0
-	}
-	slow, fast := 0, 0 // 维护 nums[0..slow] 左闭右闭，为不包含重复元素的结果子数组
-	for fast < len(nums) {
-		if nums[fast] != nums[slow] { // 发现fast是一个新的无重复元素
-			// slow把fast的值复制过来
+	slow := 0 // 维护 nums[0..slow] 左闭右闭，为不包含重复元素的结果子数组
+	for fast := 0; fast < len(nums); fast++ {
+		if nums[fast] != nums[slow] {
 			slow++
 			nums[slow] = nums[fast]
 		}
-		fast++
 	}
 	return slow + 1
 }
@@ -126,22 +121,23 @@ func removeDuplicates(nums []int) int {
 // 给定一个已排序的链表的头 head ， 删除所有重复的元素，使每个元素只出现一次 。返回 已排序的链表 。
 // 输入：head = [1,1,2]
 // 输出：[1,2]
+// 思路1:双指针
 func deleteDuplicates(head *ListNode) *ListNode {
 	if head == nil {
 		return nil
 	}
-	slow, fast := head, head
-	for fast != nil {
+	slow := head
+	for fast := head; fast != nil; fast = fast.Next {
 		if fast.Val != slow.Val {
 			slow.Next = fast // 对应数组 slow++
 			slow = slow.Next // 对应数组 nums[slow] = nums[fast]
 		}
-		fast = fast.Next // 对应数组 fast++
 	}
-	slow.Next = nil // 断开与后面重复元素的连接
+	slow.Next = nil // 注意：断开与后面重复元素的连接
 	return head
 }
 
+// 思路2:
 func deleteDuplicates2(head *ListNode) *ListNode {
 	if head == nil {
 		return nil
