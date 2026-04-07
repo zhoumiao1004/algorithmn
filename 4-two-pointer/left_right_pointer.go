@@ -66,36 +66,27 @@ func reverseString(s []byte) {
 // 解释："aba" 同样是符合题意的答案。
 // 思路1：中心扩散
 func longestPalindrome(s string) string {
-	var palindrome func(s string, l, r int) string
-
-	palindrome = func(s string, l, r int) string {
-		for l >= 0 && r < len(s) && s[l] == s[r] {
-			l--
-			r++
+	var palindrome func(s string, left, right int) string
+	palindrome = func(s string, left, right int) string {
+		for left >= 0 && right < len(s) && s[left] == s[right] {
+			left--
+			right++
 		}
-		// 此时 s[l+1..r-1] 就是最长回文串
-		return s[l+1 : r]
+		return s[left+1 : right]
 	}
 
-	res := ""
+	result := ""
 	for i := 0; i < len(s); i++ {
-		// 以 s[i] 为中心的最长回文子串
 		s1 := palindrome(s, i, i)
-		// 以 s[i] 和 s[i+1] 为中心的最长回文子串
 		s2 := palindrome(s, i, i+1)
-		// res = longest(res, s1, s2)
-		if len(res) > len(s1) {
-			res = res
-		} else {
-			res = s1
+		if len(s1) > len(result) {
+			result = s1
 		}
-		if len(res) > len(s2) {
-			res = res
-		} else {
-			res = s2
+		if len(s2) > len(result) {
+			result = s2
 		}
 	}
-	return res
+	return result
 }
 
 // 思路2：dp

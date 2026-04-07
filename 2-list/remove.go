@@ -96,7 +96,7 @@ func removeElements3(head *ListNode, val int) *ListNode {
 	return dummy.Next
 }
 
-// 26. 删除有序数组中的重复项
+// 26. 删除有序数组中的重复项（只留一个重复元素）
 // https://leetcode.cn/problems/remove-duplicates-from-sorted-array/description/
 // 给你一个 非严格递增排列 的数组 nums ，请你 原地 删除重复出现的元素，使每个元素 只出现一次 ，返回删除后数组的新长度。元素的 相对顺序 应该保持 一致 。然后返回 nums 中唯一元素的个数。
 // 考虑 nums 的唯一元素的数量为 k。去重后，返回唯一元素的数量 k。
@@ -119,6 +119,42 @@ func removeDuplicates(nums []int) int {
 		fast++
 	}
 	return slow + 1
+}
+
+// 83. 删除排序链表中的重复元素(只留一个重复元素)
+// https://leetcode.cn/problems/remove-duplicates-from-sorted-list/description/
+// 给定一个已排序的链表的头 head ， 删除所有重复的元素，使每个元素只出现一次 。返回 已排序的链表 。
+// 输入：head = [1,1,2]
+// 输出：[1,2]
+func deleteDuplicates(head *ListNode) *ListNode {
+	if head == nil {
+		return nil
+	}
+	slow, fast := head, head
+	for fast != nil {
+		if fast.Val != slow.Val {
+			slow.Next = fast // 对应数组 slow++
+			slow = slow.Next // 对应数组 nums[slow] = nums[fast]
+		}
+		fast = fast.Next // 对应数组 fast++
+	}
+	slow.Next = nil // 断开与后面重复元素的连接
+	return head
+}
+
+func deleteDuplicates2(head *ListNode) *ListNode {
+	if head == nil {
+		return nil
+	}
+	cur := head
+	for cur.Next != nil {
+		if cur.Val == cur.Next.Val {
+			cur.Next = cur.Next.Next // 删除重复元素
+		} else {
+			cur = cur.Next
+		}
+	}
+	return head
 }
 
 // 80.删除有序数组中的重复项 II
@@ -173,27 +209,6 @@ func removeDuplicatesII(nums []int) int {
 		fast++
 	}
 	return slow
-}
-
-// 83. 删除排序链表中的重复元素
-// https://leetcode.cn/problems/remove-duplicates-from-sorted-list/description/
-// 给定一个已排序的链表的头 head ， 删除所有重复的元素，使每个元素只出现一次 。返回 已排序的链表 。
-// 输入：head = [1,1,2]
-// 输出：[1,2]
-func deleteDuplicates(head *ListNode) *ListNode {
-	if head == nil {
-		return nil
-	}
-	slow, fast := head, head
-	for fast != nil {
-		if fast.Val != slow.Val {
-			slow.Next = fast // 对应数组 slow++
-			slow = slow.Next // 对应数组 nums[slow] = nums[fast]
-		}
-		fast = fast.Next // 对应数组 fast++
-	}
-	slow.Next = nil // 断开与后面重复元素的连接
-	return head
 }
 
 // 82. 删除排序链表中的重复元素 II
