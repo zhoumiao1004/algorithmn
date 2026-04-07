@@ -106,6 +106,18 @@ func reverseKGroup(head *ListNode, k int) *ListNode {
 	return newHead
 }
 
+// 24. 两两交换链表中的节点
+// https://leetcode.cn/problems/swap-nodes-in-pairs/description/
+func swapPairs(head *ListNode) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+	next := head.Next
+	head.Next = swapPairs(head.Next.Next)
+	next.Next = head
+	return next
+}
+
 func main() {
 	head := buildList([]int{1, 2, 3, 4, 5})
 	head.Print()

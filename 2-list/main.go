@@ -26,18 +26,6 @@ func (l *ListNode) String() string {
 	return strings.Join(strs, "->")
 }
 
-// 24. 两两交换链表中的节点
-// https://leetcode.cn/problems/swap-nodes-in-pairs/description/
-func swapPairs(head *ListNode) *ListNode {
-	if head == nil || head.Next == nil {
-		return head
-	}
-	next := head.Next
-	head.Next = swapPairs(head.Next.Next)
-	next.Next = head
-	return next
-}
-
 // 143.重排链表
 // https://leetcode.cn/problems/reorder-list/submissions/
 // 输入：head = [1,2,3,4]

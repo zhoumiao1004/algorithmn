@@ -156,3 +156,28 @@ func longestPalindrome3(s string) string {
 	}
 	return s[left : right+1]
 }
+
+// 75. 颜色分类
+// https://leetcode.cn/problems/sort-colors/
+// 给定一个包含红色、白色和蓝色、共 n 个元素的数组 nums ，原地 对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。
+// 我们使用整数 0、 1 和 2 分别表示红色、白色和蓝色。
+// 必须在不使用库内置的 sort 函数的情况下解决这个问题。
+func sortColors(nums []int) {
+	p0, p2 := 0, len(nums)-1
+	p := 0
+	for p <= p2 {
+		if nums[p] == 0 {
+			nums[p0], nums[p] = nums[p], nums[p0]
+			p0++
+		} else if nums[p] == 2 {
+			nums[p], nums[p2] = nums[p2], nums[p]
+			p2--
+		} else if nums[p] == 1 {
+			p++
+		}
+		// 由于p找到0就会和p0位置的数字换，所以p0一直增加，由于p0之前都是0，所以p需要>=p0
+		if p < p0 {
+			p = p0
+		}
+	}
+}
