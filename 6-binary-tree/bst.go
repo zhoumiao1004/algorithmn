@@ -13,31 +13,55 @@ type TreeNode struct {
 	Right *TreeNode
 }
 
-// 230. 二叉搜索树中第 K 小的元素
-// https://leetcode.cn/problems/kth-smallest-element-in-a-bst/description/
-// 给定一个二叉搜索树的根节点 root ，和一个整数 k ，请你设计一个算法查找其中第 k 小的元素（k 从 1 开始计数）。
-func kthSmallest(root *TreeNode, k int) int {
-	result := 0
+// 897. 递增顺序搜索树
+// https://leetcode.cn/problems/increasing-order-search-tree/
+// 给你一棵二叉搜索树的 root ，请你 按中序遍历 将其重新排列为一棵递增顺序搜索树，使树中最左边的节点成为树的根节点，并且每个节点没有左子节点，只有一个右子节点。
+// 输入：root = [5,3,6,2,4,null,8,1,null,null,null,7,9]
+// 输出：[1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9]
+// 思路1: 遍历
+func increasingBST2(root *TreeNode) *TreeNode {
+	dummy := &TreeNode{}
+	cur := dummy
 	var traverse func(node *TreeNode)
 
 	traverse = func(node *TreeNode) {
 		if node == nil {
 			return
 		}
-		traverse(node.Left)
+		traverse(node.Left) // 左
+
 		// 中序位置
-		k--
-		if k == 0 {
-			result = node.Val
-		}
-		traverse(node.Right)
+		cur.Right = &TreeNode{Val: node.Val}
+		cur = cur.Right
+
+		traverse(root.Right) // 右
 	}
 
-	if root == nil {
-		return 0
-	}
 	traverse(root)
-	return result
+	return dummy.Right
+}
+
+// 思路2: 分解问题+后序
+func increasingBST(root *TreeNode) *TreeNode {
+	if root == nil {
+		return nil
+	}
+	left := increasingBST(root.Left)   // 左
+	root.Left = nil                    // 断掉左子树
+	right := increasingBST(root.Right) // 右
+	root.Right = right
+
+	// 后序位置
+	if left == nil {
+		return root
+	}
+	// 把 root 接到左子树最右边的节点上
+	cur := left
+	for cur.Right != nil {
+		cur = cur.Right
+	}
+	cur.Right = root
+	return left
 }
 
 // 538. 把二叉搜索树转换为累加树
@@ -381,19 +405,20 @@ func trimBST(root *TreeNode, low int, high int) *TreeNode {
 // 输入：root = [2,2,5,null,null,5,7]
 // 输出：5
 // 解释：最小的值是 2 ，第二小的值是 5 。
+// 思路：分解问题。根是最小的节点，第二小的节点可能在左子树也可能在右子树中。明确函数定义：返回以 root 为根的第二小的节点值，没有的话返回-1
 func findSecondMinimumValue(root *TreeNode) int {
 	if root == nil {
 		return -1
 	}
 	if root.Left == nil || root.Right == nil {
-		return -1
+		return -1 // 叶子节点也没有第二小的节点
 	}
 	left, right := root.Left.Val, root.Right.Val
 	if root.Val == left {
 		left = findSecondMinimumValue(root.Left)
 	}
 	if root.Val == right {
-		right = findSecondMinimumValue(root.Right)
+		right = findSecondMinimumValue(root.Right) //
 	}
 	if left == -1 {
 		return right
@@ -539,49 +564,6 @@ func findTarget3(root *TreeNode, k int) bool {
 	return result
 }
 
-// 1008. 前序遍历构造二叉搜索树
-// https://leetcode.cn/problems/construct-binary-search-tree-from-preorder-traversal/description/
-// 给定一个整数数组，它表示BST(即 二叉搜索树 )的 先序遍历 ，构造树并返回其根。
-// 保证 对于给定的测试用例，总是有可能找到具有给定需求的二叉搜索树。
-// 二叉搜索树 是一棵二叉树，其中每个节点， Node.left 的任何后代的值 严格小于 Node.val , Node.right 的任何后代的值 严格大于 Node.val。
-// 二叉树的 前序遍历 首先显示节点的值，然后遍历Node.left，最后遍历Node.right。
-// 输入：preorder = [8,5,1,7,10,12]
-// 输出：[8,5,10,1,7,null,12]
-func bstFromPreorder(preorder []int) *TreeNode {
-	n := len(preorder)
-	if n == 0 {
-		return nil
-	}
-	val := preorder[0]
-	if n == 1 {
-		return &TreeNode{Val: val}
-	}
-	root := &TreeNode{Val: val}
-	mid := 1
-	for mid < n && preorder[mid] < val {
-		mid++
-	}
-	root.Left = bstFromPreorder(preorder[1:mid])
-	root.Right = bstFromPreorder(preorder[mid:])
-	return root
-}
-
-// 108. 将有序数组转换为二叉搜索树
-// https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/
-// 给你一个整数数组 nums ，其中元素已经按 升序 排列，请你将其转换为一棵 平衡 二叉搜索树。
-// 输入：nums = [-10,-3,0,5,9]
-// 输出：[0,-3,9,-10,null,5]
-func sortedArrayToBST(nums []int) *TreeNode {
-	if len(nums) == 0 {
-		return nil
-	}
-	mid := len(nums) / 2
-	root := &TreeNode{Val: nums[mid]}
-	root.Left = sortedArrayToBST(nums[:mid])
-	root.Right = sortedArrayToBST(nums[mid+1:])
-	return root
-}
-
 // 1382.将二叉搜索树变平衡
 // https://leetcode.cn/problems/balance-a-binary-search-tree/description/
 // 给你一棵二叉搜索树，请你返回一棵 平衡后 的二叉搜索树，新生成的树应该与原来的树有着相同的节点值。如果有多种构造方法，请你返回任意一种。
@@ -618,148 +600,4 @@ func balanceBST(root *TreeNode) *TreeNode {
 
 	traverse(root)
 	return buildTree(nums)
-}
-
-// 109. 有序链表转换二叉搜索树
-// https://leetcode.cn/problems/convert-sorted-list-to-binary-search-tree/description/
-// 给定一个单链表的头节点  head ，其中的元素 按升序排序 ，将其转换为 平衡 二叉搜索树。
-// 输入: head = [-10,-3,0,5,9]
-// 输出: [0,-3,9,-10,null,5]
-// 解释: 一个可能的答案是[0，-3,9，-10,null,5]，它表示所示的高度平衡的二叉搜索树。
-func sortedListToBST(head *ListNode) *TreeNode {
-	if head == nil {
-		return nil
-	} else if head.Next == nil {
-		return &TreeNode{Val: head.Val}
-	}
-	dummy := &ListNode{Next: head}
-	slow := dummy
-	fast := dummy
-	for fast != nil && fast.Next != nil && fast.Next.Next != nil {
-		slow = slow.Next
-		fast = fast.Next.Next
-	}
-	head2 := slow.Next.Next
-	root := &TreeNode{Val: slow.Next.Val}
-	slow.Next = nil
-	root.Left = sortedListToBST(head)
-	root.Right = sortedListToBST(head2)
-	return root
-}
-
-// 1305. 两棵二叉搜索树中的所有元素
-// https://leetcode.cn/problems/all-elements-in-two-binary-search-trees/
-// 给你 root1 和 root2 这两棵二叉搜索树。请你返回一个列表，其中包含 两棵树 中的所有整数并按 升序 排序。.
-// 输入：root1 = [2,1,4], root2 = [1,0,3]
-// 输出：[0,1,1,2,3,4]
-func getAllElements(root1 *TreeNode, root2 *TreeNode) []int {
-	t1 := Constructor(root1)
-	t2 := Constructor(root2)
-	var results []int
-	for t1.HasNext() && t2.HasNext() {
-		v1 := t1.Peek()
-		v2 := t2.Peek()
-		if v1 < v2 {
-			results = append(results, v1)
-			t1.Next()
-		} else {
-			results = append(results, v2)
-			t2.Next()
-		}
-	}
-	for t1.HasNext() {
-		results = append(results, t1.Next())
-	}
-	for t2.HasNext() {
-		results = append(results, t2.Next())
-	}
-	return results
-}
-
-// 938. 二叉搜索树的范围和
-// https://leetcode.cn/problems/range-sum-of-bst/
-// 给定二叉搜索树的根结点 root，返回值位于范围 [low, high] 之间的所有结点的值的和。
-// 输入：root = [10,5,15,3,7,null,18], low = 7, high = 15
-// 输出：32
-// 对比 669. 修剪二叉搜索树 https://leetcode.cn/problems/trim-a-binary-search-tree/description/
-// 思路1: 分解问题，利用bst的特性（推荐）
-func rangeSumBST2(root *TreeNode, low int, high int) int {
-	if root == nil {
-		return 0
-	}
-	if root.Val < low {
-		return rangeSumBST2(root.Right, low, high)
-	} else if root.Val > high {
-		return rangeSumBST2(root.Left, low, high)
-	} else {
-		left := rangeSumBST2(root.Left, low, root.Val)
-		right := rangeSumBST2(root.Right, root.Val, high)
-		return root.Val + left + right
-	}
-}
-
-// 思路2: 遍历，利用bst的特性
-func rangeSumBST(root *TreeNode, low int, high int) int {
-	result := 0
-	var traverse func(node *TreeNode, low, high int)
-
-	traverse = func(node *TreeNode, low, high int) {
-		if node == nil {
-			return
-		}
-		if node.Val < low {
-			traverse(node.Right, low, high)
-		} else if node.Val > high {
-			traverse(node.Left, low, high)
-		} else {
-			result += node.Val
-			traverse(node.Left, low, node.Val-1)
-			traverse(node.Right, node.Val+1, high)
-		}
-	}
-
-	if root == nil {
-		return 0
-	}
-	traverse(root, low, high)
-	return result
-}
-
-// 普通二叉树的范围和
-// 思路1：遍历
-func rangeSum(root *TreeNode, low int, high int) int {
-	result := 0
-	var traverse func(root *TreeNode)
-
-	traverse = func(root *TreeNode) {
-		if root == nil {
-			return
-		}
-		if root.Val >= low && root.Val <= high {
-			result += root.Val
-		}
-		traverse(root.Left)
-		traverse(root.Right)
-	}
-
-	if root == nil {
-		return 0
-	}
-	traverse(root)
-	return result
-}
-
-// 思路2: 分解问题的思路，明确函数定义：返回以 root 节点为根的二叉树在[low...high]区间内的节点
-func rangeSumBST4(root *TreeNode, low int, high int) int {
-	if root == nil {
-		return 0
-	}
-	left := rangeSumBST4(root.Right, low, high)
-	right := rangeSumBST4(root.Left, low, high)
-	// 后序位置
-	s := left + right
-	if root.Val >= low && root.Val <= high {
-		s += root.Val
-	}
-	return s
 }

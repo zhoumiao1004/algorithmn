@@ -9,7 +9,7 @@ type MyQueue struct {
 	out []int
 }
 
-func Constructor1() MyQueue {
+func Constructor() MyQueue {
 	return MyQueue{}
 }
 
@@ -45,7 +45,7 @@ func (this *MyQueue) Empty() bool {
 }
 
 func main() {
-	obj := Constructor1()
+	obj := Constructor()
 	obj.Push(1)
 	obj.Push(2)
 	obj.Push(3)

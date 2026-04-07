@@ -11,6 +11,43 @@ type TreeNode struct {
 	Right *TreeNode
 }
 
+// 层序遍历3种写法
+// 写法3：假设如果每条树枝的权重可以是任意值，现在让你层序遍历整棵树，打印每个节点的路径权重和，你会怎么做？
+// 这样的话，同一层节点的路径权重和就不一定相同了，写法二这样只维护一个 depth 变量就无法满足需求了。
+func levelOrderTraverse(root *TreeNode) [][]int {
+	type State struct {
+		node  *TreeNode
+		depth int
+	}
+	var result [][]int
+	if root == nil {
+		return result
+	}
+	q := []State{{root, 1}}
+
+	for len(q) > 0 {
+		var tmp []int
+		sz := len(q)
+		for i := 0; i < sz; i++ {
+			cur := q[0]
+			q = q[1:]
+			tmp = append(tmp, cur.node.Val)
+			// 访问 cur 节点，同时知道它的路径权重和
+			// fmt.Printf("depth = %d, val = %d\n", cur.depth, cur.node.Val)
+
+			// 把 cur 的左右子节点加入队列
+			if cur.node.Left != nil {
+				q = append(q, State{cur.node.Left, cur.depth + 1})
+			}
+			if cur.node.Right != nil {
+				q = append(q, State{cur.node.Right, cur.depth + 1})
+			}
+		}
+		result = append(result, tmp)
+	}
+	return result
+}
+
 // 102. 二叉树的层序遍历
 // https://leetcode.cn/problems/binary-tree-level-order-traversal/
 // 输入：root = [3,9,20,null,null,15,7]
@@ -98,7 +135,7 @@ func zigzagLevelOrder(root *TreeNode) [][]int {
 	q := []*TreeNode{root}
 	for len(q) > 0 {
 		sz := len(q)
-		var tmp []int
+		var tmp []int // 保存一层的元素列表
 		for i := 0; i < sz; i++ {
 			node := q[0]
 			q = q[1:]
@@ -158,49 +195,6 @@ func connect(root *Node) *Node {
 		}
 	}
 	return root
-}
-
-// 662. 二叉树最大宽度
-// https://leetcode.cn/problems/maximum-width-of-binary-tree/description/
-// 给你一棵二叉树的根节点 root ，返回树的 最大宽度 。
-// 树的 最大宽度 是所有层中最大的 宽度 。
-// 每一层的 宽度 被定义为该层最左和最右的非空节点（即，两个端点）之间的长度。将这个二叉树视作与满二叉树结构相同，两端点间会出现一些延伸到这一层的 null 节点，这些 null 节点也计入长度。
-// 题目数据保证答案将会在  32 位 带符号整数范围内。
-func widthOfBinaryTree(root *TreeNode) int {
-	if root == nil {
-		return 0
-	}
-	result := 0
-	q := []*Pair{{node: root, id: 1}}
-	for len(q) > 0 {
-		n := len(q)
-		start, end := 0, 0
-		for i := 0; i < n; i++ {
-			cur := q[0]
-			q = q[1:]
-			curNode := cur.node
-			curId := cur.id
-			if i == 0 {
-				start = curId
-			}
-			if i == n-1 {
-				end = curId
-			}
-			if curNode.Left != nil {
-				q = append(q, &Pair{node: curNode.Left, id: 2 * curId})
-			}
-			if curNode.Right != nil {
-				q = append(q, &Pair{node: curNode.Right, id: 2*curId + 1})
-			}
-		}
-		result = max(result, end-start+1)
-	}
-	return result
-}
-
-type Pair struct {
-	node *TreeNode
-	id   int
 }
 
 // 515. 在每个树行中找最大值
@@ -359,6 +353,96 @@ func deepestLeavesSum(root *TreeNode) int {
 		result = s
 	}
 	return result
+}
+
+// 872. 叶子相似的树
+// https://leetcode.cn/problems/leaf-similar-trees/description/
+// 输入：root1 = [3,5,1,6,2,9,8,null,null,7,4], root2 = [3,5,1,6,7,4,2,null,null,null,null,null,null,9,8]
+// 输出：true
+// 思路：遍历两颗二叉树，对比叶子节点集合
+func leafSimilar(root1 *TreeNode, root2 *TreeNode) bool {
+
+	var getLeafVal func(node *TreeNode) []int
+
+	getLeafVal = func(node *TreeNode) []int {
+		var result []int
+		if node == nil {
+			return result
+		}
+		if node.Left == nil && node.Right == nil {
+			result = append(result, node.Val)
+		}
+		left := getLeafVal(node.Left)
+		right := getLeafVal(node.Right)
+		result = append(result, left...)
+		result = append(result, right...)
+		return result
+	}
+
+	nums1 := getLeafVal(root1)
+	nums2 := getLeafVal(root2)
+	if len(nums1) != len(nums2) {
+		return false
+	}
+	for i := 0; i < len(nums1); i++ {
+		if nums1[i] != nums2[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// 863. 二叉树中所有距离为 K 的结点
+// https://leetcode.cn/problems/all-nodes-distance-k-in-binary-tree/description/
+// 给定一个二叉树（具有根结点 root）， 一个目标结点 target ，和一个整数值 k ，返回到目标结点 target 距离为 k 的所有结点的值的数组。
+// 答案可以以 任何顺序 返回。
+func distanceK(root *TreeNode, target *TreeNode, k int) []int {
+	parent := make(map[int]*TreeNode) // 记录值到父节点的映射
+
+	var traverse func(root *TreeNode, parentNode *TreeNode)
+	traverse = func(root *TreeNode, parentNode *TreeNode) {
+		if root == nil {
+			return
+		}
+		parent[root.Val] = parentNode
+		traverse(root.Left, root)
+		traverse(root.Right, root)
+	}
+
+	traverse(root, nil)
+	q := []*TreeNode{target}
+	visited := make(map[int]bool)
+	visited[target.Val] = true
+	dist := 0
+	var res []int
+	for len(q) > 0 {
+		if dist == k {
+			for _, node := range q {
+				res = append(res, node.Val)
+			}
+			return res
+		}
+		sz := len(q)
+		for i := 0; i < sz; i++ {
+			cur := q[0]
+			q = q[1:]
+			// 向父节点、左右子节点扩散
+			if parentNode, ok := parent[cur.Val]; ok && parentNode != nil && !visited[parentNode.Val] {
+				visited[parentNode.Val] = true
+				q = append(q, parentNode)
+			}
+			if cur.Left != nil && !visited[cur.Left.Val] {
+				visited[cur.Left.Val] = true
+				q = append(q, cur.Left)
+			}
+			if cur.Right != nil && !visited[cur.Right.Val] {
+				visited[cur.Right.Val] = true
+				q = append(q, cur.Right)
+			}
+		}
+		dist++ // 向外扩展一圈
+	}
+	return res
 }
 
 func main() {

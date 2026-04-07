@@ -45,3 +45,32 @@ func (this *BSTIterator) Peek() int {
 func (this *BSTIterator) HasNext() bool {
 	return len(this.st) > 0
 }
+
+// 1305. 两棵二叉搜索树中的所有元素
+// https://leetcode.cn/problems/all-elements-in-two-binary-search-trees/
+// 给你 root1 和 root2 这两棵二叉搜索树。请你返回一个列表，其中包含 两棵树 中的所有整数并按 升序 排序。.
+// 输入：root1 = [2,1,4], root2 = [1,0,3]
+// 输出：[0,1,1,2,3,4]
+func getAllElements(root1 *TreeNode, root2 *TreeNode) []int {
+	t1 := Constructor(root1)
+	t2 := Constructor(root2)
+	var results []int
+	for t1.HasNext() && t2.HasNext() {
+		v1 := t1.Peek()
+		v2 := t2.Peek()
+		if v1 < v2 {
+			results = append(results, v1)
+			t1.Next()
+		} else {
+			results = append(results, v2)
+			t2.Next()
+		}
+	}
+	for t1.HasNext() {
+		results = append(results, t1.Next())
+	}
+	for t2.HasNext() {
+		results = append(results, t2.Next())
+	}
+	return results
+}
