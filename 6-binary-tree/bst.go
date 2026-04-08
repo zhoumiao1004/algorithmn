@@ -205,96 +205,8 @@ func deleteNode(root *TreeNode, key int) *TreeNode {
 	return root
 }
 
-// 96.不同的二叉搜索树
-// https://leetcode.cn/problems/unique-binary-search-trees/description/
-// 求恰由 n 个节点组成且节点值从 1 到 n 互不相同的 二叉搜索树 有多少种？返回满足题意的二叉搜索树的种数。
-// 输入：n = 3 输出：5
-// 方法1: dp
-func numTrees(n int) int {
-	// 总共n个节点，左右子树加起来n-1个节点
-	// dp[i]含义：i个节点的二叉搜索树个数
-	if n < 3 {
-		return n
-	}
-	dp := make([]int, n+1)
-	dp[0] = 1
-	dp[1] = 1
-	dp[2] = 2
-	for i := 3; i <= n; i++ {
-		for j := 0; j < i; j++ {
-			dp[i] += dp[j] * dp[i-1-j]
-		}
-	}
-	return dp[n]
-}
-
-// 方法2: 递归，分解问题的思路
-func numTrees2(n int) int {
-	var count func(low, high int, memo [][]int) int
-	count = func(low, high int, memo [][]int) int {
-		if low > high {
-			return 1
-		}
-		if memo[low][high] != 0 {
-			return memo[low][high]
-		}
-
-		result := 0
-		for i := low; i <= high; i++ {
-			// i的值作为root
-			left := count(low, i-1, memo)
-			right := count(i+1, high, memo)
-			result += left * right
-		}
-		memo[low][high] = result
-		return result
-	}
-	// 计算闭区间 [1, n] 组成的 BST 个数
-	memo := make([][]int, n+1)
-	for i := 0; i <= n; i++ {
-		memo[i] = make([]int, n+1)
-	}
-	return count(1, n, memo)
-}
-
-// 95. 不同的二叉搜索树 II
-// https://leetcode.cn/problems/unique-binary-search-trees-ii/description/
-// 给你一个整数 n ，请你生成并返回所有由 n 个节点组成且节点值从 1 到 n 互不相同的不同 二叉搜索树 。可以按 任意顺序 返回答案。
-// 输入：n = 3
-// 输出：[[1,null,2,null,3],[1,null,3,2],[2,1,3],[3,1,null,null,2],[3,2,null,1]]
-func generateTrees(n int) []*TreeNode {
-	var build func(low, high int) []*TreeNode
-	build = func(low, high int) []*TreeNode {
-		var results []*TreeNode
-		if low > high {
-			// 这里需要装一个 null 元素，这样才能让下面的两个内层 for 循环都能进入，正确地创建出叶子节点
-			// 举例来说吧，什么时候会进到这个 if 语句？当你创建叶子节点的时候，对吧。
-			// 那么如果你这里不加 null，直接返回空列表，那么下面的内层两个 for 循环都无法进入
-			// 你的那个叶子节点就没有创建出来，看到了吗？所以这里要加一个 null，确保下面能把叶子节点做出来
-			results = append(results, nil)
-			return results
-		}
-		// 穷举 root 节点的所有可能
-		for i := low; i <= high; i++ {
-			// 递推构造出左右子树的所有BST
-			left := build(low, i-1)
-			right := build(i+1, high)
-			for _, node1 := range left {
-				for _, node2 := range right {
-					results = append(results, &TreeNode{Val: i, Left: node1, Right: node2})
-				}
-			}
-		}
-		return results
-	}
-	if n == 0 {
-		return []*TreeNode{}
-	}
-	// 构造闭区间 [1, n] 组成的 BST
-	return build(1, n)
-}
-
 // 1373. 二叉搜索子树的最大键值和
+
 // 给你一棵以 root 为根的 二叉树 ，请你返回 任意 二叉搜索子树的最大键值和。
 // 二叉搜索树的定义如下：
 // 任意节点的左子树中的键值都 小于 此节点的键值。
@@ -303,44 +215,32 @@ func generateTrees(n int) []*TreeNode {
 // 输入：root = [1,4,3,2,4,2,5,null,null,null,null,null,null,4,6]
 // 输出：20
 // 解释：键值为 3 的子树是和最大的二叉搜索树。
+// 思路：分解问题，明确函数定义：返回以 root 为根的二叉树是不是bst、最大值、最小值、节点和
 func maxSumBST(root *TreeNode) int {
 	var maxSum int
 	var findMaxMinSum func(*TreeNode) []int
-	// 计算以 root 为根的二叉树的最大值、最小值、节点和
+
 	findMaxMinSum = func(root *TreeNode) []int {
 		// base case
 		if root == nil {
 			return []int{1, math.MaxInt32, math.MinInt32, 0}
 		}
 
-		// 递归计算左右子树
 		left := findMaxMinSum(root.Left)
 		right := findMaxMinSum(root.Right)
 
-		// ******* 后序位置 *******
-		// 通过 left 和 right 推导返回值
-		// 并且正确更新 maxSum 变量
+		// 后序位置
 		res := make([]int, 4)
-		// 这个 if 在判断以 root 为根的二叉树是不是 BST
 		if left[0] == 1 && right[0] == 1 &&
 			root.Val > left[2] && root.Val < right[1] {
-			// 以 root 为根的二叉树是 BST
-			res[0] = 1
-			// 计算以 root 为根的这棵 BST 的最小值
-			res[1] = min(left[1], root.Val)
-			// 计算以 root 为根的这棵 BST 的最大值
-			res[2] = max(right[2], root.Val)
-			// 计算以 root 为根的这棵 BST 所有节点之和
-			res[3] = left[3] + right[3] + root.Val
-			// 更新全局变量
-			maxSum = max(maxSum, res[3])
+			res[0] = 1                             // 以 root 为根的二叉树是不是 BST
+			res[1] = min(left[1], root.Val)        // 以 root 为根的这棵 BST 的最小值
+			res[2] = max(right[2], root.Val)       // 以 root 为根的这棵 BST 的最大值
+			res[3] = left[3] + right[3] + root.Val // 以 root 为根的这棵 BST 所有节点之和
+			maxSum = max(maxSum, res[3])           // 顺便统计节点之和的最大值
 		} else {
-			// 以 root 为根的二叉树不是 BST
-			res[0] = 0
-			// 其他的值都没必要计算了，因为用不到
+			res[0] = 0 // 以 root 为根的二叉树不是 BST，其他的值都没必要计算了，因为用不到
 		}
-		// ************************
-
 		return res
 	}
 
@@ -351,6 +251,7 @@ func maxSumBST(root *TreeNode) int {
 // 99. 恢复二叉搜索树
 // https://leetcode.cn/problems/recover-binary-search-tree/description/
 // 给你二叉搜索树的根节点 root ，该树中的 恰好 两个节点的值被错误地交换。请在不改变其结构的情况下，恢复这棵树 。
+// 思路：遍历。中序遍历找不满足第一个和最后一个不满足有序的2个节点进行交换
 func recoverTree(root *TreeNode) {
 	var prev *TreeNode
 	var first, second *TreeNode
@@ -364,9 +265,9 @@ func recoverTree(root *TreeNode) {
 		// 中序位置
 		if prev != nil && prev.Val > root.Val {
 			if first == nil {
-				first = prev
+				first = prev // 记录第一个不满足有序的节点
 			}
-			second = root
+			second = root // 更新最后一个不满足有序的节点
 		}
 		prev = root
 		traverse(root.Right)
@@ -383,6 +284,7 @@ func recoverTree(root *TreeNode) {
 // 给你二叉搜索树的根节点 root ，同时给定最小边界low 和最大边界 high。通过修剪二叉搜索树，使得所有节点的值在[low, high]中。修剪树 不应该 改变保留在树中的元素的相对结构 (即，如果没有被移除，原有的父代子代关系都应当保留)。 可以证明，存在 唯一的答案 。
 // 输入：root = [1,0,2], low = 1, high = 2
 // 输出：[1,null,2]
+// 思路：分解问题，明确函数定义：返回以 root 为根节点的bst，修剪后节点值在[low..high]范围内的子树的根节点
 func trimBST(root *TreeNode, low int, high int) *TreeNode {
 	if root == nil {
 		return nil
@@ -431,6 +333,7 @@ func findSecondMinimumValue(root *TreeNode) int {
 
 // 501.二叉搜索树中的众数
 // https://leetcode.cn/problems/find-mode-in-binary-search-tree/description/
+// 思路：遍历，利用中序有序累计节点值个数，不断更新结果（最大个数和有最大个数的值）
 func findMode(root *TreeNode) []int {
 	var results []int
 	maxCnt := 0
@@ -443,6 +346,7 @@ func findMode(root *TreeNode) []int {
 			return
 		}
 		traverse(root.Left)
+		// 中序位置
 		if prev != nil && prev.Val == root.Val {
 			cnt++
 		} else {
@@ -464,6 +368,7 @@ func findMode(root *TreeNode) []int {
 
 // 530. 二叉搜索树的最小绝对差
 // https://leetcode.cn/problems/minimum-absolute-difference-in-bst/description/
+// 思路：遍历。中序位置计算相邻节点的差，不断更新结果（最小值）
 func getMinimumDifference(root *TreeNode) int {
 	result := math.MaxInt
 	var prev *TreeNode
@@ -474,90 +379,12 @@ func getMinimumDifference(root *TreeNode) int {
 			return
 		}
 		traverse(root.Left)
+		// 中序位置
 		if prev != nil {
-			result = root.Val - prev.Val
+			result = min(result, root.Val-prev.Val)
 		}
 		prev = root
 		traverse(root.Right)
-	}
-
-	traverse(root)
-	return result
-}
-
-// 653. 两数之和 IV - 输入二叉搜索树
-// https://leetcode.cn/problems/two-sum-iv-input-is-a-bst/description/
-// 给定一个二叉搜索树 root 和一个目标结果 k，如果二叉搜索树中存在两个元素且它们的和等于给定的目标结果，则返回 true。
-// 输入: root = [5,3,6,2,4,null,7], k = 9
-// 输出: true
-// 思路1: 利用bst中序有序的特点，输出到数组+双指针
-func findTarget(root *TreeNode, k int) bool {
-	var nums []int
-	var traverse func(root *TreeNode)
-	traverse = func(root *TreeNode) {
-		if root == nil {
-			return
-		}
-		nums = append(nums, root.Val)
-		traverse(root.Left)
-		traverse(root.Right)
-	}
-	traverse(root)
-
-	left, right := 0, len(nums)-1
-	for left < right {
-		if nums[left]+nums[right] == k {
-			return true
-		} else if nums[left]+nums[right] < k {
-			left++
-		} else {
-			right--
-		}
-	}
-	return false
-}
-
-// 思路2: 分解问题（一般二叉树解法），明确函数定义：以 root 为根节点的二叉树，返回是否存在2个节点和为k
-func findTarget2(root *TreeNode, k int) bool {
-	m := make(map[int]bool)
-	// 明确函数定义：返回以 node 节点为根的二叉树是否包含2个节点和为k
-	var check func(node *TreeNode) bool
-
-	check = func(node *TreeNode) bool {
-		if node == nil {
-			return false
-		}
-		// 前序位置
-		if m[k-node.Val] {
-			return true
-		}
-		m[node.Val] = true
-		return check(node.Left) || check(node.Right)
-	}
-
-	if root == nil {
-		return false
-	}
-	return check(root)
-}
-
-// 思路3: 遍历 + hashmap（一般二叉树解法）
-func findTarget3(root *TreeNode, k int) bool {
-	result := false
-	m := make(map[int]bool)
-	var traverse func(node *TreeNode)
-
-	traverse = func(node *TreeNode) {
-		if node == nil {
-			return
-		}
-		traverse(node.Left)
-		// 中序位置
-		if m[k-node.Val] {
-			result = true
-		}
-		m[node.Val] = true
-		traverse(node.Right)
 	}
 
 	traverse(root)
