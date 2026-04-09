@@ -41,6 +41,7 @@ func permute(nums []int) [][]int {
 func permute2(nums []int) [][]int {
 	var results [][]int
 	var backtrack func(nums []int, start int)
+
 	backtrack = func(nums []int, start int) {
 		if start == len(nums) {
 			results = append(results, append([]int{}, nums...))
@@ -52,6 +53,7 @@ func permute2(nums []int) [][]int {
 			nums[i], nums[start] = nums[start], nums[i]
 		}
 	}
+
 	backtrack(nums, 0)
 	return results
 }
@@ -62,6 +64,7 @@ func permute3(nums []int) [][]int {
 	used := make([]bool, len(nums))
 	count := 0
 	var backtrack func(nums []int)
+
 	backtrack = func(nums []int) {
 		if count == len(nums) {
 			result = append(result, append([]int{}, nums...))
@@ -88,6 +91,7 @@ func permute3(nums []int) [][]int {
 			nums[originalIndex], nums[swapIndex] = nums[swapIndex], nums[originalIndex]
 		}
 	}
+
 	backtrack(nums)
 	return result
 }
@@ -148,12 +152,12 @@ func numsSameConsecDiff(n int, k int) []int {
 			results = append(results, s)
 			return
 		}
-		for i := 0; i <= 9; i++ { // 类全排列，每次都能选0-9
-			if len(path) == 0 && i == 0 { // 不能前导0
-				continue
+		for i := 0; i <= 9; i++ {
+			if len(path) == 0 && i == 0 {
+				continue // 不能前导0
 			}
-			if len(path) > 0 && int(math.Abs(float64(path[len(path)-1])-float64(i))) != k { // 符合相差为k
-				continue
+			if len(path) > 0 && int(math.Abs(float64(path[len(path)-1])-float64(i))) != k {
+				continue // 相差不为k
 			}
 			path = append(path, i)
 			backtrack(n, k)

@@ -13,7 +13,7 @@ type TreeNode struct {
 // 236. 二叉树的最近公共祖先
 // https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/
 // 给定一个二叉树, 找到该树中两个指定节点的最近公共祖先。
-// 后序遍历
+// 思路：后序。明确函数定义：返回以 root 为根的二叉树中，p和q的最近公共祖先
 func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 	if root == nil {
 		return nil
@@ -23,7 +23,7 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 	}
 	left := lowestCommonAncestor(root.Left, p, q)   // 左
 	right := lowestCommonAncestor(root.Right, p, q) // 右
-	// 中
+	// 后序位置，根据左右子树的结果，计算以 root 为根的二叉树中，p和q的最近公共祖先
 	if left != nil && right != nil {
 		return root
 	}
@@ -38,6 +38,7 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 // 输入: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
 // 输出: 6
 // 解释: 节点 2 和节点 8 的最近公共祖先是 6。
+// 思路：后序。明确函数定义：返回以 root 为根的bst中，p和q的最近公共祖先
 func lowestCommonAncestorBST(root, p, q *TreeNode) *TreeNode {
 	if root == nil {
 		return root

@@ -220,6 +220,7 @@ func getMaximumGold(grid [][]int) int {
 		visited[i][j] = false
 	}
 
+	// 穷举从所有可能起点出发
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
 			dfs(grid, i, j)

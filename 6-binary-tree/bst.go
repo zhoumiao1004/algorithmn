@@ -97,6 +97,7 @@ func convertBST(root *TreeNode) *TreeNode {
 // 节点的左子树只包含 严格小于 当前节点的数。
 // 节点的右子树只包含 严格大于 当前节点的数。
 // 所有左子树和右子树自身必须也是二叉搜索树。
+// TODO
 func isValidBST(root *TreeNode) bool {
 	var prev *TreeNode
 	// 定义函数：返回以 node 节点为根的二叉树是不是bst
