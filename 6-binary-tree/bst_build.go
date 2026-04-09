@@ -22,25 +22,62 @@ func sortedArrayToBST(nums []int) *TreeNode {
 // 输入: head = [-10,-3,0,5,9]
 // 输出: [0,-3,9,-10,null,5]
 // 解释: 一个可能的答案是[0，-3,9，-10,null,5]，它表示所示的高度平衡的二叉搜索树。
+// 思路1：分解问题，列表转换成数组，再转换成bst
+// 思路2：分解问题，链表双指针
 func sortedListToBST(head *ListNode) *TreeNode {
-	if head == nil {
-		return nil
-	} else if head.Next == nil {
-		return &TreeNode{Val: head.Val}
+	var getMid func(begin, end *ListNode) *ListNode
+	var build func(begin, end *ListNode) *TreeNode
+
+	getMid = func(begin, end *ListNode) *ListNode {
+		slow, fast := begin, begin
+		for fast != end && fast.Next != end {
+			slow = slow.Next
+			fast = fast.Next.Next
+		}
+		return slow
 	}
-	dummy := &ListNode{Next: head}
-	slow := dummy
-	fast := dummy
-	for fast != nil && fast.Next != nil && fast.Next.Next != nil {
-		slow = slow.Next
-		fast = fast.Next.Next
+
+	build = func(begin, end *ListNode) *TreeNode {
+		if begin == end {
+			return nil
+		}
+		mid := getMid(begin, end)
+		return &TreeNode{
+			Val:   mid.Val,
+			Left:  build(begin, mid),
+			Right: build(mid.Next, end),
+		}
 	}
-	head2 := slow.Next.Next
-	root := &TreeNode{Val: slow.Next.Val}
-	slow.Next = nil
-	root.Left = sortedListToBST(head)
-	root.Right = sortedListToBST(head2)
-	return root
+
+	return build(head, nil)
+}
+
+// 思路3：分解问题，中序遍历（最优）
+func sortedListToBST3(head *ListNode) *TreeNode {
+	root := head
+	var build func(left, right int) *TreeNode
+
+	build = func(left, right int) *TreeNode {
+		if left > right {
+			return nil
+		}
+		mid := (left + right) / 2
+		leftTree := build(left, mid-1)
+		rootVal := root.Val
+		root = root.Next
+		rightTree := build(mid+1, right)
+		return &TreeNode{
+			Val:   rootVal,
+			Left:  leftTree,
+			Right: rightTree,
+		}
+	}
+
+	cnt := 0
+	for cur := head; cur != nil; cur = cur.Next {
+		cnt++
+	}
+	return build(0, cnt-1)
 }
 
 // 1008. 前序遍历构造二叉搜索树
@@ -106,4 +143,88 @@ func balanceBST(root *TreeNode) *TreeNode {
 
 	traverse(root)
 	return buildTree(nums)
+}
+
+// 96.不同的二叉搜索树
+// https://leetcode.cn/problems/unique-binary-search-trees/description/
+// 求恰由 n 个节点组成且节点值从 1 到 n 互不相同的 二叉搜索树 有多少种？返回满足题意的二叉搜索树的种数。
+// 输入：n = 3 输出：5
+// 方法1: dp
+func numTrees(n int) int {
+	// 总共n个节点，左右子树加起来n-1个节点
+	// dp[i]含义：i个节点的二叉搜索树个数
+	if n < 3 {
+		return n
+	}
+	dp := make([]int, n+1)
+	dp[0] = 1
+	dp[1] = 1
+	dp[2] = 2
+	for i := 3; i <= n; i++ {
+		for j := 0; j < i; j++ {
+			dp[i] += dp[j] * dp[i-1-j]
+		}
+	}
+	return dp[n]
+}
+
+// 方法2: 递归，分解问题的思路
+func numTrees2(n int) int {
+	var count func(low, high int, memo [][]int) int
+	count = func(low, high int, memo [][]int) int {
+		if low > high {
+			return 1
+		}
+		if memo[low][high] != 0 {
+			return memo[low][high]
+		}
+
+		result := 0
+		for i := low; i <= high; i++ {
+			// i的值作为root
+			left := count(low, i-1, memo)
+			right := count(i+1, high, memo)
+			result += left * right
+		}
+		memo[low][high] = result
+		return result
+	}
+	// 计算闭区间 [1, n] 组成的 BST 个数
+	memo := make([][]int, n+1)
+	for i := 0; i <= n; i++ {
+		memo[i] = make([]int, n+1)
+	}
+	return count(1, n, memo)
+}
+
+// 95. 不同的二叉搜索树 II
+// https://leetcode.cn/problems/unique-binary-search-trees-ii/description/
+// 给你一个整数 n ，请你生成并返回所有由 n 个节点组成且节点值从 1 到 n 互不相同的不同 二叉搜索树 。可以按 任意顺序 返回答案。
+// 输入：n = 3
+// 输出：[[1,null,2,null,3],[1,null,3,2],[2,1,3],[3,1,null,null,2],[3,2,null,1]]
+func generateTrees(n int) []*TreeNode {
+	var build func(low, high int) []*TreeNode // 明确函数定义：使用[low..high]构造二叉搜索树
+
+	build = func(low, high int) []*TreeNode {
+		var results []*TreeNode
+		if low > high {
+			results = append(results, nil)
+			return results
+		}
+		// 1.穷举 root 节点的所有可能
+		for i := low; i <= high; i++ {
+			// 2.穷举左右子树所有bst可能
+			left := build(low, i-1)
+			right := build(i+1, high)
+			// 3.给 root 穷举所有左右子树的组合
+			for _, left := range left {
+				for _, right := range right {
+					results = append(results, &TreeNode{Val: i, Left: left, Right: right})
+				}
+			}
+		}
+		return results
+	}
+
+	return build(1, n) // 构造闭区间 [1, n] 组成的 BST
 }
