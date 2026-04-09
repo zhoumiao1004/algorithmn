@@ -69,3 +69,41 @@ func bstFromPreorder(preorder []int) *TreeNode {
 	root.Right = bstFromPreorder(preorder[mid:])
 	return root
 }
+
+// 1382.将二叉搜索树变平衡
+// https://leetcode.cn/problems/balance-a-binary-search-tree/description/
+// 给你一棵二叉搜索树，请你返回一棵 平衡后 的二叉搜索树，新生成的树应该与原来的树有着相同的节点值。如果有多种构造方法，请你返回任意一种。
+// 如果一棵二叉搜索树中，每个节点的两棵子树高度差不超过 1 ，我们就称这棵二叉搜索树是 平衡的 。
+// 输入：root = [1,null,2,null,3,null,4,null,null]
+// 输出：[2,1,3,null,null,null,4]
+// 解释：这不是唯一的正确答案，[3,1,4,null,2,null,null] 也是一个可行的构造方案。
+func balanceBST(root *TreeNode) *TreeNode {
+	var nums []int
+	var traverse func(root *TreeNode)
+	var buildTree func(nums []int) *TreeNode
+
+	traverse = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+		traverse(root.Left)
+		nums = append(nums, root.Val)
+		traverse(root.Right)
+	}
+
+	buildTree = func(nums []int) *TreeNode {
+		n := len(nums)
+		if n == 0 {
+			return nil
+		} else if n == 1 {
+			return &TreeNode{Val: nums[0]}
+		}
+		root := &TreeNode{Val: nums[n/2]}
+		root.Left = buildTree(nums[:n/2])
+		root.Right = buildTree(nums[n/2+1:])
+		return root
+	}
+
+	traverse(root)
+	return buildTree(nums)
+}
