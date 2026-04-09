@@ -13,36 +13,7 @@ import (
 // 输入：root = [1,2,3,4,5]
 // 输出：3
 // 解释：3 ，取路径 [4,2,1,3] 或 [5,2,1,3] 的长度。
-// 思路1: 遍历+前序，遍历整棵二叉树，对每个节点计算左右子树最大深度之和
-func diameterOfBinaryTree(root *TreeNode) int {
-	// 定义函数返回以node节点为根的二叉树的最大深度
-	result := 0
-	var maxDepth func(node *TreeNode) int
-	var traverse func(node *TreeNode)
-
-	maxDepth = func(node *TreeNode) int {
-		if node == nil {
-			return 0
-		}
-		left := maxDepth(node.Left)
-		right := maxDepth(node.Right)
-		return 1 + max(left, right)
-	}
-
-	traverse = func(node *TreeNode) {
-		if node == nil {
-			return
-		}
-		result = max(result, maxDepth(node.Left)+maxDepth(node.Right))
-		traverse(node.Left)
-		traverse(node.Right)
-	}
-
-	traverse(root)
-	return result
-}
-
-// 思路2: 分解问题+后序
+// 最优思路: 分解问题+后序
 func diameterOfBinaryTree2(root *TreeNode) int {
 	result := 0
 	var maxDepth func(node *TreeNode) int
@@ -73,26 +44,24 @@ func diameterOfBinaryTree2(root *TreeNode) int {
 // 两个节点之间的路径长度 由它们之间的边数表示。
 // 输入：root = [5,4,5,1,1,5]
 // 输出：2
-// 思路1:分解问题+后序
+// 思路1:分解问题+后序，利用函数定义，计算左右子树值为 root.val 的最长树枝长度，后序位置
 func longestUnivaluePath(root *TreeNode) int {
 	res := 0
-	var maxLen func(node *TreeNode, parentVal int) int
-	// 定义：计算以 root 为根的这棵二叉树中，从 root 开始值为 parentVal 的最长树枝长度
+	var maxLen func(node *TreeNode, parentVal int) int // 明确函数定义：返回以 root 为根的这棵二叉树中，从 root 开始值为 parentVal 的最长树枝长度
+
 	maxLen = func(node *TreeNode, parentVal int) int {
 		if node == nil {
 			return 0
 		}
-
-		// 利用函数定义，计算左右子树值为 root.val 的最长树枝长度
 		leftLen := maxLen(node.Left, node.Val)
 		rightLen := maxLen(node.Right, node.Val)
 
 		// 后序位置
 		if node.Val != parentVal {
-			return 0
+			return 0 // 不同值
 		}
+		// 同值，顺便计算以 node 为根的路径长度
 		res = max(res, leftLen+rightLen)
-
 		return 1 + max(leftLen, rightLen)
 	}
 
@@ -108,11 +77,10 @@ func longestUnivaluePath(root *TreeNode) int {
 // 给你二叉树的根节点 root 和一个表示目标和的整数 targetSum 。判断该树中是否存在 根节点到叶子节点 的路径，这条路径上所有节点值相加等于目标和 targetSum 。如果存在，返回 true ；否则，返回 false 。
 // 叶子节点 是指没有子节点的节点。
 func hasPathSum(root *TreeNode, targetSum int) bool {
-	// 不涉及中的操作，所以前中后序遍历都可以
 	if root == nil {
 		return false
 	}
-	// 前序位置
+	// 前序位置，不涉及中的操作，所以前中后序遍历都可以
 	if root.Left == nil && root.Right == nil {
 		return root.Val == targetSum
 	}
@@ -168,8 +136,8 @@ func maxPathSum(root *TreeNode) int {
 		left := max(0, maxSum(node.Left))
 		right := max(0, maxSum(node.Right))
 
-		// 后序位置
-		result = max(result, left+right+node.Val) // 顺便计算双边最大路径和
+		// 后序位置，顺便计算双边最大路径和
+		result = max(result, left+right+node.Val)
 
 		return max(left, right) + node.Val // 返回单边最大路径和
 	}
@@ -194,6 +162,7 @@ func pathSum(root *TreeNode, targetSum int) int {
 	preSumCount[0] = 1
 	pathSum := 0
 	var traverse func(root *TreeNode)
+
 	traverse = func(root *TreeNode) {
 		if root == nil {
 			return
@@ -210,6 +179,7 @@ func pathSum(root *TreeNode, targetSum int) int {
 		preSumCount[pathSum]--
 		pathSum -= root.Val
 	}
+
 	traverse(root)
 	return result
 }

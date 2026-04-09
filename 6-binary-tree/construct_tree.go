@@ -34,6 +34,23 @@ func constructMaximumBinaryTree(nums []int) *TreeNode {
 	return root
 }
 
+// 998. 最大二叉树 II
+// https://leetcode.cn/problems/maximum-binary-tree-ii/description/
+// 假设 b 是 a 的副本，并在末尾附加值 val。题目数据保证 b 中的值互不相同。返回 Construct(b) 。
+// 输入：root = [4,1,3,null,null,2], val = 5
+// 输出：[5,4,null,1,3,null,null,2]
+// 解释：a = [1,4,2,3], b = [1,4,2,3,5]
+func insertIntoMaxTree(root *TreeNode, val int) *TreeNode {
+	if root == nil {
+		return &TreeNode{Val: val}
+	}
+	if val > root.Val {
+		return &TreeNode{Val: val, Left: root}
+	}
+	root.Right = insertIntoMaxTree(root.Right, val)
+	return root
+}
+
 // 105. 从前序与中序遍历序列构造二叉树
 // https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/description/
 // 给定两个整数数组 preorder 和 inorder ，其中 preorder 是二叉树的先序遍历， inorder 是同一棵树的中序遍历，请构造二叉树并返回其根节点。
