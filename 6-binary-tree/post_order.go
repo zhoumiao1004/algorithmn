@@ -18,7 +18,33 @@ import (
 // 如果两棵树具有 相同的结构 和 相同的结点值 ，则认为二者是 重复 的。
 // 输入：root = [1,2,3,4,null,2,4,null,null,4]
 // 输出：[[2,4],[4]]
+// 思路1: 后序
 func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
+	var result []*TreeNode
+	memo := make(map[string]int)
+	var serialize func(node *TreeNode) string
+
+	serialize = func(node *TreeNode) string {
+		if node == nil {
+			return "#"
+		}
+		left := serialize(node.Left)
+		right := serialize(node.Right)
+		s := fmt.Sprintf("%d,%d,%d", left, right, node.Val)
+		// 后序位置，顺便计算是否存在重复子树
+		if memo[s] == 1 {
+			result = append(result, node)
+		}
+		memo[s]++
+		return s
+	}
+
+	serialize(root)
+	return result
+}
+
+// 思路2: 遍历
+func findDuplicateSubtrees3(root *TreeNode) []*TreeNode {
 	var result []*TreeNode
 	subMap := make(map[string]int)
 	var serialize func(node *TreeNode) string
@@ -37,14 +63,14 @@ func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
 		if node == nil {
 			return
 		}
+		traverse(node.Left)
+		traverse(node.Right)
+		// 后序位置
 		s := serialize(node)
-		cnt, ok := subMap[s]
-		if ok && cnt == 1 {
+		if subMap[s] == 1 {
 			result = append(result, node)
 		}
 		subMap[s]++
-		traverse(node.Left)
-		traverse(node.Right)
 	}
 
 	traverse(root)

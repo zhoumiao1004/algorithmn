@@ -712,38 +712,6 @@ func isSubPath(head *ListNode, root *TreeNode) bool {
 	return isSubPath(head, root.Left) || isSubPath(head, root.Right) // 左右
 }
 
-// 116. 填充每个节点的下一个右侧节点指针
-// https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/description/
-// 给定一个 完美二叉树 ，其所有叶子节点都在同一层，每个父节点都有两个子节点。二叉树定义如下
-// 输入：root = [1,2,3,4,5,6,7]
-// 输出：[1,#,2,3,#,4,5,6,7,#]
-// 解释：给定二叉树如图 A 所示，你的函数应该填充它的每个 next 指针，以指向其下一个右侧节点，如图 B 所示。序列化的输出按层序遍历排列，同一层节点由 next 指针连接，'#' 标志着每一层的结束。
-func connect(root *Node) *Node {
-	var traverse func(root *Node)
-
-	traverse = func(root *Node) {
-		if root == nil {
-			return
-		}
-		// 前序位置
-		if root.Left != nil {
-			root.Left.Next = root.Right
-		}
-		if root.Right != nil {
-			if root.Next != nil {
-				root.Right.Next = root.Next.Left
-			} else {
-				root.Right.Next = nil
-			}
-		}
-		traverse(root.Left)  // 左
-		traverse(root.Right) // 右
-	}
-
-	traverse(root)
-	return root
-}
-
 func main() {
 	fmt.Println("hello world")
 }

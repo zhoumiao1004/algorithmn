@@ -161,42 +161,6 @@ func zigzagLevelOrder(root *TreeNode) [][]int {
 	return results
 }
 
-// 117. 填充每个节点的下一个右侧节点指针 II
-// https://leetcode.cn/problems/populating-next-right-pointers-in-each-node-ii/description/
-// 填充它的每个 next 指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将 next 指针设置为 NULL 。
-// 初始状态下，所有 next 指针都被设置为 NULL 。
-type Node struct {
-	Val   int
-	Left  *Node
-	Right *Node
-	Next  *Node
-}
-
-func connect(root *Node) *Node {
-	if root == nil {
-		return nil
-	}
-	q := []*Node{root}
-	for len(q) > 0 {
-		sz := len(q)
-
-		for i := 0; i < sz; i++ {
-			node := q[0]
-			q = q[1:]
-			if node.Left != nil {
-				q = append(q, node.Left)
-			}
-			if node.Right != nil {
-				q = append(q, node.Right)
-			}
-			if i != len(q)-1 {
-				node.Next = q[i+1]
-			}
-		}
-	}
-	return root
-}
-
 // 515. 在每个树行中找最大值
 // 给定一棵二叉树的根节点 root ，请找出该二叉树中每一层的最大值。
 // 输入: root = [1,3,2,5,3,null,9]
