@@ -29,7 +29,8 @@ func partition(head *ListNode, x int) *ListNode {
 	p1, p2 := dummy1, dummy2
 	cur := head
 	for cur != nil {
-		next := cur.Next // 记录下个需要遍历的节点，防止丢失
+		next := cur.Next // 修改节点的 Next 前，记录下个需要遍历的节点
+		cur.Next = nil
 		if cur.Val < x {
 			p1.Next = cur
 			p1 = p1.Next
@@ -37,7 +38,6 @@ func partition(head *ListNode, x int) *ListNode {
 			p2.Next = cur
 			p2 = p2.Next
 		}
-		cur.Next = nil // 修改节点的指针，断掉和原链表的联系，节点加入p1/p2中
 		cur = next
 	}
 	p1.Next = dummy2.Next
