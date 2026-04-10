@@ -181,6 +181,7 @@ func repeatedSubstringPattern(s string) bool {
 // https://leetcode.cn/problems/longest-substring-without-repeating-characters/description/
 // 输入: s = "abcabcbb" 输出: 3
 // 注意：子串不是子序列
+// 思路: 滑动窗口+hashmap
 func lengthOfLongestSubstring(s string) string {
 	m := make(map[byte]int)
 	n := len(s)

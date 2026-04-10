@@ -44,7 +44,22 @@ func moveZeroes(nums []int) {
 // https://leetcode.cn/problems/remove-linked-list-elements/description/
 // 输入：head = [1,2,6,3,4,5,6], val = 6
 // 输出：[1,2,3,4,5]
-func removeElements(head *ListNode, val int) *ListNode {
+// 思路1: 站在 cur 节点，判断下个节点是否为val
+func removeElements3(head *ListNode, val int) *ListNode {
+	dummy := &ListNode{Next: head}
+	cur := dummy
+	for cur.Next != nil {
+		if cur.Next.Val != val {
+			cur = cur.Next
+		} else {
+			cur.Next = cur.Next.Next // 跳过下个元素，即删除下个元素
+		}
+	}
+	return dummy.Next
+}
+
+// 思路2: 双指针，fast在前面探路，通过修改 slow.Next 跳过需要删除的节点
+func removeElements2(head *ListNode, val int) *ListNode {
 	dummy := &ListNode{Next: head}
 	slow := dummy
 	fast := head
@@ -57,36 +72,6 @@ func removeElements(head *ListNode, val int) *ListNode {
 				fast = fast.Next
 			}
 			slow.Next = fast
-		}
-	}
-	return dummy.Next
-}
-
-// 更简明的方法
-func removeElements2(head *ListNode, val int) *ListNode {
-	dummy := &ListNode{Next: head}
-	cur := dummy
-	for cur.Next != nil {
-		if cur.Next.Val != val {
-			cur = cur.Next
-		} else {
-			for cur.Next != nil && cur.Next.Val == val {
-				cur.Next = cur.Next.Next
-			}
-		}
-	}
-	return dummy.Next
-}
-
-// 最简明
-func removeElements3(head *ListNode, val int) *ListNode {
-	dummy := &ListNode{Next: head}
-	cur := dummy
-	for cur.Next != nil {
-		if cur.Next.Val != val {
-			cur = cur.Next
-		} else {
-			cur.Next = cur.Next.Next // 跳过下个元素，即删除下个元素
 		}
 	}
 	return dummy.Next
@@ -117,24 +102,8 @@ func removeDuplicates(nums []int) int {
 // 给定一个已排序的链表的头 head ， 删除所有重复的元素，使每个元素只出现一次 。返回 已排序的链表 。
 // 输入：head = [1,1,2]
 // 输出：[1,2]
-// 思路1:双指针
+// 思路1: 站在cur节点，判断cur的值和下个节点的值是否相同
 func deleteDuplicates(head *ListNode) *ListNode {
-	if head == nil {
-		return nil
-	}
-	slow := head
-	for fast := head; fast != nil; fast = fast.Next {
-		if fast.Val != slow.Val {
-			slow.Next = fast // 对应数组 slow++
-			slow = slow.Next // 对应数组 nums[slow] = nums[fast]
-		}
-	}
-	slow.Next = nil // 注意：断开与后面重复元素的连接
-	return head
-}
-
-// 思路2:
-func deleteDuplicates2(head *ListNode) *ListNode {
 	if head == nil {
 		return nil
 	}
@@ -146,6 +115,22 @@ func deleteDuplicates2(head *ListNode) *ListNode {
 			cur = cur.Next
 		}
 	}
+	return head
+}
+
+// 思路2:双指针
+func deleteDuplicates2(head *ListNode) *ListNode {
+	if head == nil {
+		return nil
+	}
+	slow := head
+	for fast := head; fast != nil; fast = fast.Next {
+		if fast.Val != slow.Val {
+			slow.Next = fast // 对应数组 slow++
+			slow = slow.Next // 对应数组 nums[slow] = nums[fast]
+		}
+	}
+	slow.Next = nil // 注意：断开与后面重复元素的连接
 	return head
 }
 
@@ -186,7 +171,7 @@ func removeDuplicatesII2(nums []int) int {
 	return slow + 1 // 数组长度为索引 + 1
 }
 
-// 思路2
+// 思路2: 双指针
 func removeDuplicatesII(nums []int) int {
 	n := len(nums)
 	if n < 2 {

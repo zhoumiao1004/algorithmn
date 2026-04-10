@@ -162,6 +162,7 @@ func generateMatrix(n int) [][]int {
 	return result
 }
 
+// 思路2:
 func generateMatrix2(n int) [][]int {
 	result := make([][]int, n)
 	for i := 0; i < n; i++ {
@@ -208,7 +209,25 @@ func generateMatrix2(n int) [][]int {
 // 给你一个整数 target ，如果 target 在矩阵中，返回 true ；否则，返回 false 。
 // 输入：matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3
 // 输出：true
+// 思路1: 二维转成一维，只用1次二分
 func searchMatrix(matrix [][]int, target int) bool {
+	m, n := len(matrix), len(matrix[0])
+	left, right := 0, m*n-1
+	for left <= right {
+		mid := left + (right-left)/2
+		if matrix[mid/n][mid%n] == target {
+			return true
+		} else if matrix[mid/n][mid%n] < target {
+			left = mid + 1
+		} else {
+			right = mid - 1
+		}
+	}
+	return false
+}
+
+// 思路2: 纵向二分+横向二分
+func searchMatrix2(matrix [][]int, target int) bool {
 	m, n := len(matrix), len(matrix[0])
 	// 纵向二分,找左边界
 	left, right := 0, m-1
@@ -250,7 +269,7 @@ func searchMatrix(matrix [][]int, target int) bool {
 // 每列的元素从上到下升序排列。
 // 输入：matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 5
 // 输出：true
-func searchMatrix2(matrix [][]int, target int) bool {
+func searchMatrixII(matrix [][]int, target int) bool {
 	m, n := len(matrix), len(matrix[0])
 	i, j := m-1, 0
 	for i >= 0 && j < n {
