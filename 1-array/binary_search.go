@@ -22,21 +22,6 @@ func search(nums []int, target int) int {
 	return -1
 }
 
-// LCR 172. 统计目标成绩的出现次数
-// https://leetcode.cn/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/description/
-// 某班级考试成绩按非严格递增顺序记录于整数数组 scores，请返回目标成绩 target 的出现次数。
-// 输入: scores = [2, 2, 3, 4, 4, 4, 5, 6, 6, 8], target = 4
-// 输出: 3
-func countTarget(scores []int, target int) int {
-	n := len(scores)
-	left := getLeft(scores, target)
-	right := getRight(scores, target)
-	if left < 0 || right > n-1 {
-		return 0
-	}
-	return right - left + 1
-}
-
 // 34. 在排序数组中查找元素的第一个和最后一个位置
 // https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/description/
 // 给你一个按照非递减顺序排列的整数数组 nums，和一个目标值 target。请你找出给定目标值在数组中的开始位置和结束位置。
@@ -45,48 +30,68 @@ func countTarget(scores []int, target int) int {
 // 输入：nums = [5,7,7,8,8,10], target = 8
 // 输出：[3,4]
 func searchRange(nums []int, target int) []int {
-	if len(nums) == 0 {
-		return []int{-1, -1}
+	var getLeftBound func(nums []int, target int) int
+	var getRightBound func(nums []int, target int) int
+
+	getLeftBound = func(nums []int, target int) int {
+		left, right := 0, len(nums)-1
+		for left <= right {
+			mid := left + (right-left)/2
+			if nums[mid] < target {
+				left = mid + 1
+			} else if nums[mid] > target {
+				right = mid - 1
+			} else if nums[mid] == target {
+				right = mid - 1
+			}
+		}
+		if left < 0 || left >= len(nums) {
+			return -1
+		}
+		if nums[left] != target {
+			return -1
+		}
+		return left
 	}
-	left := getLeft(nums, target)
-	right := getRight(nums, target)
-	if left < 0 || left > len(nums)-1 || right < 0 || right > len(nums)-1 {
-		return []int{-1, -1}
+
+	getRightBound = func(nums []int, target int) int {
+		left, right := 0, len(nums)-1
+		for left <= right {
+			mid := left + (right-left)/2
+			if nums[mid] < target {
+				left = mid + 1
+			} else if nums[mid] > target {
+				right = mid - 1
+			} else if nums[mid] == target {
+				left = mid + 1
+			}
+		}
+		if right < 0 || right >= len(nums) {
+			return -1
+		}
+		if nums[right] != target {
+			return -1
+		}
+		return right
 	}
-	if nums[left] != target || nums[right] != target {
-		return []int{-1, -1}
-	}
-	return []int{left, right}
+
+	leftBound := getLeftBound(nums, target)
+	rightBound := getRightBound(nums, target)
+	return []int{leftBound, rightBound}
 }
 
-func getLeft(nums []int, target int) int {
-	left, right := 0, len(nums)-1
-	for left <= right {
-		mid := left + (right-left)/2
-		if nums[mid] < target {
-			left = mid + 1
-		} else if nums[mid] > target {
-			right = mid - 1
-		} else if nums[mid] == target {
-			right = mid - 1
-		}
+// LCR 172. 统计目标成绩的出现次数
+// https://leetcode.cn/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/description/
+// 某班级考试成绩按非严格递增顺序记录于整数数组 scores，请返回目标成绩 target 的出现次数。
+// 输入: scores = [2, 2, 3, 4, 4, 4, 5, 6, 6, 8], target = 4
+// 输出: 3
+func countTarget(scores []int, target int) int {
+	rg := searchRange(scores, target)
+	leftBound, rightBound := rg[0], rg[1]
+	if leftBound == -1 || rightBound == -1 {
+		return 0
 	}
-	return left
-}
-
-func getRight(nums []int, target int) int {
-	left, right := 0, len(nums)-1
-	for left <= right {
-		mid := left + (right-left)/2
-		if nums[mid] < target {
-			left = mid + 1
-		} else if nums[mid] > target {
-			right = mid - 1
-		} else if nums[mid] == target {
-			left = mid + 1
-		}
-	}
-	return right
+	return rightBound - leftBound + 1
 }
 
 // 35. 搜索插入位置
@@ -215,21 +220,20 @@ https://leetcode.cn/problems/is-subsequence/
 输入：s = "abc", t = "ahbgdc"
 输出：true
 */
-// 方法1: dp
-// 方法2: 双指针
+// 思路1: dp,最长公共子序列长度是否等于len(s)
+// 思路2: 双指针
 func isSubsequence(s string, t string) bool {
 	if s == "" {
 		return true
 	}
-	left, right := 0, 0
-	for right < len(t) {
+	left := 0
+	for right := 0; right < len(t); right++ {
 		if t[right] == s[left] {
 			left++
 			if left == len(s) {
 				return true
 			}
 		}
-		right++
 	}
 	return false
 }
@@ -244,7 +248,50 @@ https://leetcode.cn/problems/number-of-matching-subsequences/description/
 输出: 3
 解释: 有三个是 s 的子序列的单词: "a", "acd", "ace"。
 */
+// 思路1:
 func numMatchingSubseq(s string, words []string) int {
+	var isSubsequence func(s, t string) bool
+	isSubsequence = func(s string, t string) bool {
+		if s == "" {
+			return true
+		}
+		left := 0
+		for right := 0; right < len(t); right++ {
+			if t[right] == s[left] {
+				left++
+				if left == len(s) {
+					return true
+				}
+			}
+		}
+		return false
+	}
+	cnt := 0
+	for _, w := range words {
+		if isSubsequence(w, s) {
+			cnt++
+		}
+	}
+	return cnt
+}
+
+// 思路2: 双指针+二分
+func numMatchingSubseq2(s string, words []string) int {
+	var getLeftBound func(nums []int, target int) int
+	getLeftBound = func(nums []int, target int) int {
+		left, right := 0, len(nums)
+		for left <= right {
+			mid := left + (right-left)/2
+			if nums[mid] < target {
+				left = mid + 1
+			} else if nums[mid] > target {
+				right = mid - 1
+			} else if nums[mid] == target {
+				right = mid - 1
+			}
+		}
+		return left
+	}
 	// 对 s 进行预处理，记录 char -> 该 char 的索引列表
 	charToIndexes := make([][]int, 26)
 	for i := 0; i < len(s); i++ {
@@ -257,26 +304,20 @@ func numMatchingSubseq(s string, words []string) int {
 
 	res := 0
 	for _, word := range words {
-		// 字符串 word 上的指针 i
-		i := 0
-		// 字符串 s 上的指针 j
-		j := 0
-		// 现在判断 word 是否是 s 的子序列
-		// 借助 charToIndexes 查找 word 中每个字符在 s 中的索引
+		i, j := 0, 0 // i: 字符串 word 上的指针 j:字符串 s 上的指针
+		// 判断 word 是否是 s 的子序列, 借助 charToIndexes 查找 word 中每个字符在 s 中的索引
 		for i < len(word) {
 			c := word[i]
 			// 整个 s 压根儿没有字符 word[i]
 			if charToIndexes[c-'a'] == nil {
 				break
 			}
-			// 二分搜索大于等于 j 的最小索引
-			// 即在 s[j..] 中搜索等于 word[i] 的最小索引
-			pos := leftBound(charToIndexes[c-'a'], j)
+			// 二分搜索大于等于 j 的最小索引, 即在 s[j..] 中搜索等于 word[i] 的最小索引
+			pos := getLeftBound(charToIndexes[c-'a'], j)
 			if pos == len(charToIndexes[c-'a']) {
 				break
 			}
-			j = charToIndexes[c-'a'][pos]
-			// 如果找到，即 word[i] == s[j]，继续往后匹配
+			j = charToIndexes[c-'a'][pos] // 如果找到，即 word[i] == s[j]，继续往后匹配
 			j++
 			i++
 		}
@@ -287,20 +328,6 @@ func numMatchingSubseq(s string, words []string) int {
 	}
 
 	return res
-}
-
-// 查找左侧边界的二分查找
-func leftBound(arr []int, target int) int {
-	left, right := 0, len(arr)
-	for left < right {
-		mid := left + (right-left)/2
-		if target > arr[mid] {
-			left = mid + 1
-		} else {
-			right = mid
-		}
-	}
-	return left
 }
 
 /*
@@ -314,8 +341,24 @@ https://leetcode.cn/problems/find-k-closest-elements/description/
 输出：[1,2,3,4]
 */
 func findClosestElements(arr []int, k int, x int) []int {
+	var getLeftBound func(nums []int, target int) int
+	getLeftBound = func(nums []int, target int) int {
+		left, right := 0, len(nums)
+		for left <= right {
+			mid := left + (right-left)/2
+			if nums[mid] < target {
+				left = mid + 1
+			} else if nums[mid] > target {
+				right = mid - 1
+			} else if nums[mid] == target {
+				right = mid - 1
+			}
+		}
+		return left
+	}
+
 	var results []int
-	p := leftBound(arr, x)
+	p := getLeftBound(arr, x)
 	left, right := p-1, p
 	// 拓展区间，直到区间内包含k个数
 	for right-left-1 < k {
@@ -363,7 +406,7 @@ func findPeakElement(nums []int) int {
 	return left
 }
 
-// 思路2: 收缩右边界
+// 思路2: 取两端都闭的二分搜索，终止条件: left==right, 收缩右边界
 func findPeakElement2(nums []int) int {
 	// 取两端都闭的二分搜索
 	left, right := 0, len(nums)-1

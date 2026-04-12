@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"sort"
 )
 
@@ -37,8 +38,51 @@ func rotate(matrix [][]int) {
 
 // 151. 反转字符串中的单词
 // https://leetcode.cn/problems/reverse-words-in-a-string/
+// 输入：s = "the sky is blue"
+// 输出："blue is sky the"
+// 思路：1.删除多余的空格 2.整体反转 3.反转每个单词
 func reverseWords(s string) string {
-	return ""
+	var reverseString func(bs []byte)
+	var removeExtraSpaces func(s []byte) []byte
+
+	reverseString = func(bs []byte) {
+		left, right := 0, len(bs)-1
+		for left < right {
+			bs[left], bs[right] = bs[right], bs[left]
+			left++
+			right--
+		}
+	}
+	removeExtraSpaces = func(s []byte) []byte {
+		slow := 0
+		for fast := 0; fast < len(s); fast++ {
+			if s[fast] != ' ' {
+				if slow > 0 { // 单词之间补空格：除了第一个单词
+					s[slow] = ' '
+					slow++
+				}
+				for fast < len(s) && s[fast] != ' ' {
+					s[slow] = s[fast]
+					slow++
+					fast++
+				}
+			}
+		}
+		return s[:slow]
+	}
+
+	bs := removeExtraSpaces([]byte(s))
+
+	reverseString(bs)
+
+	slow := 0
+	for fast := 0; fast <= len(bs); fast++ {
+		if fast == len(bs) || bs[fast] == ' ' {
+			reverseString(bs[slow:fast])
+			slow = fast + 1
+		}
+	}
+	return string(bs)
 }
 
 // 61. 旋转链表
@@ -46,8 +90,8 @@ func reverseWords(s string) string {
 // 给你一个链表的头节点 head ，旋转链表，将链表每个节点向右移动 k 个位置。
 // 输入：head = [1,2,3,4,5], k = 2
 // 输出：[4,5,1,2,3]
+// 思路1: 将链表的后 k 个节点移动到链表的头部
 func rotateRight(head *ListNode, k int) *ListNode {
-	// 倒数第k个节点作为头结点
 	if head == nil {
 		return nil
 	}
@@ -55,12 +99,13 @@ func rotateRight(head *ListNode, k int) *ListNode {
 	for cur := head; cur != nil; cur = cur.Next {
 		length++
 	}
-	n := k % length
-	if n == 0 {
+	k = k % length
+	if k == 0 {
 		return head
 	}
+	// 寻找倒数第 k+1 个节点，倒数第k个节点作为头结点
 	slow, fast := head, head
-	for i := 0; i < n; i++ {
+	for i := 0; i < k; i++ {
 		fast = fast.Next
 	}
 	for fast.Next != nil {
@@ -68,8 +113,8 @@ func rotateRight(head *ListNode, k int) *ListNode {
 		fast = fast.Next
 	}
 	newHead := slow.Next
-	fast.Next = head
 	slow.Next = nil
+	fast.Next = head
 	return newHead
 }
 
@@ -292,6 +337,7 @@ func searchMatrixII(matrix [][]int, target int) bool {
 如果具有给定参数的 reshape 操作是可行且合理的，则输出新的重塑矩阵；否则，输出原始矩阵。
 输入：mat = [[1,2],[3,4]], r = 1, c = 4
 输出：[[1,2,3,4]]
+思路：多维坐标之间的映射转换，一维坐标到二维坐标之间的转换
 */
 func matrixReshape(mat [][]int, r int, c int) [][]int {
 	m, n := len(mat), len(mat[0])
@@ -301,75 +347,12 @@ func matrixReshape(mat [][]int, r int, c int) [][]int {
 	result := make([][]int, r)
 	for i := 0; i < r; i++ {
 		result[i] = make([]int, c)
-	}
-	tmp := make([]int, m*n)
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			tmp[i*n+j] = mat[i][j]
-		}
-	}
-	// fmt.Println(tmp)
-	for i := 0; i < r; i++ {
 		for j := 0; j < c; j++ {
-			result[i][j] = tmp[i*c+j]
-		}
-	}
-	return result
-}
-
-func matrixReshape2(mat [][]int, r int, c int) [][]int {
-	m, n := len(mat), len(mat[0])
-	if m*n != r*c {
-		return mat
-	}
-	result := make([][]int, r)
-	for i := 0; i < r; i++ {
-		result[i] = make([]int, c)
-	}
-
-	for i := 0; i < r; i++ {
-		for j := 0; j < c; j++ {
-			// index := i*c+j ==> x*n+y
 			index := i*c + j
 			result[i][j] = mat[index/n][index%n]
 		}
 	}
 	return result
-}
-
-func matrixReshape3(mat [][]int, r int, c int) [][]int {
-	n := len(mat[0])
-	// 如果想成功 reshape，元素个数应该相同
-	if r*c != len(mat)*n {
-		return mat
-	}
-
-	res := make([][]int, r)
-	for i := range res {
-		res[i] = make([]int, c)
-	}
-
-	for i := 0; i < len(mat)*n; i++ {
-		set(&res, i, get(&mat, i, n))
-	}
-	return res
-}
-
-// 通过一维坐标访问二维数组中的元素
-func get(matrix *[][]int, index int, n int) int {
-	// 计算二维中的横纵坐标
-	i := index / n
-	j := index % n
-	return (*matrix)[i][j]
-}
-
-// 通过一维坐标设置二维数组中的元素
-func set(matrix *[][]int, index int, value int) {
-	n := len((*matrix)[0])
-	// 计算二维中的横纵坐标
-	i := index / n
-	j := index % n
-	(*matrix)[i][j] = value
 }
 
 // 1329. 将矩阵按对角线排序
@@ -444,21 +427,21 @@ func transpose(matrix [][]int) [][]int {
 // 输入：strs = ["flower","flow","flight"]
 // 输出："fl"
 func longestCommonPrefix(strs []string) string {
-	if len(strs) == 0 {
-		return ""
+	minLen := math.MaxInt
+	for _, s := range strs {
+		minLen = min(minLen, len(s))
 	}
-	left := 0 // 相同的列
-	m, n := len(strs), len(strs[0])
-	for j := 0; j < n; j++ {
+	end := 0 // 相同的列
+	for j := 0; j < minLen; j++ {
 		// 第j列，对比每一行是否相同
-		for i := 1; i < m; i++ {
-			if len(strs[i]) <= j || strs[i][j] != strs[0][j] {
-				return strs[0][:left]
+		for i := 1; i < len(strs); i++ {
+			if strs[i][j] != strs[0][j] {
+				return strs[0][:end]
 			}
 		}
-		left++
+		end++
 	}
-	return strs[0][:left]
+	return strs[0][:end]
 }
 
 func main() {

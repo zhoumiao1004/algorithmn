@@ -77,46 +77,6 @@ func replaceNumber(s string) string {
 	return s
 }
 
-// 151. 反转字符串中的单词
-// https://leetcode.cn/problems/reverse-words-in-a-string/
-// 输入：s = "the sky is blue"
-// 输出："blue is sky the"
-// 1.删除多余的空格 2.整体反转 3.反转每个单词
-func reverseWords(s string) string {
-	// removeExtraSpaces
-	bs := removeExtraSpaces([]byte(s))
-	// fmt.Println(string(bs))
-	// reverse whole string
-	reverseString(bs)
-	// reverse each word
-	slow := 0
-	for fast := 0; fast <= len(bs); fast++ {
-		if fast == len(bs) || bs[fast] == ' ' {
-			reverseString(bs[slow:fast])
-			slow = fast + 1
-		}
-	}
-	return string(bs)
-}
-
-func removeExtraSpaces(s []byte) []byte {
-	slow := 0
-	for fast := 0; fast < len(s); fast++ {
-		if s[fast] != ' ' {
-			if slow > 0 { // 单词之间补空格：除了第一个单词
-				s[slow] = ' '
-				slow++
-			}
-			for fast < len(s) && s[fast] != ' ' {
-				s[slow] = s[fast]
-				slow++
-				fast++
-			}
-		}
-	}
-	return s[:slow]
-}
-
 // 右旋字符串
 // 例如，对于输入字符串 "abcdefg" 和整数 2，函数应该将其转换为 "fgabcde"
 

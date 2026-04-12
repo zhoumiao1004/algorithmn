@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math"
-	"sort"
 )
 
 // 242. 有效的字母异位词
@@ -88,20 +87,6 @@ func isHappy(n int) bool {
 	return true
 }
 
-// 1. 两数之和
-// https://leetcode.cn/problems/two-sum/description/
-func twoSum(nums []int, target int) []int {
-	m := make(map[int]int)
-	for i, val := range nums {
-		idx, ok := m[target-val]
-		if ok {
-			return []int{idx, i}
-		}
-		m[val] = i
-	}
-	return []int{}
-}
-
 // 454. 四数相加 II
 // https://leetcode.cn/problems/4sum-ii/
 // 输入：nums1 = [1,2], nums2 = [-2,-1], nums3 = [-1,2], nums4 = [0,2]
@@ -141,87 +126,6 @@ func canConstruct(ransomNote string, magazine string) bool {
 		hash[c-'a']--
 	}
 	return true
-}
-
-// 15. 三数之和
-// https://leetcode.cn/problems/3sum/
-// 输入：nums = [-1,0,1,2,-1,-4]
-// 输出：[[-1,-1,2],[-1,0,1]]
-// 双指针、滑动窗口，关键在如何去重
-func threeSum(nums []int) [][]int {
-	var results [][]int
-	sort.Ints(nums)
-	n := len(nums)
-	for i := 0; i < n-2; i++ {
-		a := nums[i]
-		if a > 0 {
-			break
-		}
-		if i > 0 && nums[i] == nums[i-1] {
-			continue
-		}
-		l, r := i+1, n-1
-		for l < r {
-			b, c := nums[l], nums[r]
-			if a+b+c == 0 {
-				results = append(results, []int{a, b, c})
-				for l < r && nums[l] == b {
-					l++
-				}
-				for l < r && nums[r] == c {
-					r--
-				}
-			} else if a+b+c < 0 {
-				l++
-			} else {
-				r--
-			}
-		}
-	}
-	return results
-}
-
-// 18. 四数之和
-// https://leetcode.cn/problems/4sum/
-// 给你一个由 n 个整数组成的数组 nums ，和一个目标值 target 。请你找出并返回满足下述全部条件且不重复的四元组 [nums[a], nums[b], nums[c], nums[d]] （若两个四元组元素一一对应，则认为两个四元组重复）：
-// 输入：nums = [1,0,-1,0,-2,2], target = 0
-// 输出：[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]
-func fourSum(nums []int, target int) [][]int {
-	sort.Ints(nums)
-	var results [][]int
-	for i := 0; i < len(nums)-3; i++ {
-		a := nums[i]
-		// if a > 0 {
-		// 	break
-		// }
-		if i > 0 && nums[i] == nums[i-1] {
-			continue
-		}
-		for j := i + 1; j < len(nums)-2; j++ {
-			b := nums[j]
-			if j > i+1 && nums[j] == nums[j-1] {
-				continue
-			}
-			l, r := j+1, len(nums)-1
-			for l < r {
-				c, d := nums[l], nums[r]
-				if a+b+c+d == target {
-					results = append(results, []int{a, b, c, d})
-					for l < r && nums[l] == c {
-						l++
-					}
-					for l < r && nums[r] == d {
-						r--
-					}
-				} else if a+b+c+d < target {
-					l++
-				} else {
-					r--
-				}
-			}
-		}
-	}
-	return results
 }
 
 // 205. 同构字符串
