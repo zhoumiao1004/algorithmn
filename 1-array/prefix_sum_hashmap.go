@@ -14,6 +14,8 @@ import "fmt"
 // 思路1: 把0当成-1，和为0的最长子数组
 func findMaxLength(nums []int) int {
 	n := len(nums)
+	result := 0
+	indexMap := make(map[int]int)
 	preSum := make([]int, n+1)
 	for i := 1; i < len(preSum); i++ {
 		if nums[i-1] == 0 {
@@ -21,17 +23,15 @@ func findMaxLength(nums []int) int {
 		} else {
 			preSum[i] = preSum[i-1] + 1
 		}
-	}
-	result := 0
-	indexMap := make(map[int]int)
-	for i := 0; i < len(preSum); i++ {
+		// 查看hashmap中是否已经存在左边界
 		index, ok := indexMap[preSum[i]]
 		if !ok {
-			indexMap[preSum[i]] = i
+			indexMap[preSum[i]] = i // key不存在：保存左边界
 		} else {
-			result = max(result, i-index)
+			result = max(result, i-index) // key已存在：更新结果 (不能覆盖value，因为要求最大长度)
 		}
 	}
+
 	return result
 }
 
@@ -52,7 +52,7 @@ func checkSubarraySum(nums []int, k int) bool {
 	n := len(nums)
 	preSum := make([]int, n+1)
 	for i := 1; i < len(preSum); i++ {
-		preSum[i] = preSum[i-1] + nums[i-1]
+		preSum[i] = preSum[i-1] + nums[i-1] // 计算前缀和
 	}
 	valToIndex := make(map[int]int)
 	for i := 0; i < len(preSum); i++ {

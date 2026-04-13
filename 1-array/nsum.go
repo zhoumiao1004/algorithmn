@@ -6,8 +6,7 @@ import (
 )
 
 func twoSumTarget(nums []int, start, target int) [][]int {
-	// nums 数组必须有序
-	sort.Ints(nums)
+	sort.Ints(nums) // 先排序
 	var lo, hi int = start, len(nums) - 1
 	var res [][]int
 	for lo < hi {
@@ -54,17 +53,14 @@ func threeSumTarget(nums []int, start int, target int) [][]int {
 }
 
 func fourSumTarget(nums []int, target int) [][]int {
-	// 数组需要排序
-	sort.Ints(nums)
+	sort.Ints(nums) // 先排序
 	n := len(nums)
 	var res [][]int
-	// 穷举 fourSum 的第一个数
+	// 穷举第一个数
 	for i := 0; i < n; i++ {
-		// 对 target - nums[i] 计算 threeSum
-		triples := threeSumTarget(nums, i+1, target-nums[i])
-		// 如果存在满足条件的三元组，再加上 nums[i] 就是结果四元组
+		triples := threeSumTarget(nums, i+1, target-nums[i]) // 对 target - nums[i] 计算 threeSum
 		for _, triple := range triples {
-			triple = append(triple, nums[i])
+			triple = append(triple, nums[i]) // 存在满足条件的三元组，再加上 nums[i] 就是结果四元组
 			res = append(res, triple)
 		}
 		// fourSum 的第一个数不能重复
