@@ -51,11 +51,9 @@ func findMaxLength(nums []int) int {
 func checkSubarraySum(nums []int, k int) bool {
 	n := len(nums)
 	preSum := make([]int, n+1)
+	valToIndex := make(map[int]int)
 	for i := 1; i < len(preSum); i++ {
 		preSum[i] = preSum[i-1] + nums[i-1] // 计算前缀和
-	}
-	valToIndex := make(map[int]int)
-	for i := 0; i < len(preSum); i++ {
 		val := preSum[i] % k
 		if index, ok := valToIndex[val]; ok {
 			if i-index >= 2 {
@@ -77,19 +75,19 @@ func checkSubarraySum(nums []int, k int) bool {
 // 输入：nums = [1,2,3], k = 3
 // 输出：2
 func subarraySum(nums []int, k int) int {
+	result := 0
 	n := len(nums)
+	cntMap := make(map[int]int)
 	preSum := make([]int, n+1)
+
 	for i := 1; i < len(preSum); i++ {
 		preSum[i] = preSum[i-1] + nums[i-1]
-	}
-	result := 0
-	m := make(map[int]int)
-	for i := 0; i < len(preSum); i++ {
-		if cnt, ok := m[preSum[i]-k]; ok {
+		if cnt, ok := cntMap[preSum[i]-k]; ok {
 			result += cnt
 		}
-		m[preSum[i]]++
+		cntMap[preSum[i]]++
 	}
+
 	return result
 }
 
@@ -103,22 +101,20 @@ func subarraySum(nums []int, k int) int {
 // 输出：3
 // 解释：最长的表现良好时间段是 [9,9,6]。
 func longestWPI(hours []int) int {
+	result := 0
+	valToIndex := make(map[int]int)
 	n := len(hours)
 	preSum := make([]int, n+1)
+
 	for i := 1; i < len(preSum); i++ {
 		if hours[i-1] > 8 {
 			preSum[i] = preSum[i-1] + 1
 		} else {
 			preSum[i] = preSum[i-1] - 1
 		}
-	}
-	result := 0
-	valToIndex := make(map[int]int)
-	for i := 1; i < len(preSum); i++ {
 		if preSum[i] > 0 {
 			result = max(result, i)
 		} else {
-			// preSum[i] - x == 1
 			index, ok := valToIndex[preSum[i]-1]
 			if ok {
 				result = max(result, i-index)
@@ -129,6 +125,7 @@ func longestWPI(hours []int) int {
 			valToIndex[preSum[i]] = i
 		}
 	}
+
 	return result
 }
 
@@ -144,27 +141,23 @@ func longestWPI(hours []int) int {
 // 有 7 个子数组满足其元素之和可被 k = 5 整除：
 // [4, 5, 0, -2, -3, 1], [5], [5, 0], [5, 0, -2, -3], [0], [0, -2, -3], [-2, -3]
 func subarraysDivByK(nums []int, k int) int {
+	result := 0
 	n := len(nums)
+	cntMap := make(map[int]int)
 	preSum := make([]int, n+1)
 	for i := 1; i < len(preSum); i++ {
 		preSum[i] = preSum[i-1] + nums[i-1]
-	}
-	result := 0
-	m := make(map[int]int)
-	// fmt.Println("preSum=", preSum)
-	for _, val := range preSum {
-		// preSum[i] - preSum[j] % k == 0 => preSum[i] % k == preSum[j] % k
-		r := val % k
+		r := preSum[i] % k // preSum[i] - preSum[j] % k == 0 => preSum[i] % k == preSum[j] % k
 		if r < 0 {
 			r += k
 		}
-		cnt, ok := m[r]
+		cnt, ok := cntMap[r]
 		if ok {
 			result += cnt
 		}
-		m[r]++
+		cntMap[r]++
 	}
-	// fmt.Println("m=", m)
+
 	return result
 }
 
