@@ -26,6 +26,22 @@ func dailyTemperatures(temperatures []int) []int {
 	return result
 }
 
+func dailyTemperatures2(temperatures []int) []int {
+	n := len(temperatures)
+	result := make([]int, len(temperatures))
+	var st []int
+	for i := n - 1; i >= 0; i-- {
+		for len(st) > 0 && temperatures[i] >= temperatures[st[len(st)-1]] {
+			st = st[:len(st)-1] // 弹出栈顶元素
+		}
+		if len(st) > 0 {
+			result[i] = st[len(st)-1] - i
+		}
+		st = append(st, i)
+	}
+	return result
+}
+
 // 496. 下一个更大元素 I
 // https://leetcode.com/problems/next-greater-element-i/description/
 // 给你两个 没有重复元素 的数组 nums1 和 nums2 ，其中nums1 是 nums2 的子集。
@@ -39,14 +55,12 @@ func dailyTemperatures(temperatures []int) []int {
 // 2: 不存在下一个更大元素，所以答案是 -1 。
 func nextGreaterElement(nums1 []int, nums2 []int) []int {
 	result := make([]int, len(nums1))
-	for i := 0; i < len(nums1); i++ {
-		result[i] = -1
-	}
-	// nums1中val和idx的映射
 	idxMap := make(map[int]int)
 	for i := 0; i < len(nums1); i++ {
+		result[i] = -1
 		idxMap[nums1[i]] = i
 	}
+
 	var st []int
 	for i := 0; i < len(nums2); i++ {
 		for len(st) > 0 && nums2[i] > st[len(st)-1] {
@@ -58,11 +72,36 @@ func nextGreaterElement(nums1 []int, nums2 []int) []int {
 		}
 		st = append(st, nums2[i])
 	}
+	return result
+}
 
+func nextGreaterElement2(nums1 []int, nums2 []int) []int {
+	result := make([]int, len(nums1))
+	idxMap := make(map[int]int)
+	for i := 0; i < len(nums1); i++ {
+		result[i] = -1
+		idxMap[nums1[i]] = i
+	}
+
+	var st []int
+	n := len(nums2)
+	for i := n - 1; i >= 0; i-- {
+		for len(st) > 0 && st[len(st)-1] <= nums2[i] {
+			st = st[:len(st)-1]
+		}
+		if len(st) > 0 {
+			idx, ok := idxMap[nums2[i]]
+			if ok {
+				result[idx] = st[len(st)-1]
+			}
+		}
+		st = append(st, nums2[i])
+	}
 	return result
 }
 
 // 503. 下一个更大元素 II
+// https://leetcode.cn/problems/next-greater-element-ii/
 // 给定一个循环数组 nums （ nums[nums.length - 1] 的下一个元素是 nums[0] ），返回 nums 中每个元素的 下一个更大元素 。
 // 数字 x 的 下一个更大的元素 是按数组遍历顺序，这个数字之后的第一个比它更大的数，这意味着你应该循环地搜索它的下一个更大的数。如果不存在，则输出 -1 。
 // 输入: nums = [1,2,1] 输出: [2,-1,2]
@@ -83,109 +122,138 @@ func nextGreaterElements(nums []int) []int {
 		}
 		st = append(st, i%n)
 	}
-
 	return result
 }
 
-// 4.接雨水
-// 给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
-// 输入：height = [0,1,0,2,1,0,1,3,2,1,2,1] 输出：6
-// 解释：上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）
-func trap(height []int) int {
-	n := len(height)
-	if n < 3 {
-		return 0
-	}
-	result := 0
-	var st []int
-	for i := 0; i < n; i++ {
-		for len(st) > 0 && height[i] > height[st[len(st)-1]] {
-			mid := st[len(st)-1]
-			st = st[:len(st)-1] // 出栈
-			if len(st) > 0 {
-				left := st[len(st)-1] // 栈顶元素是mid左边第一个大于的位置,注意这里不需要出栈
-				right := i
-				w := right - left - 1
-				h := min(height[left], height[right]) - height[mid]
-				result += w * h
-			}
-		}
-		st = append(st, i) // 入栈
-	}
-	return result
-}
-
-// 双指针解法
-func trap2pointer(nums []int) int {
+func nextGreaterElements2(nums []int) []int {
 	n := len(nums)
-	if n < 3 {
-		return 0
+	res := make([]int, n)
+	for i := 0; i < n; i++ {
+		res[i] = -1
 	}
-	left, right := 0, n-1
-	maxLeft, maxRight := nums[0], nums[n-1]
-	ans := 0
-	for left < right {
-		hLeft, hRight := nums[left], nums[right]
-		if hLeft < hRight {
-			if hLeft > maxLeft {
-				maxLeft = hLeft
-			} else {
-				ans += hLeft
-			}
-			left++
-		} else {
-			if hRight > maxRight {
-				maxLeft = hLeft
-			} else {
-				ans += hRight
-			}
-			right--
+	st := make([]int, 0)
+
+	// 数组长度加倍模拟环形数组
+	for i := 2*n - 1; i >= 0; i-- {
+		for len(st) > 0 && st[len(st)-1] <= nums[i%n] {
+			st = st[:len(st)-1] // pop element from stack
 		}
+
+		if len(st) > 0 {
+			res[i%n] = st[len(st)-1]
+		}
+
+		st = append(st, nums[i%n]) // push element to stack
 	}
-	return ans
+
+	return res
 }
 
-// 84. 柱状图中最大的矩形
-// 给定 n 个非负整数，用来表示柱状图中各个柱子的高度。每个柱子彼此相邻，且宽度为 1 。
-// 求在该柱状图中，能够勾勒出来的矩形的最大面积。
-// 输入：heights = [2,1,5,6,2,3] 输出：10
-// 解释：最大的矩形为图中红色区域，面积为 10
-func largestRectangleArea(heights []int) int {
-	result := 0
-	// 首尾补零
-	tmp := make([]int, len(heights)+2)
-	for i := 0; i < len(heights); i++ {
-		tmp[i+1] = heights[i]
+// 1019. 链表中的下一个更大节点
+// https://leetcode.cn/problems/next-greater-node-in-linked-list/description/
+// 给定一个长度为 n 的链表 head
+// 对于列表中的每个节点，查找下一个 更大节点 的值。也就是说，对于每个节点，找到它旁边的第一个节点的值，这个节点的值 严格大于 它的值。
+// 返回一个整数数组 answer ，其中 answer[i] 是第 i 个节点( 从1开始 )的下一个更大的节点的值。如果第 i 个节点没有下一个更大的节点，设置 answer[i] = 0 。
+func nextLargerNodes(head *ListNode) []int {
+	var nums []int
+	for cur := head; cur != nil; cur = cur.Next {
+		nums = append(nums, cur.Val)
 	}
-	heights = tmp
+	n := len(nums)
 	var st []int
-	for i := 0; i < len(heights); i++ {
-		for len(st) > 0 && heights[i] < heights[st[len(st)-1]] {
-			mid := st[len(st)-1] // 取栈顶：mid
-			st = st[:len(st)-1]  // 出栈
-			if len(st) > 0 {
-				left := st[len(st)-1] // 取栈顶：左边第一个小于mid的元素
-				right := i
-				h := heights[mid]
-				w := right - left - 1
-				result = max(result, h*w)
-			}
+	result := make([]int, n)
+	for i := n - 1; i >= 0; i-- {
+		for len(st) > 0 && nums[st[len(st)-1]] <= nums[i] {
+			st = st[:len(st)-1]
+		}
+		if len(st) > 0 {
+			result[i] = nums[st[len(st)-1]]
 		}
 		st = append(st, i)
 	}
-
 	return result
+}
+
+// 1944. 队列中可以看到的人数
+// https://leetcode.cn/problems/number-of-visible-people-in-a-queue/description/
+// 有 n 个人排成一个队列，从左到右 编号为 0 到 n - 1 。给你以一个整数数组 heights ，每个整数 互不相同，heights[i] 表示第 i 个人的高度。
+// 一个人能 看到 他右边另一个人的条件是这两人之间的所有人都比他们两人 矮 。更正式的，第 i 个人能看到第 j 个人的条件是 i < j 且 min(heights[i], heights[j]) > max(heights[i+1], heights[i+2], ..., heights[j-1]) 。
+// 请你返回一个长度为 n 的数组 answer ，其中 answer[i] 是第 i 个人在他右侧队列中能 看到 的 人数 。
+// 输入：heights = [10,6,8,5,11,9]
+// 输出：[3,1,2,1,1,0]
+func canSeePersonsCount(heights []int) []int {
+	n := len(heights)
+	var st []int
+	result := make([]int, n)
+	for i := n - 1; i >= 0; i-- {
+		for len(st) > 0 && st[len(st)-1] < heights[i] {
+			st = st[:len(st)-1]
+			result[i]++
+		}
+		if len(st) > 0 {
+			result[i]++
+		}
+		st = append(st, heights[i])
+	}
+	return result
+}
+
+// 1475. 商品折扣后的最终价格
+// https://leetcode.cn/problems/final-prices-with-a-special-discount-in-a-shop/description/
+// 给你一个数组 prices ，其中 prices[i] 是商店里第 i 件商品的价格。
+// 商店里正在进行促销活动，如果你要买第 i 件商品，那么你可以得到与 prices[j] 相等的折扣，其中 j 是满足 j > i 且 prices[j] <= prices[i] 的 最小下标 ，如果没有满足条件的 j ，你将没有任何折扣。
+// 请你返回一个数组，数组中第 i 个元素是折扣后你购买商品 i 最终需要支付的价格。
+// 输入：prices = [8,4,6,2,3]
+// 输出：[4,2,4,2,3]
+func finalPrices(prices []int) []int {
+	n := len(prices)
+	result := make([]int, n)
+	for i := 0; i < n; i++ {
+		result[i] = prices[i]
+	}
+	var st []int
+	for i := n - 1; i >= 0; i-- {
+		for len(st) > 0 && st[len(st)-1] > prices[i] {
+			st = st[:len(st)-1]
+		}
+		if len(st) > 0 {
+			result[i] = prices[i] - st[len(st)-1]
+		}
+		st = append(st, prices[i])
+	}
+	return result
+}
+
+// 901. 股票价格跨度
+// https://leetcode.cn/problems/online-stock-span/
+// 设计一个算法收集某些股票的每日报价，并返回该股票当日价格的 跨度 。
+// 当日股票价格的 跨度 被定义为股票价格小于或等于今天价格的最大连续日数（从今天开始往回数，包括今天）。
+// 例如，如果未来 7 天股票的价格是 [100,80,60,70,60,75,85]，那么股票跨度将是 [1,1,1,2,1,4,6] 。
+// 实现 StockSpanner 类：
+// StockSpanner() 初始化类对象。
+// int next(int price) 给出今天的股价 price ，返回该股票当日价格的 跨度 。
+type StockSpanner struct {
+	st [][2]int
+}
+
+func Constructor() StockSpanner {
+	return StockSpanner{
+		st: [][2]int{},
+	}
+}
+
+func (this *StockSpanner) Next(price int) int {
+	count := 1
+	for len(this.st) > 0 && this.st[len(this.st)-1][0] <= price {
+		count += this.st[len(this.st)-1][1]
+		this.st = this.st[:len(this.st)-1]
+	}
+	this.st = append(this.st, [2]int{price, count})
+	return count
 }
 
 func main() {
 	fmt.Println(dailyTemperatures([]int{73, 74, 75, 71, 69, 72, 76, 73}))
 	fmt.Println(nextGreaterElement([]int{4, 1, 2}, []int{1, 3, 4, 2}))
 	fmt.Println(nextGreaterElement([]int{2, 4}, []int{1, 2, 3, 4})) // 3, -1]
-	height := []int{0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1}
-	fmt.Println(trap(height))
-	fmt.Println(largestRectangleArea([]int{2, 1, 5, 6, 2, 3})) // 10
-	fmt.Println(largestRectangleArea([]int{1}))                // 1
-
-	// people := [][]int{{7, 0}, {4, 4}, {7, 1}, {5, 0}, {6, 1}, {5, 2}}
-	// fmt.Println(reconstructQueue(people))
 }

@@ -359,6 +359,7 @@ func matrixReshape(mat [][]int, r int, c int) [][]int {
 // https://leetcode.cn/problems/sort-the-matrix-diagonally/
 // 输入：mat = [[3,3,1,1],[2,2,1,2],[1,1,1,2]]
 // 输出：[[1,1,1,1],[1,2,2,2],[1,2,3,3]]
+// 思路：hashmap
 func diagonalSort(mat [][]int) [][]int {
 	m, n := len(mat), len(mat[0])
 	diaMap := make(map[int][]int)

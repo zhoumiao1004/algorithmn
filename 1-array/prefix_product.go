@@ -16,7 +16,7 @@ func productExceptSelf(nums []int) []int {
 	for i := 1; i < n; i++ {
 		prefix[i] = prefix[i-1] * nums[i]
 	}
-	
+
 	suffix := make([]int, n)
 	suffix[n-1] = nums[n-1]
 	for i := n - 2; i >= 0; i-- {
@@ -49,7 +49,7 @@ type ProductOfNumbers struct {
 	prefix []int
 }
 
-func Constructor3() ProductOfNumbers {
+func Constructor() ProductOfNumbers {
 	return ProductOfNumbers{
 		prefix: []int{1},
 	}

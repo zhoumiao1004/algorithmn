@@ -14,10 +14,37 @@ import "fmt"
 // 思路1: 把0当成-1，和为0的最长子数组
 func findMaxLength(nums []int) int {
 	n := len(nums)
+	preSum := make([]int, n+1) // preSum[i] 代表 [0..i-1]的区间和
+	for i := 1; i <= n; i++ {
+		if nums[i-1] == 0 {
+			preSum[i] = preSum[i-1] - 1
+		} else {
+			preSum[i] = preSum[i-1] + 1
+		}
+	}
+
 	result := 0
 	indexMap := make(map[int]int)
-	preSum := make([]int, n+1)
-	for i := 1; i < len(preSum); i++ {
+	for i := 0; i <= n; i++ {
+		// 查看hashmap中是否已经存在左边界
+		index, ok := indexMap[preSum[i]]
+		if !ok {
+			indexMap[preSum[i]] = i // key不存在：保存左边界
+		} else {
+			result = max(result, i-index) // key已存在：更新结果 (不能覆盖value，因为要求最大长度)
+		}
+	}
+
+	return result
+}
+
+func findMaxLength2(nums []int) int {
+	n := len(nums)
+	preSum := make([]int, n+1) // preSum[i] 代表 [0..i-1]的区间和
+	result := 0
+	indexMap := make(map[int]int)
+	indexMap[0] = 0 // 对0特殊处理
+	for i := 1; i <= n; i++ {
 		if nums[i-1] == 0 {
 			preSum[i] = preSum[i-1] - 1
 		} else {
@@ -31,7 +58,6 @@ func findMaxLength(nums []int) int {
 			result = max(result, i-index) // key已存在：更新结果 (不能覆盖value，因为要求最大长度)
 		}
 	}
-
 	return result
 }
 
@@ -51,8 +77,30 @@ func findMaxLength(nums []int) int {
 func checkSubarraySum(nums []int, k int) bool {
 	n := len(nums)
 	preSum := make([]int, n+1)
+	for i := 1; i <= n; i++ {
+		preSum[i] = preSum[i-1] + nums[i-1] // 计算前缀和
+	}
+
 	valToIndex := make(map[int]int)
-	for i := 1; i < len(preSum); i++ {
+	for i := 0; i <= n; i++ {
+		val := preSum[i] % k
+		if index, ok := valToIndex[val]; ok {
+			if i-index >= 2 {
+				return true
+			}
+		} else {
+			valToIndex[val] = i
+		}
+	}
+	return false
+}
+
+func checkSubarraySum2(nums []int, k int) bool {
+	n := len(nums)
+	preSum := make([]int, n+1)
+	valToIndex := make(map[int]int)
+	valToIndex[0] = 0 // 对0特殊处理
+	for i := 1; i <= n; i++ {
 		preSum[i] = preSum[i-1] + nums[i-1] // 计算前缀和
 		val := preSum[i] % k
 		if index, ok := valToIndex[val]; ok {
@@ -78,16 +126,15 @@ func subarraySum(nums []int, k int) int {
 	result := 0
 	n := len(nums)
 	cntMap := make(map[int]int)
+	cntMap[0] = 1 // 对0特殊处理
 	preSum := make([]int, n+1)
-
-	for i := 1; i < len(preSum); i++ {
+	for i := 1; i <= n; i++ {
 		preSum[i] = preSum[i-1] + nums[i-1]
 		if cnt, ok := cntMap[preSum[i]-k]; ok {
 			result += cnt
 		}
 		cntMap[preSum[i]]++
 	}
-
 	return result
 }
 
@@ -100,13 +147,15 @@ func subarraySum(nums []int, k int) int {
 // 输入：hours = [9,9,6,0,6,6,9]
 // 输出：3
 // 解释：最长的表现良好时间段是 [9,9,6]。
+// 思路1: 前缀和
 func longestWPI(hours []int) int {
 	result := 0
 	valToIndex := make(map[int]int)
+	valToIndex[0] = 0 // 对0特殊处理
 	n := len(hours)
 	preSum := make([]int, n+1)
 
-	for i := 1; i < len(preSum); i++ {
+	for i := 1; i <= n; i++ {
 		if hours[i-1] > 8 {
 			preSum[i] = preSum[i-1] + 1
 		} else {
@@ -120,16 +169,13 @@ func longestWPI(hours []int) int {
 				result = max(result, i-index)
 			}
 		}
-		// 注意：由于求最长，所以只要最早出现的index，不要覆盖
 		if _, ok := valToIndex[preSum[i]]; !ok {
-			valToIndex[preSum[i]] = i
+			valToIndex[preSum[i]] = i // 注意：由于求最长，所以只要最早出现的index，不要覆盖
 		}
 	}
 
 	return result
 }
-
-// TODO：滑动窗口思路
 
 // 974. 和可被 K 整除的子数组
 // https://leetcode.cn/problems/subarray-sums-divisible-by-k/description/
@@ -144,6 +190,7 @@ func subarraysDivByK(nums []int, k int) int {
 	result := 0
 	n := len(nums)
 	cntMap := make(map[int]int)
+	cntMap[0] = 1 // 对0特殊处理
 	preSum := make([]int, n+1)
 	for i := 1; i < len(preSum); i++ {
 		preSum[i] = preSum[i-1] + nums[i-1]
