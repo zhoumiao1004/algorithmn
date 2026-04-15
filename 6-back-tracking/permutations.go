@@ -102,12 +102,13 @@ func permute3(nums []int) [][]int {
 // 输入：nums = [1,1,2]
 // 输出：[[1,1,2],[1,2,1],[2,1,1]]
 func permuteUnique(nums []int) [][]int {
+	sort.Ints(nums)
 	var results [][]int
 	var path []int
-	sort.Ints(nums)
 	used := make([]bool, len(nums))
-	var dfs func(nums []int)
-	dfs = func(nums []int) {
+	var backtrack func(nums []int)
+
+	backtrack = func(nums []int) {
 		if len(path) == len(nums) {
 			results = append(results, append([]int{}, path...))
 			return
@@ -121,12 +122,13 @@ func permuteUnique(nums []int) [][]int {
 			}
 			used[i] = true
 			path = append(path, nums[i])
-			dfs(nums)
+			backtrack(nums)
 			path = path[:len(path)-1]
 			used[i] = false
 		}
 	}
-	dfs(nums)
+
+	backtrack(nums)
 	return results
 }
 
@@ -144,7 +146,8 @@ func numsSameConsecDiff(n int, k int) []int {
 	var backtrack func(n, k int)
 
 	backtrack = func(n, k int) {
-		if len(path) == n { // 符合长度n条件
+		// 满足长度n条件，收集结果
+		if len(path) == n {
 			s := 0
 			for i := 0; i < n; i++ {
 				s = 10*s + path[i]

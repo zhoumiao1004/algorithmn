@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 // 303. 区域和检索 - 数组不可变
-
+// https://leetcode.cn/problems/range-sum-query-immutable/description/
 // 给定一个整数数组  nums，处理以下类型的多个查询:
 // 计算索引 left 和 right （包含 left 和 right）之间的 nums 元素的 和 ，其中 left <= right
 // 实现 NumArray 类：
@@ -142,17 +142,6 @@ func pivotIndex2(nums []int) int {
 	}
 	return -1
 }
-
-// 58. 区间和
-// https://kamacoder.com/problempage.php?pid=1070
-// 第一行输入为整数数组 Array 的长度 n，接下来 n 行，每行一个整数，表示数组的元素。随后的输入为需要计算总和的区间下标：a，b （b > = a），直至文件结束。
-
-// 44. 开发商购买土地
-// 在一个城市区域内，被划分成了n * m个连续的区块，每个区块都拥有不同的权值，代表着其土地价值。目前，有两家开发公司，A 公司和 B 公司，希望购买这个城市区域的土地。
-// 现在，需要将这个城市区域的所有区块分配给 A 公司和 B 公司。
-// 然而，由于城市规划的限制，只允许将区域按横向或纵向划分成两个子区域，而且每个子区域都必须包含一个或多个区块。
-// 为了确保公平竞争，你需要找到一种分配方式，使得 A 公司和 B 公司各自的子区域内的土地总价值之差最小。
-// 注意：区块不可再分。
 
 func main() {
 	c := Constructor([]int{3, 5, 2, -2, 4, 1})

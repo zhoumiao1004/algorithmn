@@ -98,10 +98,7 @@ func checkInclusion(s1 string, s2 string) bool {
 			}
 		}
 		// 判断左侧窗口是否要收缩
-		for right-left >= len(s1) {
-			if valid == len(need) {
-				return true
-			}
+		for right-left > len(s1) {
 			d := s2[left]
 			left++
 			// 窗口内数据更新
@@ -111,6 +108,10 @@ func checkInclusion(s1 string, s2 string) bool {
 				}
 				window[d]--
 			}
+		}
+		// 更新结果
+		if valid == len(need) {
+			return true
 		}
 	}
 	return false
@@ -170,10 +171,7 @@ func findAnagrams(s string, p string) []int {
 			}
 		}
 		// 判断左侧窗口是否要收缩
-		for right-left >= len(p) {
-			if valid == len(need) {
-				results = append(results, left)
-			}
+		for right-left > len(p) {
 			d := s[left]
 			left++
 			// 窗口内疏忽更新
@@ -183,6 +181,10 @@ func findAnagrams(s string, p string) []int {
 				}
 				window[d]--
 			}
+		}
+		// 更新结果
+		if valid == len(need) {
+			results = append(results, left)
 		}
 	}
 	return results
@@ -209,7 +211,8 @@ func lengthOfLongestSubstring(s string) int {
 			// 窗口内数据更新
 			window[d]--
 		}
-		result = max(result, right-left)
+		// 更新结果
+		result = max(result, right-left) // [left..right) 左闭右开区间，长度为right-left
 	}
 	return result
 }
@@ -237,30 +240,34 @@ func lengthOfLongestSubstring2(s string) int {
 // 输出：2
 // 解释：最佳解决方案是移除后两个元素，将 x 减到 0 。
 func minOperations(nums []int, x int) int {
-	n := len(nums)
 	s := 0
-	for i := 0; i < n; i++ {
+	for i := 0; i < len(nums); i++ {
 		s += nums[i]
 	}
 	target := s - x
 	left, right := 0, 0
 	sum := 0
-	maxLen := -1
-	for right < n {
-		sum += nums[right]
+	maxLen := math.MinInt
+	for right < len(nums) {
+		c := nums[right]
 		right++
+		// 窗口内数据更新
+		sum += c
 		for left < right && sum > target {
-			sum -= nums[left]
+			d := nums[left]
 			left++
+			// 窗口内数据更新
+			sum -= d
 		}
+		// 更新结果
 		if sum == target {
 			maxLen = max(maxLen, right-left)
 		}
 	}
-	if maxLen == -1 {
+	if maxLen == maxLen {
 		return -1
 	}
-	return n - maxLen
+	return len(nums) - maxLen
 }
 
 // 713. 乘积小于 K 的子数组
@@ -276,14 +283,15 @@ func numSubarrayProductLessThanK(nums []int, k int) int {
 	s := 1
 	result := 0
 	for right < n {
-		s *= nums[right]
+		c := nums[right]
 		right++
+		s *= c
 		for left < right && s >= k {
-			s /= nums[left]
+			d := nums[left]
 			left++
+			s /= d
 		}
-		// 计算以right结尾的子数组个数
-		result += right - left
+		result += right - left // 以right结尾的子数组个数
 	}
 	return result
 }
@@ -301,9 +309,9 @@ func longestOnes(nums []int, k int) int {
 	left, right := 0, 0
 	result := 0
 	for right < n {
-		val := nums[right]
+		c := nums[right]
 		right++
-		hash[val]++
+		hash[c]++
 		for hash[0] > k {
 			d := nums[left]
 			left++
@@ -324,22 +332,22 @@ func longestOnes(nums []int, k int) int {
 // 输入：s = "AABABBA", k = 1
 // 输出：4
 func characterReplacement(s string, k int) int {
-	var hash [26]int
+	var window [26]int
 	left, right := 0, 0
 	maxCnt := 0
 	result := 0
 	for right < len(s) {
-		// 扩大窗口
 		c := s[right]
 		right++
-		hash[c-'A']++
-		maxCnt = max(maxCnt, hash[c-'A'])
-
+		// 窗口内数据更新
+		window[c-'A']++
+		maxCnt = max(maxCnt, window[c-'A'])
+		// for可以换成if
 		for right-left-maxCnt > k {
-			// 左侧窗口要收缩
 			d := s[left]
-			hash[d-'A']--
 			left++
+			// 窗口内数据更新
+			window[d-'A']--
 		}
 		result = max(result, right-left)
 	}
@@ -351,39 +359,41 @@ func characterReplacement(s string, k int) int {
 // 给你一个整数数组 nums 和一个整数 k ，判断数组中是否存在两个 不同的索引 i 和 j ，满足 nums[i] == nums[j] 且 abs(i - j) <= k 。如果存在，返回 true ；否则，返回 false 。
 // 输入：nums = [1,2,3,1], k = 3
 // 输出：true
-func containsNearbyDuplicate(nums []int, k int) bool {
-	n := len(nums)
-	window := make(map[int]int)
-	right := 0
-	for right < n {
-		val := nums[right]
+// 思路1: 滑动窗口
+func containsNearbyDuplicate1(nums []int, k int) bool {
+	left, right := 0, 0
+	window := make(map[int]bool)
+	for right < len(nums) {
+		c := nums[right]
 		right++
-		index, ok := window[val]
-		if ok && right-index <= k {
+		// 更新结果
+		if window[c] {
 			return true
 		}
-		window[val] = right
+		// 窗口内数据更新
+		window[c] = true
+
+		if right-left > k {
+			d := nums[left]
+			left++
+			// 窗口内数据更新
+			delete(window, d)
+		}
 	}
 	return false
 }
 
-func containsNearbyDuplicate1(nums []int, k int) bool {
-	left, right := 0, 0
-	window := make(map[int]bool)
-	// 滑动窗口算法框架，维护一个大小为 k 的窗口
-	for right < len(nums) {
-		// 扩大窗口
-		if window[nums[right]] {
+// 思路2: 单指针 + hashmap保存前面遍历过的元素的下标
+func containsNearbyDuplicate(nums []int, k int) bool {
+	n := len(nums)
+	window := make(map[int]int)
+	for right := 0; right < n; right++ {
+		c := nums[right]
+		index, ok := window[c]
+		if ok && right-index <= k {
 			return true
 		}
-		window[nums[right]] = true
-		right++
-
-		if right-left > k {
-			// 当窗口的大小大于 k 时，缩小窗口
-			delete(window, nums[left])
-			left++
-		}
+		window[c] = right
 	}
 	return false
 }
@@ -401,6 +411,7 @@ abs(nums[i] - nums[j]) <= valueDiff
 输入：nums = [1,2,3,1], indexDiff = 3, valueDiff = 0
 输出：true
 */
+// 思路: 滑动窗口 + 桶排序(桶排序：根据特定条件将不同元素放入不同队列中(本题中用的是hashmap))
 func containsNearbyAlmostDuplicate(nums []int, indexDiff int, valueDiff int) bool {
 	if indexDiff <= 0 || valueDiff < 0 {
 		return false
@@ -410,34 +421,32 @@ func containsNearbyAlmostDuplicate(nums []int, indexDiff int, valueDiff int) boo
 		if x >= 0 {
 			return x / w
 		}
-		return (x+1)/w - 1
+		return (x+1)/w - 1 // 精髓：因为如果abs(n) < k ，比如-2 / 3 与 2 / 3 都会返回0，而负值-1则会将-2/3返回-1。由此将-2与2区分开来.同时因为所有负数统一-1，也不会影响其他负数。比如-4/3 将返回-2
 	}
 
-	window := make(map[int]int)
+	bucket := make(map[int]int)
 	w := valueDiff + 1
 
 	for i := 0; i < len(nums); i++ {
-		m := getID(nums[i], w)
+		id := getID(nums[i], w)
 
 		// 为了防止 i == j，所以在扩大窗口之前先判断是否有符合题意的索引对 (i, j)
-		// 查找略大于 nums[right] 的那个元素
-		if _, ok := window[m]; ok {
+		if _, ok := bucket[id]; ok {
 			return true
 		}
-		// 查找略小于 nums[right] 的那个元素
-		if v, ok := window[m-1]; ok && math.Abs(float64(nums[i]-v)) < float64(w) {
+		// 相邻桶中有元素, 则比较是否满足条件3
+		if v, ok := bucket[id-1]; ok && math.Abs(float64(nums[i]-v)) < float64(w) {
 			return true
 		}
-		if v, ok := window[m+1]; ok && math.Abs(float64(nums[i]-v)) < float64(w) {
+		if v, ok := bucket[id+1]; ok && math.Abs(float64(nums[i]-v)) < float64(w) {
 			return true
 		}
 
 		// 扩大窗口
-		window[m] = nums[i]
+		bucket[id] = nums[i]
 
 		if i >= indexDiff {
-			// 缩小窗口
-			delete(window, getID(nums[i-indexDiff], w))
+			delete(bucket, getID(nums[i-indexDiff], w)) // 缩小窗口，精髓：滑动窗口，一边向后遍历，一边删除当前位置之前k位，即不满足i-j <= k的元素
 		}
 	}
 
@@ -455,14 +464,19 @@ https://leetcode.cn/problems/minimum-size-subarray-sum/description/
 */
 func minSubArrayLen(target int, nums []int) int {
 	result := math.MaxInt
+	left, right := 0, 0
 	s := 0
-	left := 0
-	for right := 0; right < len(nums); right++ {
-		s += nums[right]
+	for right < len(nums) {
+		c := nums[right]
+		right++
+		// 窗口内数据更新
+		s += c
 		for s >= target {
-			result = min(result, right-left+1)
-			s -= nums[left]
+			result = min(result, right-left) // 更新结果
+			d := nums[left]
 			left++
+			// 窗口内数据更新
+			s -= d
 		}
 	}
 	if result == math.MaxInt {

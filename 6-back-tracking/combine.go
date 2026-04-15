@@ -272,8 +272,8 @@ func partition(s string) [][]string {
 			return
 		}
 		for i := start; i < len(s); i++ {
-			if !isPalindrome(s[start : i+1]) { // 剪枝：分割出的子串不是回文串
-				continue
+			if !isPalindrome(s[start : i+1]) {
+				continue // 剪枝：分割出的子串不是回文串
 			}
 			path = append(path, s[start:i+1])
 			backtrack(s, i+1)

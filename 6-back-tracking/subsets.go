@@ -88,7 +88,7 @@ func subsetsWithDup(nums []int) [][]int {
 // 数组中可能含有重复元素，如出现两个整数相等，也可以视作递增序列的一种特殊情况。
 // 输入：nums = [4,6,7,7]
 // 输出：[[4,6],[4,6,7],[4,6,7,7],[4,7],[4,7,7],[6,7],[6,7,7],[7,7]]
-// 注：不能排序
+// 思路: 元素可重复，不可复选，注：不能排序
 func findSubsequences(nums []int) [][]int {
 	var results [][]int
 	var path []int
