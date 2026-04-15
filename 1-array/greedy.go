@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"sort"
 	"strconv"
 )
@@ -50,31 +49,6 @@ func wiggleMaxLength(nums []int) int {
 			result++
 			prediff = curdiff // 遇到摆动才换
 		}
-	}
-	return result
-}
-
-// 53. 最大子序和
-// https://leetcode.cn/problems/maximum-subarray/description/
-// 给定一个整数数组 nums ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
-// 输入: [-2,1,-3,4,-1,2,1,-5,4] 输出: 6
-// 解释: 连续子数组  [4,-1,2,1] 的和最大，为6
-// 思路：记录以i-1结尾的最大和，如果为负数就放弃
-func maxSubArray(nums []int) int {
-	if len(nums) == 0 {
-		return 0
-	}
-	result := math.MinInt
-	s := 0
-	for i := 0; i < len(nums); i++ {
-		// 计算以当前数结尾的和的最大值：1.之前的sum>0，nums[i]>0 2.之前的sum为>0，nums[i]<0 3.之前的sum<0, nums[i] > 0 4.之前的sum<0, nums[i]<0
-		// 情况1-2分析：必须以nums[i]结尾，所以只要之前的sum>0，就加上
-		// 情况3-4分析：如果之前的sum<0, 直接舍弃之前的数，从nums[i]从新累计
-		s = max(s, 0) + nums[i]
-		// if maxSum > result {
-		// 	result = maxSum
-		// }
-		result = max(result, s)
 	}
 	return result
 }
@@ -363,11 +337,11 @@ type TreeNode struct {
 }
 
 // 968.监控二叉树
+// https://labuladong.online/zh/algo/problem-set/binary-tree-post-order-iii/#slug_binary-tree-cameras
 // 给定一个二叉树，我们在树的节点上安装摄像头。
 // 节点上的每个摄影头都可以监视其父对象、自身及其直接子对象。
 // 计算监控树的所有节点所需的最小摄像头数量。
-// 贪心思路：从叶子节点向上，叶子的父节点放一个，向上空2个节点放一个
-// 3种状态转移：0.无覆盖 1.有摄像头 2.有覆盖
+// 思路：从叶子节点向上，叶子的父节点放一个，向上空2个节点放一个 3种状态转移：0.无覆盖 1.有摄像头 2.有覆盖
 func minCameraCover(root *TreeNode) int {
 	result := 0
 	var dfs func(*TreeNode) int
@@ -400,6 +374,8 @@ func minCameraCover(root *TreeNode) int {
 	return result
 }
 
+// 2149. 按符号重排数组
+// https://leetcode.cn/problems/rearrange-array-elements-by-sign/description/
 func rearrangeArray(arr []int) []int {
 	// 统计每个数字出现的次数
 	counts := make(map[int]int)
@@ -470,7 +446,6 @@ func main() {
 	result := rearrangeArray(arr)
 	fmt.Println(result)                                           // 输出例如 [2, 1, 2, 1, 2, 3]
 	fmt.Println(findContentChildren([]int{1, 2, 3}, []int{1, 1})) // 输出例如 [2, 1, 2, 1, 2, 3]
-	fmt.Println(maxSubArray([]int{-1, 0, -1}))
 	fmt.Println(canJump([]int{3, 2, 1, 0, 4}))
 	fmt.Println(jump([]int{2, 3, 1, 1, 4}))  // 2
 	fmt.Println(jump2([]int{2, 3, 0, 1, 4})) // 2

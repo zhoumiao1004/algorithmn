@@ -2,10 +2,12 @@ package main
 
 import "fmt"
 
-// 4.接雨水
+// 42.接雨水
+// https://leetcode.cn/problems/trapping-rain-water/description/
 // 给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
 // 输入：height = [0,1,0,2,1,0,1,3,2,1,2,1] 输出：6
 // 解释：上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）
+// 思路1: 单调栈
 func trap(height []int) int {
 	n := len(height)
 	if n < 3 {
@@ -30,7 +32,7 @@ func trap(height []int) int {
 	return result
 }
 
-// 双指针解法
+// 思路2: 双指针解法
 func trap2pointer(nums []int) int {
 	n := len(nums)
 	if n < 3 {
@@ -58,6 +60,33 @@ func trap2pointer(nums []int) int {
 		}
 	}
 	return ans
+}
+
+// 11. 盛最多水的容器
+// https://leetcode.cn/problems/container-with-most-water/description/
+// 给定一个长度为 n 的整数数组 height 。有 n 条垂线，第 i 条线的两个端点是 (i, 0) 和 (i, height[i]) 。
+// 找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
+// 返回容器可以储存的最大水量。
+// 说明：你不能倾斜容器。
+// 输入：[1,8,6,2,5,4,8,3,7]
+// 输出：49
+// 思路: 双指针
+func maxArea(height []int) int {
+	result := 0
+	left, right := 0, len(height)-1
+	for left < right {
+		w := right - left
+		h := 0
+		if height[left] < height[right] {
+			h = height[left]
+			left++
+		} else {
+			h = height[right]
+			right--
+		}
+		result = max(result, w*h)
+	}
+	return result
 }
 
 // 84. 柱状图中最大的矩形
