@@ -122,62 +122,6 @@ func exist(board [][]byte, word string) bool {
 	return false
 }
 
-// 698. 划分为k个相等的子集
-// https://leetcode.cn/problems/partition-to-k-equal-sum-subsets/description/
-// 给定一个整数数组  nums 和一个正整数 k，找出是否有可能把这个数组分成 k 个非空子集，其总和都相等。
-// 输入： nums = [4, 3, 2, 3, 5, 2, 1], k = 4
-// 输出： True
-// 说明： 有可能将其分成 4 个子集（5），（1,4），（2,3），（2,3）等于总和。
-func canPartitionKSubsets(nums []int, k int) bool {
-	if k > len(nums) {
-		return false
-	}
-	sum := 0
-	for _, v := range nums {
-		sum += v
-	}
-	if sum%k != 0 {
-		return false
-	}
-	target := sum / k
-	visited := make([]bool, len(nums))
-	s := 0
-	var backtrack func(nums []int, k, start int) bool
-	backtrack = func(nums []int, k, start int) bool {
-		if k == 0 {
-			return true
-		}
-		if s == target {
-			return backtrack(nums, k-1, 0)
-		}
-		for i := start; i < len(nums); i++ {
-			if visited[i] {
-				continue
-			}
-			if s+nums[i] > target { // 也可以放在for条件里
-				continue
-			}
-			visited[i] = true
-			s += nums[i]
-			if backtrack(nums, k, i+1) {
-				return true
-			}
-			s -= nums[i]
-			visited[i] = false
-		}
-		return false
-	}
-	return backtrack(nums, k, 0)
-}
-
-// 473. 火柴拼正方形
-// https://leetcode.cn/problems/matchsticks-to-square/
-// 你将得到一个整数数组 matchsticks ，其中 matchsticks[i] 是第 i 个火柴棒的长度。你要用 所有的火柴棍 拼成一个正方形。你 不能折断 任何一根火柴棒，但你可以把它们连在一起，而且每根火柴棒必须 使用一次 。
-// 如果你能使这个正方形，则返回 true ，否则返回 false 。
-func makesquare(matchsticks []int) bool {
-	return canPartitionKSubsets(matchsticks, 4)
-}
-
 // 1219. 黄金矿工
 // https://leetcode.cn/problems/path-with-maximum-gold/description/
 // 你要开发一座金矿，地质勘测学家已经探明了这座金矿中的资源分布，并用大小为 m * n 的网格 grid 进行了标注。每个单元格中的整数就表示这一单元格中的黄金数量；如果该单元格是空的，那么就是 0。
