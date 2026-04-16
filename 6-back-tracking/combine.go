@@ -16,6 +16,7 @@ import (
 // 77. 组合 给定两个整数 n 和 k，返回范围 [1, n] 中所有可能的 k 个数的组合。
 // 输入：n = 4, k = 2 输出：[[2,4],[3,4],[2,3],[1,2],[1,3],[1,4]]
 // 求组合，每个数只能取一次。
+// 情况1: 元素无重不可复选
 func combine(n int, k int) [][]int {
 	var results [][]int
 	var path []int
@@ -27,54 +28,9 @@ func combine(n int, k int) [][]int {
 			return
 		}
 		for i := startIndex; i <= n; i++ {
-			path = append(path, i)
-			backtrack(n, k, i+1)
-			path = path[:len(path)-1]
-		}
-	}
-
-	backtrack(n, k, 1)
-	return results
-}
-
-// 剪枝优化
-func combine2(n int, k int) [][]int {
-	var results [][]int
-	var path []int
-	var backtrack func(int, int, int)
-
-	backtrack = func(n, k, startIndex int) {
-		if len(path) == k {
-			results = append(results, append([]int{}, path...))
-			return
-		}
-		// 目标是选k个数，已经选了len(path)个数，还要选k-len(path)个数，找选哪个数之后后面的数就不够了？
-		for i := startIndex; i <= n; i++ {
-			// 判断从i开始所有数都选上，够不够k个数，i到n有n-i+1个数
 			if n-i+1+len(path) < k {
-				break
+				break // 剪枝优化
 			}
-			path = append(path, i)
-			backtrack(n, k, i+1)
-			path = path[:len(path)-1]
-		}
-	}
-	backtrack(n, k, 1)
-	return results
-}
-
-func combine3(n int, k int) [][]int {
-	var results [][]int
-	var path []int
-	var backtrack func(int, int, int)
-
-	backtrack = func(n, k, startIndex int) {
-		if len(path) == k {
-			results = append(results, append([]int{}, path...))
-			return
-		}
-		// 目标是选k个数，已经选了len(path)个数，还要选k-len(path)个数
-		for i := startIndex; i <= n-(k-len(path))+1; i++ {
 			path = append(path, i)
 			backtrack(n, k, i+1)
 			path = path[:len(path)-1]

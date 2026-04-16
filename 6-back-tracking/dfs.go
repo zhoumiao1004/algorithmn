@@ -52,10 +52,9 @@ func uniquePathsIII(grid [][]int) int {
 		if grid[i][j] == -1 {
 			return
 		}
-		if grid[i][j] == 2 {
-			if visitedCount == totalCount {
-				result++
-			}
+		if grid[i][j] == 2 && visitedCount == totalCount {
+			result++
+			return
 		}
 		// visited[i][j] = true
 		tmp := grid[i][j]
@@ -80,6 +79,49 @@ func uniquePathsIII(grid [][]int) int {
 // 输出：true
 // 思路: dfs, 穷举所有起点
 func exist(board [][]byte, word string) bool {
+	dirs := [][2]int{{-1, 0}, {1, 0}, {0, 1}, {0, -1}}
+	m, n := len(board), len(board[0])
+	k := 0
+	found := false
+
+	var dfs func(board [][]byte, i, j int)
+	dfs = func(board [][]byte, i, j int) {
+		if found {
+			return
+		}
+		if i < 0 || i >= m || j < 0 || j >= n {
+			return
+		}
+		if board[i][j] != word[k] {
+			return
+		}
+		if k == len(word)-1 {
+			found = true
+			return
+		}
+		k++
+		tmp := board[i][j]
+		board[i][j] = '-'
+		for _, dir := range dirs {
+			dfs(board, i+dir[0], j+dir[1])
+		}
+		board[i][j] = tmp
+		k--
+	}
+
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			found = false
+			dfs(board, i, j)
+			if found {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func exist2(board [][]byte, word string) bool {
 	found := false
 	var dfs func(board [][]byte, i, j, p int)
 
@@ -139,38 +181,28 @@ func exist(board [][]byte, word string) bool {
 // [0,9,0]]
 // 一种收集最多黄金的路线是：9 -> 8 -> 7。
 func getMaximumGold(grid [][]int) int {
+	dirs := [][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
 	m, n := len(grid), len(grid[0])
 	result := 0
 	s := 0
-	/* TODO 优化: 访问前将grid[i][j]赋值为0，访问后恢复
-	visited := make([][]bool, m)
-	for i := 0; i < m; i++ {
-		visited[i] = make([]bool, n)
-	} */
 	var dfs func(grid [][]int, i, j int)
+
 	dfs = func(grid [][]int, i, j int) {
-		m, n := len(grid), len(grid[0])
-		dirs := [][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
 		if i < 0 || i >= m || j < 0 || j >= n {
 			return
 		}
 		if grid[i][j] == 0 {
 			return
 		}
-		// if visited[i][j] { // 不走回头路
-		// 	return
-		// }
-		// 回溯算法框架：进入 (i, j)，做选择
-		// visited[i][j] = true
-		tmp := grid[i][j]
 		s += grid[i][j]
+		tmp := grid[i][j]
+		grid[i][j] = 0
 		result = max(result, s)
 		for _, dir := range dirs {
 			dfs(grid, i+dir[0], j+dir[1])
 		}
-		s -= grid[i][j]
-		// visited[i][j] = false
 		grid[i][j] = tmp
+		s -= grid[i][j]
 	}
 
 	// 穷举从所有可能起点出发
