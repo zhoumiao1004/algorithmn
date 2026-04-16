@@ -18,15 +18,16 @@ package main
 // 2. (0,0),(1,0),(2,0),(2,1),(1,1),(0,1),(0,2),(0,3),(1,3),(1,2),(2,2)
 func uniquePathsIII(grid [][]int) int {
 	m, n := len(grid), len(grid[0])
+	/* 优化: 临时修改grid[i][j]=-1，遍历完再改回来
 	visited := make([][]bool, m) // 标记是否已走过
 	for i := 0; i < m; i++ {
 		visited[i] = make([]bool, n)
-	}
+	} */
 	dirs := [][2]int{
-		{0, -1},  // 上
-		{0, 1},   // 下
-		{-1, -0}, // 左
-		{1, 0},   // 右
+		{0, -1},
+		{0, 1},
+		{-1, -0},
+		{1, 0},
 	}
 	// 找到起始位置
 	result := 0
@@ -48,7 +49,7 @@ func uniquePathsIII(grid [][]int) int {
 		if i < 0 || i >= m || j < 0 || j >= n {
 			return
 		}
-		if grid[i][j] == -1 || visited[i][j] {
+		if grid[i][j] == -1 {
 			return
 		}
 		if grid[i][j] == 2 {
@@ -56,12 +57,14 @@ func uniquePathsIII(grid [][]int) int {
 				result++
 			}
 		}
-		visited[i][j] = true // TODO：能否临时修改grid[i][j]=-1，遍历完再改回来？
+		// visited[i][j] = true
+		tmp := grid[i][j]
 		visitedCount++
 		for _, dir := range dirs {
 			dfs(grid, i+dir[0], j+dir[1])
 		}
-		visited[i][j] = false // TODO
+		// visited[i][j] = false // TODO
+		grid[i][j] = tmp
 		visitedCount--
 	}
 
@@ -195,10 +198,11 @@ func getMaximumGold(grid [][]int) int {
 	m, n := len(grid), len(grid[0])
 	result := 0
 	s := 0
+	/* TODO 优化: 访问前将grid[i][j]赋值为0，访问后恢复
 	visited := make([][]bool, m)
 	for i := 0; i < m; i++ {
 		visited[i] = make([]bool, n)
-	}
+	} */
 	var dfs func(grid [][]int, i, j int)
 	dfs = func(grid [][]int, i, j int) {
 		m, n := len(grid), len(grid[0])
@@ -209,18 +213,20 @@ func getMaximumGold(grid [][]int) int {
 		if grid[i][j] == 0 {
 			return
 		}
-		if visited[i][j] { // 不走回头路
-			return
-		}
+		// if visited[i][j] { // 不走回头路
+		// 	return
+		// }
 		// 回溯算法框架：进入 (i, j)，做选择
-		visited[i][j] = true
+		// visited[i][j] = true
+		tmp := grid[i][j]
 		s += grid[i][j]
 		result = max(result, s)
 		for _, dir := range dirs {
 			dfs(grid, i+dir[0], j+dir[1])
 		}
 		s -= grid[i][j]
-		visited[i][j] = false
+		// visited[i][j] = false
+		grid[i][j] = tmp
 	}
 
 	// 穷举从所有可能起点出发

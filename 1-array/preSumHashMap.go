@@ -11,34 +11,8 @@ import "fmt"
 // 输入：nums = [0,1,1,1,1,1,0,0,0]
 // 输出：6
 // 解释：[1,1,1,0,0,0] 是具有相同数量 0 和 1 的最长连续子数组。
-// 思路1: 把0当成-1，和为0的最长子数组
+// 思路1: 前缀和，把0当成-1，和为0的最长子数组
 func findMaxLength(nums []int) int {
-	n := len(nums)
-	preSum := make([]int, n+1) // preSum[i] 代表 [0..i-1]的区间和
-	for i := 1; i <= n; i++ {
-		if nums[i-1] == 0 {
-			preSum[i] = preSum[i-1] - 1
-		} else {
-			preSum[i] = preSum[i-1] + 1
-		}
-	}
-
-	result := 0
-	indexMap := make(map[int]int)
-	for i := 0; i <= n; i++ {
-		// 查看hashmap中是否已经存在左边界
-		index, ok := indexMap[preSum[i]]
-		if !ok {
-			indexMap[preSum[i]] = i // key不存在：保存左边界
-		} else {
-			result = max(result, i-index) // key已存在：更新结果 (不能覆盖value，因为要求最大长度)
-		}
-	}
-
-	return result
-}
-
-func findMaxLength2(nums []int) int {
 	n := len(nums)
 	preSum := make([]int, n+1) // preSum[i] 代表 [0..i-1]的区间和
 	result := 0
@@ -59,6 +33,11 @@ func findMaxLength2(nums []int) int {
 		}
 	}
 	return result
+}
+
+// 思路2: 滑动窗口
+func findMaxLength2(nums []int) int {
+	// TODO
 }
 
 // 523. 连续的子数组和
