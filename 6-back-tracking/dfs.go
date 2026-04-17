@@ -18,18 +18,7 @@ package main
 // 2. (0,0),(1,0),(2,0),(2,1),(1,1),(0,1),(0,2),(0,3),(1,3),(1,2),(2,2)
 func uniquePathsIII(grid [][]int) int {
 	m, n := len(grid), len(grid[0])
-	/* 优化: 临时修改grid[i][j]=-1，遍历完再改回来
-	visited := make([][]bool, m) // 标记是否已走过
-	for i := 0; i < m; i++ {
-		visited[i] = make([]bool, n)
-	} */
-	dirs := [][2]int{
-		{0, -1},
-		{0, 1},
-		{-1, -0},
-		{1, 0},
-	}
-	// 找到起始位置
+	dirs := [][2]int{{0, -1}, {0, 1}, {-1, -0}, {1, 0}}
 	result := 0
 	visitedCount, totalCount := 0, 0
 	startx, starty := 0, 0
@@ -56,13 +45,12 @@ func uniquePathsIII(grid [][]int) int {
 			result++
 			return
 		}
-		// visited[i][j] = true
 		tmp := grid[i][j]
+		grid[i][j] = -1
 		visitedCount++
 		for _, dir := range dirs {
 			dfs(grid, i+dir[0], j+dir[1])
 		}
-		// visited[i][j] = false // TODO
 		grid[i][j] = tmp
 		visitedCount--
 	}
