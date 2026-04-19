@@ -6,6 +6,94 @@ import (
 	"strings"
 )
 
+// 131.分割回文串
+// https://leetcode.cn/problems/palindrome-partitioning/description/
+// 输入：s = "aab" 输出：[["a","a","b"],["aa","b"]]
+func partition(s string) [][]string {
+	var results [][]string
+	var path []string
+	var backtrack func(s string, start int)
+	var isPalindrome func(s string) bool
+
+	isPalindrome = func(s string) bool {
+		left, right := 0, len(s)-1
+		for left < right {
+			if s[left] != s[right] {
+				return false
+			}
+			left++
+			right--
+		}
+		return true
+	}
+
+	backtrack = func(s string, start int) {
+		if start == len(s) {
+			results = append(results, append([]string{}, path...))
+			return
+		}
+		for i := start; i < len(s); i++ {
+			if !isPalindrome(s[start : i+1]) {
+				continue // 剪枝：分割出的子串不是回文串
+			}
+			path = append(path, s[start:i+1])
+			backtrack(s, i+1)
+			path = path[:len(path)-1]
+		}
+	}
+
+	backtrack(s, 0)
+	return results
+}
+
+// 93.复原IP地址
+// https://leetcode.cn/problems/restore-ip-addresses/description/
+// 输入：s = "25525511135"
+// 输出：["255.255.11.135","255.255.111.35"]
+// 有效 IP 地址 正好由四个整数（每个整数位于 0 到 255 之间组成，且不能含有前导 0），整数之间用 '.' 分隔。
+// 转换为3个.放在哪几个位置，能放[1,len(s)-1]
+func restoreIpAddresses(s string) []string {
+	var results []string
+	var path []string
+	var isValidIp func(s string) bool
+	var backtrack func(s string, startIndex int)
+
+	isValidIp = func(s string) bool {
+		// 不能前导0
+		if len(s) > 1 && s[0] == '0' {
+			return false
+		}
+		// 0-255之间
+		n, _ := strconv.Atoi(s)
+		return n <= 255
+	}
+
+	backtrack = func(s string, startIndex int) {
+		if startIndex == len(s) && len(path) == 4 {
+			results = append(results, strings.Join(path, "."))
+			return
+		}
+		for i := startIndex; i < len(s); i++ {
+			ip := s[startIndex : i+1]
+			if isValidIp(ip) {
+				path = append(path, ip)
+				backtrack(s, i+1)
+				path = path[:len(path)-1]
+			}
+		}
+	}
+
+	backtrack(s, 0)
+	return results
+}
+
+// 332. 重新安排行程
+// https://leetcode.cn/problems/reconstruct-itinerary/
+func findItinerary(tickets [][]string) []string {
+	var results []string
+	return results
+}
+
 // 22. 括号生成
 // https://leetcode.cn/problems/generate-parentheses/description/
 // 数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。
@@ -128,6 +216,7 @@ func countArrangement(n int) int {
 	var backtrack func(n, index int)
 	backtrack = func(n, index int) {
 		if index > n {
+			fmt.Println(path)
 			result++
 			return
 		}
@@ -143,6 +232,39 @@ func countArrangement(n int) int {
 			used[elem] = true
 			path = append(path, elem)
 			backtrack(n, index+1)
+			path = path[:len(path)-1]
+			used[elem] = false
+		}
+	}
+
+	backtrack(n, 1)
+	return result
+}
+
+// 思路2: 元素视角, 站在元素视角选索引
+func countArrangement2(n int) int {
+	result := 0
+	used := make([]bool, n+1)
+	var path []int
+	var backtrack func(n, start int)
+	backtrack = func(n, start int) {
+		if start > n {
+			fmt.Println(path)
+			result++
+			return
+		}
+
+		for i := 1; i <= n; i++ {
+			if used[i] {
+				continue
+			}
+			if !(index%elem == 0 || elem%index == 0) {
+				continue
+			}
+			// 做选择，index选elem
+			used[elem] = true
+			path = append(path, elem)
+			backtrack(n, num)
 			path = path[:len(path)-1]
 			used[elem] = false
 		}
@@ -270,5 +392,7 @@ func splitString(s string) bool {
 }
 
 func main() {
-	fmt.Println(numsSameConsecDiff(3, 7))
+	fmt.Println(countArrangement(2))
+	fmt.Println(partition("aab"))
+	fmt.Println(restoreIpAddresses("25525511135"))
 }

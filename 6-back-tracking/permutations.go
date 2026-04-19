@@ -140,6 +140,7 @@ func permuteUnique(nums []int) [][]int {
 // 输入：n = 3, k = 7
 // 输出：[181,292,707,818,929]
 // 解释：注意，070 不是一个有效的数字，因为它有前导零。
+// 思路：元素无重可复选的排列
 func numsSameConsecDiff(n int, k int) []int {
 	var results []int
 	var path []int
@@ -175,4 +176,5 @@ func numsSameConsecDiff(n int, k int) []int {
 func main() {
 	fmt.Println(permute([]int{1, 2, 3}))
 	fmt.Println(permuteUnique([]int{1, 1, 2}))
+	fmt.Println(numsSameConsecDiff(3, 7))
 }

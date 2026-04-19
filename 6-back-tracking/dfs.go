@@ -20,7 +20,7 @@ func uniquePathsIII(grid [][]int) int {
 	m, n := len(grid), len(grid[0])
 	dirs := [][2]int{{0, -1}, {0, 1}, {-1, -0}, {1, 0}}
 	result := 0
-	visitedCount, totalCount := 0, 0
+	cnt, target := 0, 0
 	startx, starty := 0, 0
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
@@ -28,7 +28,7 @@ func uniquePathsIII(grid [][]int) int {
 				startx, starty = i, j
 			}
 			if grid[i][j] == 1 || grid[i][j] == 0 {
-				totalCount++
+				target++
 			}
 		}
 	}
@@ -41,18 +41,18 @@ func uniquePathsIII(grid [][]int) int {
 		if grid[i][j] == -1 {
 			return
 		}
-		if grid[i][j] == 2 && visitedCount == totalCount {
+		if grid[i][j] == 2 && cnt == target {
 			result++
 			return
 		}
 		tmp := grid[i][j]
 		grid[i][j] = -1
-		visitedCount++
+		cnt++
 		for _, dir := range dirs {
 			dfs(grid, i+dir[0], j+dir[1])
 		}
 		grid[i][j] = tmp
-		visitedCount--
+		cnt--
 	}
 
 	dfs(grid, startx, starty)
