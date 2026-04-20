@@ -34,7 +34,6 @@ func uniquePathsIII(grid [][]int) int {
 	}
 	var dfs func(grid [][]int, i, j int)
 	dfs = func(grid [][]int, i, j int) {
-		m, n := len(grid), len(grid[0])
 		if i < 0 || i >= m || j < 0 || j >= n {
 			return
 		}

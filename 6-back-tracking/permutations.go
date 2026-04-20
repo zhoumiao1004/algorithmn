@@ -37,7 +37,8 @@ func permute(nums []int) [][]int {
 	return results
 }
 
-// 使用swap更高效
+// 思路2: swap，start含义：是nums数组中每个索引位置，选择不同的元素放入这个索引位置。
+// start之前的元素已经心有所属，被其他位置挑走了。所以stat位置只能从nums[start...]中选择元素
 func permute2(nums []int) [][]int {
 	var results [][]int
 	var backtrack func(nums []int, start int)

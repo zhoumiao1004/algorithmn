@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -138,11 +139,8 @@ func generateParenthesis(n int) []string {
 // 输入： nums = [4, 3, 2, 3, 5, 2, 1], k = 4
 // 输出： True
 // 说明： 有可能将其分成 4 个子集（5），（1,4），（2,3），（2,3）等于总和。
-// 思路：形式2: 元素有重,不可复选
+// 思路：形式2: 元素有重,不可复选。桶视角选球，n个球，每个球又取或不取2种选择，k个桶，所以复杂度=k*2^n
 func canPartitionKSubsets(nums []int, k int) bool {
-	if k > len(nums) {
-		return false
-	}
 	sum := 0
 	for _, v := range nums {
 		sum += v
@@ -152,35 +150,42 @@ func canPartitionKSubsets(nums []int, k int) bool {
 	}
 	target := sum / k
 
-	visited := make([]bool, len(nums))
-	s := 0
-	var backtrack func(nums []int, k, start int) bool
-	backtrack = func(nums []int, k, start int) bool {
+	used := make([]bool, len(nums))
+	memo := make(map[string]bool)
+	var backtrack func(nums []int, k, s, start int) bool
+	backtrack = func(nums []int, k, s, start int) bool {
 		if k == 0 {
 			return true
 		}
+		data, _ := json.Marshal(used)
+		state := string(data)
 		if s == target {
-			return backtrack(nums, k-1, 0)
+			res := backtrack(nums, k-1, 0, 0)
+			memo[state] = res
+			return res
+		}
+		if _, ok := memo[state]; ok {
+			return memo[state]
 		}
 		for i := start; i < len(nums); i++ {
-			if visited[i] {
+			if used[i] {
 				continue
 			}
-			if s+nums[i] > target { // 也可以放在for条件里
+			if s+nums[i] > target {
 				continue
 			}
-			visited[i] = true
+			used[i] = true
 			s += nums[i]
-			if backtrack(nums, k, i+1) {
+			if backtrack(nums, k, s, i+1) {
 				return true
 			}
 			s -= nums[i]
-			visited[i] = false
+			used[i] = false
 		}
 		return false
 	}
 
-	return backtrack(nums, k, 0)
+	return backtrack(nums, k, 0, 0)
 }
 
 // 473. 火柴拼正方形
@@ -304,73 +309,9 @@ func grayCode(n int) []int {
 	return result
 }
 
-// 1849. 将字符串拆分为递减的连续值
-// https://leetcode.cn/problems/splitting-a-string-into-descending-consecutive-values/description/
-// 给你一个仅由数字组成的字符串 s 。
-// 请你判断能否将 s 拆分成两个或者多个 非空子字符串 ，使子字符串的 数值 按 降序 排列，且每两个 相邻子字符串 的数值之 差 等于 1 。
-// 例如，字符串 s = "0090089" 可以拆分成 ["0090", "089"] ，数值为 [90,89] 。这些数值满足按降序排列，且相邻值相差 1 ，这种拆分方法可行。
-// 另一个例子中，字符串 s = "001" 可以拆分成 ["0", "01"]、["00", "1"] 或 ["0", "0", "1"] 。然而，所有这些拆分方法都不可行，因为对应数值分别是 [0,1]、[0,1] 和 [0,0,1] ，都不满足按降序排列的要求。
-// 如果可以按要求拆分 s ，返回 true ；否则，返回 false 。
-// 子字符串 是字符串中的一个连续字符序列。
-// 输入：s = "1234"
-// 输出：false
-// 解释：不存在拆分 s 的可行方法。
-// 输入：s = "050043"
-// 输出：true
-// 解释：s 可以拆分为 ["05", "004", "3"] ，对应数值为 [5,4,3] 。
-// 满足按降序排列，且相邻值相差 1 。
-// 思路1: 站在字符的视角进行穷举
-func splitString(s string) bool {
-	found := false
-	var path []string
-	var parseInt func(s string) int64
-	parseInt = func(s string) int64 {
-		num, _ := strconv.ParseInt(s, 10, 64)
-		return num
-	}
-	var backtrack func(s string, start, index int)
-
-	backtrack = func(s string, start, index int) {
-		if found {
-			return
-		}
-		if index == len(s) {
-			if len(path) >= 2 && strings.Join(path, "") == s {
-				found = true
-			}
-			return
-		}
-		// 选择一，s[index] 决定切割
-		subStr := s[start : index+1]
-		leadingZeroCount := 0
-		for j := 0; j < len(subStr); j++ {
-			if subStr[j] == '0' {
-				leadingZeroCount++
-			} else {
-				break
-			}
-		}
-		if len(subStr)-leadingZeroCount > (len(s)+1)/2 {
-			return // 剪枝逻辑，如果当前截取的子串长度大于 s 的一半，那么没必要继续截取了，肯定不可能只差一，同时可以避免溢出 long 的最大值的问题
-		}
-
-		if len(path) == 0 || parseInt(path[len(path)-1])-parseInt(subStr) == 1 {
-			// 符合题目的要求，当前数字比上一个数字小 1。做选择，切割出一个子串
-			path = append(path, subStr)
-			backtrack(s, index+1, index+1)
-			path = path[:len(path)-1]
-		}
-
-		// 选择二，s[index] 决定不切割
-		backtrack(s, start, index+1)
-	}
-
-	backtrack(s, 0, 0)
-	return found
-}
-
 func main() {
 	fmt.Println(countArrangement(2))
 	fmt.Println(partition("aab"))
 	fmt.Println(restoreIpAddresses("25525511135"))
+	fmt.Println(canPartitionKSubsets([]int{2, 2, 2, 2, 3, 4, 5}, 4))
 }
