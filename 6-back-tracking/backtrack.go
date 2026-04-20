@@ -216,7 +216,6 @@ func countArrangement(n int) int {
 	var backtrack func(n, index int)
 	backtrack = func(n, index int) {
 		if index > n {
-			fmt.Println(path)
 			result++
 			return
 		}
@@ -244,30 +243,9 @@ func countArrangement(n int) int {
 // 思路2: 元素视角, 站在元素视角选索引
 func countArrangement2(n int) int {
 	result := 0
-	used := make([]bool, n+1)
-	var path []int
 	var backtrack func(n, start int)
 	backtrack = func(n, start int) {
-		if start > n {
-			fmt.Println(path)
-			result++
-			return
-		}
 
-		for i := 1; i <= n; i++ {
-			if used[i] {
-				continue
-			}
-			if !(index%elem == 0 || elem%index == 0) {
-				continue
-			}
-			// 做选择，index选elem
-			used[elem] = true
-			path = append(path, elem)
-			backtrack(n, num)
-			path = path[:len(path)-1]
-			used[elem] = false
-		}
 	}
 
 	backtrack(n, 1)
