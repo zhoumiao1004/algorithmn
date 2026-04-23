@@ -19,8 +19,26 @@ func removeInvalidParentheses(s string) []string {
 	var backtrack func(start int)
 
 	isValid = func(s string) bool {
+		cnt := 0
+		for i := 0; i < len(s); i++ {
+			if s[i] == '(' {
+				cnt++
+			} else if s[i] == ')' {
+				cnt--
+			}
+			if cnt < 0 {
+				return false
+			}
+		}
+		return cnt == 0
+	}
+	/* var isValid2 func(s string) bool
+	isValid2 = func(s string) bool {
 		var st []byte
 		for i := 0; i < len(s); i++ {
+			if s[i] != '(' && s[i] != ')' {
+				continue
+			}
 			if s[i] == '(' {
 				st = append(st, s[i])
 			} else {
@@ -30,8 +48,8 @@ func removeInvalidParentheses(s string) []string {
 				st = st[:len(st)-1]
 			}
 		}
-		return true
-	}
+		return len(st) == 0
+	}*/
 
 	backtrack = func(start int) {
 		if start == len(s) {
@@ -72,16 +90,6 @@ func removeInvalidParentheses(s string) []string {
 		}
 	}
 	return finalRes
-	/* 这种写法有重复
-	maxLen := 0
-	lenToRes := make(map[int][]string)
-	for _, s := range res {
-		length := len(s)
-		lenToRes[length] = append(lenToRes[length], s)
-		maxLen = max(maxLen, length)
-	}
-	fmt.Println(maxLen)
-	return lenToRes[maxLen]*/
 }
 
 // 2850. 将石头分散到网格图的最少移动次数

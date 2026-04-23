@@ -13,11 +13,19 @@ func kthSmallest(root *TreeNode, k int) int {
 		if node == nil {
 			return
 		}
+		if k == 0 {
+			return
+		}
 		traverse(node.Left)
 		// 中序位置
-		if k > 0 {
+		// if k > 0 {
+		// 	result = node.Val
+		// 	k--
+		// }
+		k--
+		if k == 0 {
 			result = node.Val
-			k--
+			return
 		}
 		traverse(node.Right)
 	}
@@ -137,8 +145,7 @@ func isValidBST(root *TreeNode) bool {
 // 思路2：中序遍历有序
 func isValidBST2(root *TreeNode) bool {
 	isValid := true
-	var prev *TreeNode
-
+	prev := math.MinInt
 	var traverse func(node *TreeNode)
 
 	traverse = func(node *TreeNode) {
@@ -147,10 +154,10 @@ func isValidBST2(root *TreeNode) bool {
 		}
 		traverse(node.Left)
 		// 中序位置
-		if prev != nil && prev.Val >= node.Val {
+		if node.Val <= prev {
 			isValid = false
 		}
-		prev = node
+		prev = node.Val
 		traverse(node.Right)
 	}
 

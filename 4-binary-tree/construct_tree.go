@@ -66,6 +66,11 @@ func buildTreeFromPreInOrder(preorder []int, inorder []int) *TreeNode {
 	// 中
 	root := &TreeNode{Val: preorder[0]}
 	i := 0
+	/*for ; i<len(inorder); i++ {
+	    if inorder[i] == preorder[0] {
+	        break
+	    }
+	}*/
 	for inorder[i] != preorder[0] {
 		i++
 	}

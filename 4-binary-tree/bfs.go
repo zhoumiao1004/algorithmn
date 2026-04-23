@@ -14,7 +14,7 @@ type TreeNode struct {
 // 层序遍历3种写法
 // 写法3：假设如果每条树枝的权重可以是任意值，现在让你层序遍历整棵树，打印每个节点的路径权重和，你会怎么做？
 // 这样的话，同一层节点的路径权重和就不一定相同了，写法二这样只维护一个 depth 变量就无法满足需求了。
-func levelOrderTraverse(root *TreeNode) [][]int {
+func levelOrder3(root *TreeNode) [][]int {
 	type State struct {
 		node  *TreeNode
 		depth int

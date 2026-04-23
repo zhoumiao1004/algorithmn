@@ -11,11 +11,12 @@ import (
 3.单层递归逻辑（横向取数，纵向递归）
 */
 
+/*** 情况1: 元素无重不可复选 ***/
+
 // 77. 组合 给定两个整数 n 和 k，返回范围 [1, n] 中所有可能的 k 个数的组合。
 // https://leetcode.cn/problems/combinations/description/
 // 输入：n = 4, k = 2 输出：[[2,4],[3,4],[2,3],[1,2],[1,3],[1,4]]
 // 求组合，每个数只能取一次。
-// 情况1: 元素无重不可复选
 func combine(n int, k int) [][]int {
 	var results [][]int
 	var path []int
@@ -97,7 +98,8 @@ func letterCombinations(digits string) []string {
 	return results
 }
 
-/** 元素无重可复选 **/
+/** 情况2: 元素无重可复选 **/
+
 // 39. 组合总和
 // https://leetcode.cn/problems/combination-sum/description/
 // 给定一个无重复元素的数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。
@@ -160,7 +162,8 @@ func combinationSum(candidates []int, target int) [][]int {
 	return results
 }
 
-/** 元素可重不可复选 **/
+/** 情况3: 元素可重不可复选 **/
+
 // 40. 组合总和 II
 // https://leetcode.cn/problems/combination-sum-ii/description/
 // LCR 082. 组合总和 II https://leetcode.cn/problems/4sjJUc/description/

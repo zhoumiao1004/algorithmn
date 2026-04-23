@@ -225,15 +225,16 @@ func numSquarefulPerms(nums []int) int {
 func letterCasePermutation(s string) []string {
 	var result []string
 	var path string
-	var backtrack func(s string, i int)
-	backtrack = func(s string, i int) {
+	var backtrack func(i int)
+
+	backtrack = func(i int) {
 		if i == len(s) {
 			result = append(result, path)
 			return
 		}
 		if s[i] >= '0' && s[i] <= '9' {
 			path += string(s[i])
-			backtrack(s, i+1)
+			backtrack(i + 1)
 			path = path[:len(path)-1]
 		} else {
 			// 不转变大小写 or 转变大小写
@@ -241,13 +242,13 @@ func letterCasePermutation(s string) []string {
 			upper := strings.ToUpper(string(s[i]))
 			for _, str := range []string{lower, upper} {
 				path += str
-				backtrack(s, i+1)
+				backtrack(i + 1)
 				path = path[:len(path)-1]
 			}
 		}
 	}
 
-	backtrack(s, 0)
+	backtrack(0)
 	return result
 }
 
@@ -280,7 +281,7 @@ func shoppingOffers(price []int, special [][]int, needs []int) int {
 	}
 	var canUseSpecial func(sp, needs []int) bool
 	canUseSpecial = func(sp, needs []int) bool {
-		for i := 0; i<len(needs); i++ {
+		for i := 0; i < len(needs); i++ {
 			if sp[i] > needs[i] {
 				return false
 			}
@@ -289,7 +290,6 @@ func shoppingOffers(price []int, special [][]int, needs []int) int {
 	}
 
 	minCost := math.MaxInt
-	trackCost := 0
 	cost := 0
 	specials := filterSpecials(price, special)
 	var backtrack func(start int)
@@ -298,31 +298,33 @@ func shoppingOffers(price []int, special [][]int, needs []int) int {
 			return
 		}
 		useSpecial := false
-		for i := start; i<len(specials); i++ {
+		for i := start; i < len(specials); i++ {
 			sp := specials[i]
 			if !canUseSpecial(sp, needs) {
 				continue
 			}
 			useSpecial = true
 			// 买 specials[i] 这个大礼包
-			for j := 0; j<len(needs); j++ {
+			for j := 0; j < len(needs); j++ {
 				needs[j] -= sp[j]
 			}
-			trackCost += sp[len(sp)-1]
-			backtrack(i)
+			cost += sp[len(sp)-1]
+			backtrack(i) // 一个大礼包能买多次
 			// 撤销买 specials[i] 这个大礼包
-			for j := 0; j<len(needs); j++ {
+			for j := 0; j < len(needs); j++ {
 				needs[j] += sp[j]
 			}
-			trackCost -= sp[len(sp)-1]
+			cost -= sp[len(sp)-1]
 		}
 		if !useSpecial {
+			// 无法购买剩余的大礼包specials[start...]，剩下的只能单买
 			s := 0
-			for i := 0; i<len(needs); i++ {
+			for i := 0; i < len(needs); i++ {
 				s += price[i] * needs[i]
 			}
-			minCost = min(minCost, s + trackCost)
+			minCost = min(minCost, cost+s)
 		}
+
 	}
 
 	backtrack(0)

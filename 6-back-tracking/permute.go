@@ -145,9 +145,9 @@ func permuteUnique(nums []int) [][]int {
 func numsSameConsecDiff(n int, k int) []int {
 	var results []int
 	var path []int
-	var backtrack func(n, k int)
+	var backtrack func()
 
-	backtrack = func(n, k int) {
+	backtrack = func() {
 		// 满足长度n条件，收集结果
 		if len(path) == n {
 			s := 0
@@ -165,12 +165,12 @@ func numsSameConsecDiff(n int, k int) []int {
 				continue // 相差不为k
 			}
 			path = append(path, i)
-			backtrack(n, k)
+			backtrack()
 			path = path[:len(path)-1]
 		}
 	}
 
-	backtrack(n, k)
+	backtrack()
 	return results
 }
 

@@ -20,7 +20,7 @@ import (
 // 输出：[[2,4],[4]]
 // 思路1: 后序
 func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
-	var result []*TreeNode
+	var res []*TreeNode
 	memo := make(map[string]int)
 	var serialize func(node *TreeNode) string
 
@@ -30,17 +30,17 @@ func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
 		}
 		left := serialize(node.Left)
 		right := serialize(node.Right)
-		s := fmt.Sprintf("%d,%d,%d", left, right, node.Val)
+		s := fmt.Sprintf("%d,%s,%s", node.Val, left, right)
 		// 后序位置，顺便计算是否存在重复子树
 		if memo[s] == 1 {
-			result = append(result, node)
+			res = append(res, node)
 		}
 		memo[s]++
 		return s
 	}
 
 	serialize(root)
-	return result
+	return res
 }
 
 // 思路2: 遍历
@@ -56,7 +56,7 @@ func findDuplicateSubtrees3(root *TreeNode) []*TreeNode {
 		}
 		left := serialize(node.Left)
 		right := serialize(node.Right)
-		return fmt.Sprintf("%d,%d,%d", left, right, node.Val)
+		return fmt.Sprintf("%d,%s,%s", node.Val, left, right)
 	}
 
 	traverse = func(node *TreeNode) {

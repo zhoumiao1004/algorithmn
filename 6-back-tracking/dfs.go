@@ -40,8 +40,10 @@ func uniquePathsIII(grid [][]int) int {
 		if grid[i][j] == -1 {
 			return
 		}
-		if grid[i][j] == 2 && cnt == target {
-			result++
+		if grid[i][j] == 2 {
+			if cnt == target {
+				result++
+			}
 			return
 		}
 		tmp := grid[i][j]

@@ -9,11 +9,8 @@ func invertTree(root *TreeNode) *TreeNode {
 	}
 	left := invertTree(root.Left)   // 左
 	right := invertTree(root.Right) // 右
-
 	// 后序位置
-	root.Left = right
-	root.Right = left
-
+	root.Left, root.Right = right, left
 	return root
 }
 
