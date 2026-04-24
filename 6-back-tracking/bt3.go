@@ -12,7 +12,6 @@ import (
 // 输入：s = "()())()"
 // 输出：["(())()","()()()"]
 func removeInvalidParentheses(s string) []string {
-
 	var res []string
 	var path string
 	var isValid func(s string) bool
@@ -32,25 +31,6 @@ func removeInvalidParentheses(s string) []string {
 		}
 		return cnt == 0
 	}
-	/* var isValid2 func(s string) bool
-	isValid2 = func(s string) bool {
-		var st []byte
-		for i := 0; i < len(s); i++ {
-			if s[i] != '(' && s[i] != ')' {
-				continue
-			}
-			if s[i] == '(' {
-				st = append(st, s[i])
-			} else {
-				if len(st) == 0 || st[len(st)-1] != '(' {
-					return false
-				}
-				st = st[:len(st)-1]
-			}
-		}
-		return len(st) == 0
-	}*/
-
 	backtrack = func(start int) {
 		if start == len(s) {
 			if isValid(path) {
@@ -76,17 +56,80 @@ func removeInvalidParentheses(s string) []string {
 
 	backtrack(0)
 	// 筛选出最长的有效括号字符串
-	set := make(map[string]bool)
 	maxLen := 0
-	for _, s := range res {
-		maxLen = max(maxLen, len(s))
-		set[s] = true
+	set := make(map[string]bool) // 去重
+	for _, r := range res {
+		set[r] = true
+		maxLen = max(maxLen, len(r))
 	}
-
 	var finalRes []string
 	for s := range set {
 		if len(s) == maxLen {
 			finalRes = append(finalRes, s)
+		}
+	}
+	return finalRes
+}
+
+func removeInvalidParentheses2(s string) []string {
+	var res []string
+	var path string
+	set := make(map[string]bool)
+	var isValid func(s string) bool
+	var backtrack func(start int)
+
+	isValid = func(s string) bool {
+		var st []byte
+		for i := 0; i < len(s); i++ {
+			if s[i] != '(' && s[i] != ')' {
+				continue
+			}
+			if s[i] == '(' {
+				st = append(st, s[i])
+			} else {
+				if len(st) == 0 || st[len(st)-1] != '(' {
+					return false
+				}
+				st = st[:len(st)-1]
+			}
+		}
+		return len(st) == 0
+	}
+
+	backtrack = func(start int) {
+		if start == len(s) {
+			if isValid(path) && !set[path] {
+				res = append(res, path)
+				set[path] = true
+			}
+			return
+		}
+		c := s[start]
+		if c != '(' && c != ')' {
+			// 非括号，英文字符，直接加入
+			path += string(c)
+			backtrack(start + 1)
+			path = path[:len(path)-1]
+		} else {
+			// 情况1: 加入path，即不删除括号
+			path += string(c)
+			backtrack(start + 1)
+			path = path[:len(path)-1]
+			// 情况2: 不加入path，即删除括号
+			backtrack(start + 1)
+		}
+	}
+
+	backtrack(0)
+	// 筛选出最长的有效括号字符串
+	maxLen := 0
+	var finalRes []string
+	for s := range set {
+		if len(s) == maxLen {
+			finalRes = append(finalRes, s)
+		} else if len(s) > maxLen {
+			finalRes = []string{s}
+			maxLen = len(s)
 		}
 	}
 	return finalRes
@@ -136,7 +179,7 @@ func minimumMoves(grid [][]int) int {
 			}
 			for _, e := range empty {
 				x2, y2 := e[0], e[1]
-				if grid[x2][y2] != 0 {
+				if grid[x2][y2] == 1 {
 					continue
 				}
 				step := int(math.Abs(float64(x1-x2)) + math.Abs(float64(y1-y2)))

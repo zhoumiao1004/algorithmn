@@ -33,6 +33,35 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 	return left
 }
 
+func lowestCommonAncestor2(root, p, q *TreeNode) *TreeNode {
+	var lca *TreeNode
+	var find func(root, p, q *TreeNode) *TreeNode
+	find = func(root, p, q *TreeNode) *TreeNode {
+		if root == nil {
+			return nil
+		}
+		if root == p || root == q {
+			return root // 找到就向上返回
+		}
+		if lca != nil {
+			return nil
+		}
+		left := lowestCommonAncestor(root.Left, p, q)   // 左
+		right := lowestCommonAncestor(root.Right, p, q) // 右
+		// 后序位置，根据左右子树的结果，计算以 root 为根的二叉树中，p和q的最近公共祖先
+		if left != nil && right != nil {
+			lca = root
+			return root
+		}
+		if left == nil {
+			return right
+		}
+		return left
+	}
+	
+	return find(root, p, q)
+}
+
 // 235. 二叉搜索树的最近公共祖先
 // https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/description/
 // 输入: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
