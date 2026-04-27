@@ -21,8 +21,9 @@ type NumArray struct {
 }
 
 func Constructor(nums []int) NumArray {
-	preSum := make([]int, len(nums)+1)
-	for i := 1; i < len(preSum); i++ {
+	n := len(nums)
+	preSum := make([]int, n+1)
+	for i := 1; i <= n; i++ {
 		preSum[i] = preSum[i-1] + nums[i-1]
 	}
 	return NumArray{PreSum: preSum}
