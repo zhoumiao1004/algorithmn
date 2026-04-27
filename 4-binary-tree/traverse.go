@@ -102,6 +102,29 @@ func rightSideView(root *TreeNode) []int {
 	return result
 }
 
+func rightSideView1(root *TreeNode) []int {
+	var result []int
+	maxDepth := math.MinInt
+	depth := 0
+	var traverse func(root *TreeNode)
+	traverse = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+		depth++
+		if depth > maxDepth {
+			result = append(result, root.Val)
+			maxDepth = depth
+		}
+		traverse(root.Right)
+		traverse(root.Left)
+		depth--
+	}
+
+	traverse(root)
+	return result
+}
+
 // 思路2: BFS层序遍历
 func rightSideView2(root *TreeNode) []int {
 	var results []int
@@ -241,6 +264,35 @@ func pseudoPalindromicPaths(root *TreeNode) int {
 	return result
 }
 
+func pseudoPalindromicPaths2(root *TreeNode) int {
+	result := 0
+	valToCnt := make(map[int]int)
+	var traverse func(root *TreeNode)
+	traverse = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+		valToCnt[root.Val]++
+		if root.Left == nil && root.Right == nil {
+			oddCnt := 0
+			for _, cnt := range valToCnt {
+				if cnt%2 == 1 {
+					oddCnt++
+				}
+			}
+			if oddCnt <= 1 {
+				result++
+			}
+		}
+		traverse(root.Left)
+		traverse(root.Right)
+		valToCnt[root.Val]--
+	}
+
+	traverse(root)
+	return result
+}
+
 // 404.左叶子之和
 // https://leetcode.cn/problems/sum-of-left-leaves/
 // 输入: root = [3,9,20,null,null,15,7]
@@ -248,7 +300,7 @@ func pseudoPalindromicPaths(root *TreeNode) int {
 // 关键问题：如何知道遍历的节点是左叶子？两种思路：1.上一层父节点传入isLeft，节点层判断 2.在父节点判断是否有左叶子
 // 思路1: 传入isLeft给下一层
 func sumOfLeftLeaves(root *TreeNode) int {
-	s := 0
+	res := 0
 	var traverse func(*TreeNode, bool)
 
 	traverse = func(node *TreeNode, isLeft bool) {
@@ -256,17 +308,14 @@ func sumOfLeftLeaves(root *TreeNode) int {
 			return
 		}
 		if node.Left == nil && node.Right == nil && isLeft {
-			s += node.Val
+			res += node.Val
 		}
 		traverse(node.Left, true)
 		traverse(node.Right, false)
 	}
 
-	if root == nil {
-		return 0
-	}
 	traverse(root, false)
-	return s
+	return res
 }
 
 // 思路2: 在父节点检查左孩子是不是叶子节点
@@ -307,6 +356,30 @@ func sumOfLeftLeaves2(root *TreeNode) int {
 // 输入: root = [4,2,6,3,1,5], val = 1, depth = 2
 // 输出: [4,1,1,2,null,null,6,3,1,5]
 func addOneRow(root *TreeNode, val int, depth int) *TreeNode {
+	curDepth := 0
+	var traverse func(root *TreeNode)
+	traverse = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+		curDepth++
+		if curDepth == depth-1 {
+			left := &TreeNode{Val: val, Left: root.Left}
+			right := &TreeNode{Val: val, Right: root.Right}
+			root.Left, root.Right = left, right
+		}
+		traverse(root.Left)
+		traverse(root.Right)
+		curDepth--
+	}
+	if depth == 1 {
+		return &TreeNode{Val: val, Left: root}
+	}
+	traverse(root)
+	return root
+}
+
+func addOneRow2(root *TreeNode, val int, depth int) *TreeNode {
 	if root == nil {
 		return nil
 	}
@@ -316,10 +389,9 @@ func addOneRow(root *TreeNode, val int, depth int) *TreeNode {
 			return
 		}
 		if level == depth-1 {
-			newLeft := &TreeNode{Val: val, Left: node.Left}
-			newRight := &TreeNode{Val: val, Right: node.Right}
-			node.Left = newLeft
-			node.Right = newRight
+			left := &TreeNode{Val: val, Left: node.Left}
+			right := &TreeNode{Val: val, Right: node.Right}
+			node.Left, node.Right = left, right
 			return
 		}
 		traverse(node.Left, level+1)
@@ -363,6 +435,37 @@ func flipMatchVoyage(root *TreeNode, voyage []int) []int {
 		return results
 	}
 	return []int{-1}
+}
+
+func flipMatchVoyage2(root *TreeNode, voyage []int) []int {
+	canFlip := true
+	var res []int
+	var path []int
+	var traverse func(root *TreeNode)
+
+	traverse = func(root *TreeNode) {
+		if root == nil || !canFlip {
+			return
+		}
+		path = append(path, root.Val)
+		if root.Val != voyage[len(path)-1] {
+			canFlip = false
+			return
+		}
+		// 根的值和前序匹配
+		if root.Left != nil && root.Left.Val != voyage[len(path)] {
+			root.Left, root.Right = root.Right, root.Left
+			res = append(res, root.Val)
+		}
+		traverse(root.Left)
+		traverse(root.Right)
+	}
+
+	traverse(root)
+	if !canFlip {
+		return []int{-1}
+	}
+	return res
 }
 
 // 987. 二叉树的垂序遍历
@@ -432,26 +535,22 @@ func isCousins(root *TreeNode, x int, y int) bool {
 		father *TreeNode
 	}
 	var p, q *Node
-	var traverse func(node, father *TreeNode, x, y, depth int)
+	var traverse func(root, father *TreeNode, depth int)
 
-	traverse = func(node, father *TreeNode, x, y, depth int) {
-		if node == nil {
+	traverse = func(root, father *TreeNode, depth int) {
+		if root == nil {
 			return
 		}
-		depth++
-		if node.Val == x {
+		if root.Val == x {
 			p = &Node{father: father, depth: depth}
-		} else if node.Val == y {
+		} else if root.Val == y {
 			q = &Node{father: father, depth: depth}
 		}
-		traverse(node.Left, node, x, y, depth)
-		traverse(node.Right, node, x, y, depth)
+		traverse(root.Left, root, depth+1)
+		traverse(root.Right, root, depth+1)
 	}
 
-	if root == nil {
-		return true
-	}
-	traverse(root, nil, x, y, 0)
+	traverse(root, nil, 0)
 	if p == nil || q == nil {
 		return false
 	}
@@ -502,7 +601,7 @@ func sumEvenGrandparent(root *TreeNode) int {
 // 输入：root = [3,1,4,3,null,1,5]
 // 输出：4
 func goodNodes(root *TreeNode) int {
-	result := 0
+	res := 0
 	preMax := math.MinInt
 	var traverse func(root *TreeNode)
 
@@ -513,7 +612,7 @@ func goodNodes(root *TreeNode) int {
 		tmp := preMax
 		if root.Val >= preMax {
 			preMax = root.Val
-			result++
+			res++
 		}
 		traverse(root.Left)
 		traverse(root.Right)
@@ -521,7 +620,7 @@ func goodNodes(root *TreeNode) int {
 	}
 
 	traverse(root)
-	return result
+	return res
 }
 
 // 513.找树左下角的值
@@ -554,7 +653,7 @@ func findBottomLeftValue(root *TreeNode) int {
 func findBottomLeftValue3(root *TreeNode) int {
 	maxDepth := 0
 	depth := 0
-	result := 0
+	res := 0
 	var traverse func(node *TreeNode)
 
 	traverse = func(node *TreeNode) {
@@ -564,18 +663,15 @@ func findBottomLeftValue3(root *TreeNode) int {
 		depth++
 		if depth > maxDepth {
 			maxDepth = depth
-			result = node.Val
+			res = node.Val
 		}
 		traverse(node.Left)
 		traverse(node.Right)
 		depth--
 	}
 
-	if root == nil {
-		return result
-	}
 	traverse(root)
-	return result
+	return res
 }
 
 // 386. 字典序排数
