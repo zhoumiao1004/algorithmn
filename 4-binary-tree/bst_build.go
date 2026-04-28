@@ -228,3 +228,42 @@ func generateTrees(n int) []*TreeNode {
 
 	return build(1, n) // 构造闭区间 [1, n] 组成的 BST
 }
+
+// 894. 所有可能的真二叉树
+// https://leetcode.cn/problems/all-possible-full-binary-trees/
+// 给你一个整数 n ，请你找出所有可能含 n 个节点的 真二叉树 ，并以列表形式返回。答案中每棵树的每个节点都必须符合 Node.val == 0 。
+// 答案的每个元素都是一棵真二叉树的根节点。你可以按 任意顺序 返回最终的真二叉树列表。
+// 真二叉树 是一类二叉树，树中每个节点恰好有 0 或 2 个子节点。
+func allPossibleFBT(n int) []*TreeNode {
+	
+	memo := make(map[int][]*TreeNode)
+	var build func(n int) []*TreeNode
+
+	build = func(n int) []*TreeNode {
+		var res []*TreeNode
+		if n == 1 {
+			res = append(res, &TreeNode{Val: 0})
+			return res
+		}
+		if res, ok := memo[n]; ok {
+			return res
+		}
+		for i := 1; i<n; i+=2 {
+			j := n-i-1
+			leftSubTree := build(i)
+			rightSubTree := build(j)
+			for _, left := range leftSubTree {
+				for _, right := range rightSubTree {
+					root := &TreeNode{Val: 0, Left: left, Right: right}
+					res = append(res, root)
+				}
+			}
+		}
+		return res
+	}
+
+	if n%2 == 0 {
+		return []*TreeNode{} // 题目描述的满二叉树不可能是偶数个节点
+	}
+	return build(n)
+}

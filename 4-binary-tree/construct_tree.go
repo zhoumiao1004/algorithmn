@@ -185,11 +185,11 @@ func mergeTrees2(root1 *TreeNode, root2 *TreeNode) *TreeNode {
 		}
 		if p.Left == nil && q.Left != nil {
 			p.Left = q.Left
-			q.Left = nil
+			q.Left = nil // 注：从q复制到p，q.Left置为nil防止重复计算
 		}
 		if p.Right == nil && q.Right != nil {
 			p.Right = q.Right
-			q.Right = nil
+			q.Right = nil // 注：从q复制到p，q.Left置为nil防止重复计算
 		}
 		p.Val += q.Val
 		traverse(p.Left, q.Left)

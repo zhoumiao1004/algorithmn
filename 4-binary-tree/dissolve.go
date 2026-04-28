@@ -65,9 +65,6 @@ func delNodes(root *TreeNode, to_delete []int) []*TreeNode {
 		return node
 	}
 
-	if root == nil {
-		return results
-	}
 	doDelete(root, false) // root初始化为父节点被删除是为了把root加入结果列表
 	return results
 }

@@ -76,6 +76,7 @@ func longestUnivaluePath(root *TreeNode) int {
 // https://leetcode.cn/problems/path-sum/description/
 // 给你二叉树的根节点 root 和一个表示目标和的整数 targetSum 。判断该树中是否存在 根节点到叶子节点 的路径，这条路径上所有节点值相加等于目标和 targetSum 。如果存在，返回 true ；否则，返回 false 。
 // 叶子节点 是指没有子节点的节点。
+// 思路1: 分解问题
 func hasPathSum(root *TreeNode, targetSum int) bool {
 	if root == nil {
 		return false
@@ -87,13 +88,40 @@ func hasPathSum(root *TreeNode, targetSum int) bool {
 	return hasPathSum(root.Left, targetSum-root.Val) || hasPathSum(root.Right, targetSum-root.Val) // 左右
 }
 
+// 思路2: 遍历
+func hasPathSum2(root *TreeNode, targetSum int) bool {
+	s := 0
+	flag := false
+	var traverse func(root *TreeNode)
+	traverse = func(root *TreeNode) {
+		if flag {
+			return
+		}
+		if root == nil {
+			return
+		}
+		s += root.Val
+		if s == targetSum && root.Left == nil && root.Right == nil {
+			flag = true
+			return
+		}
+		traverse(root.Left)
+		traverse(root.Right)
+		s -= root.Val
+	}
+
+	traverse(root)
+	return flag
+}
+
 // 113. 路径总和 II
 // https://leetcode.cn/problems/path-sum-ii/description/
 // 给你二叉树的根节点 root 和一个整数目标和 targetSum ，找出所有 从根节点到叶子节点 路径总和等于给定目标和的路径。
 // 叶子节点 是指没有子节点的节点。
 // 输入：root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22
 // 输出：[[5,4,11,2],[5,8,4,5]]
-func pathSumII(root *TreeNode, targetSum int) [][]int {
+// 思路1: 遍历
+func pathSumII2(root *TreeNode, targetSum int) [][]int {
 	var results [][]int
 	var path []int
 	s := 0
@@ -118,6 +146,29 @@ func pathSumII(root *TreeNode, targetSum int) [][]int {
 	return results
 }
 
+// 思路2: 分解
+func pathSumII(root *TreeNode, targetSum int) [][]int {
+	var res [][]int
+
+	if root == nil {
+		return res
+	}
+	if root.Val == targetSum && root.Left == nil && root.Right == nil {
+		res = append(res, []int{root.Val})
+		return res
+	}
+	left := pathSumII(root.Left, targetSum-root.Val)
+	right := pathSumII(root.Right, targetSum-root.Val)
+
+	for _, path := range left {
+		res = append(res, append([]int{root.Val}, path...))
+	}
+	for _, path := range right {
+		res = append(res, append([]int{root.Val}, path...))
+	}
+	return res
+}
+
 // 技巧2:一般来说，遍历的思维模式可以帮你寻找从根节点开始的符合条件的「树枝」，但在不限制起点必须是根节点的条件下，让你寻找符合条件的「树枝」，就需要用到分解问题的思维模式了。
 // 124. 二叉树中的最大路径和
 // https://leetcode.cn/problems/binary-tree-maximum-path-sum/
@@ -127,14 +178,14 @@ func pathSumII(root *TreeNode, targetSum int) [][]int {
 // 思路：分解问题，明确函数定义：以 node 为根节点的二叉树，返回双边最大和
 func maxPathSum(root *TreeNode) int {
 	result := math.MinInt
-	var maxSum func(node *TreeNode) int
+	var oneSideMax func(node *TreeNode) int
 
-	maxSum = func(node *TreeNode) int {
+	oneSideMax = func(node *TreeNode) int {
 		if node == nil {
 			return 0
 		}
-		left := max(0, maxSum(node.Left))
-		right := max(0, maxSum(node.Right))
+		left := max(0, oneSideMax(node.Left))
+		right := max(0, oneSideMax(node.Right))
 
 		// 后序位置，顺便计算双边最大路径和
 		result = max(result, left+right+node.Val)
@@ -142,7 +193,7 @@ func maxPathSum(root *TreeNode) int {
 		return max(left, right) + node.Val // 返回单边最大路径和
 	}
 
-	maxSum(root)
+	oneSideMax(root)
 	return result
 }
 
