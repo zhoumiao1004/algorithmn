@@ -409,6 +409,42 @@ func distanceK(root *TreeNode, target *TreeNode, k int) []int {
 	return res
 }
 
+// 662. 二叉树最大宽度
+// https://leetcode.cn/problems/maximum-width-of-binary-tree/description/
+// 给你一棵二叉树的根节点 root ，返回树的 最大宽度 。
+// 树的 最大宽度 是所有层中最大的 宽度 。
+// 每一层的 宽度 被定义为该层最左和最右的非空节点（即，两个端点）之间的长度。将这个二叉树视作与满二叉树结构相同，两端点间会出现一些延伸到这一层的 null 节点，这些 null 节点也计入长度。
+// 题目数据保证答案将会在  32 位 带符号整数范围内。
+func widthOfBinaryTree(root *TreeNode) int {
+	type Pair struct {
+		Node *TreeNode
+		Id   int
+	}
+	res := 0
+	q := []*Pair{{Node: root, Id: 1}}
+	for len(q) > 0 {
+		sz := len(q)
+		start, end := 0, 0
+		for i := 0; i < sz; i++ {
+			obj := q[0]
+			q = q[1:]
+			if start == 0 {
+				start = obj.Id
+			}
+			end = obj.Id
+			if obj.Node.Left != nil {
+				q = append(q, &Pair{Node: obj.Node.Left, Id: 2 * obj.Id})
+			}
+			if obj.Node.Right != nil {
+				q = append(q, &Pair{Node: obj.Node.Right, Id: 2*obj.Id + 1})
+			}
+		}
+		res = max(res, end-start+1)
+	}
+
+	return res
+}
+
 func main() {
 	q := []*Node{nil}
 	fmt.Println(len(q))

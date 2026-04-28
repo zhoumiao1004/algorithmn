@@ -690,6 +690,9 @@ func lexicalOrder(n int) []int {
 		}
 		results = append(results, root)
 		for child := root * 10; child < root*10+10; child++ {
+			if child > n {
+				return
+			}
 			traverse(child, n)
 		}
 	}
@@ -752,6 +755,48 @@ func btreeGameWinningMove(root *TreeNode, n int, x int) bool {
 	return max(leftCount, rightCount, otherCount) > n/2
 }
 
+// 2096. 从二叉树一个节点到另一个节点每一步的方向
+// https://leetcode.cn/problems/step-by-step-directions-from-a-binary-tree-node-to-another/
+// 输入：root = [5,1,2,3,null,6,4], startValue = 3, destValue = 6
+// 输出："UURL"
+// 解释：最短路径为：3 → 1 → 5 → 2 → 6 。
+func getDirections(root *TreeNode, startValue int, destValue int) string {
+	var srcPath, dstPath []byte
+	var path []byte
+	var traverse func(root *TreeNode)
+
+	traverse = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+		if root.Val == startValue {
+			srcPath = append([]byte{}, path...)
+		} else if root.Val == destValue {
+			dstPath = append([]byte{}, path...)
+		}
+		path = append(path, 'L')
+		traverse(root.Left)
+		path = path[:len(path)-1]
+
+		path = append(path, 'R')
+		traverse(root.Right)
+		path = path[:len(path)-1]
+	}
+
+	traverse(root)
+	// 去除公共前缀
+	p, m, n := 0, len(srcPath), len(dstPath)
+	for p < m && p < n && srcPath[p] == dstPath[p] {
+		p++
+	}
+	srcPath = srcPath[p:]
+	dstPath = dstPath[p:]
+	for i := 0; i < len(srcPath); i++ {
+		srcPath[i] = 'U'
+	}
+	return string(srcPath) + string(dstPath)
+}
+
 // 572. 另一棵树的子树
 // https://leetcode.cn/problems/subtree-of-another-tree/
 // 输入：root = [3,4,5,1,2], subRoot = [4,1,2]
@@ -796,9 +841,6 @@ func isSubPath(head *ListNode, root *TreeNode) bool {
 		return false
 	}
 
-	if head == nil {
-		return true
-	}
 	if root == nil {
 		return false
 	}
