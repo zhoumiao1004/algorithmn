@@ -194,14 +194,12 @@ func removeLeafNodes(root *TreeNode, target int) *TreeNode {
 	if root == nil {
 		return nil
 	}
-	left := removeLeafNodes(root.Left, target)
-	right := removeLeafNodes(root.Right, target)
+	root.Left = removeLeafNodes(root.Left, target)
+	root.Right = removeLeafNodes(root.Right, target)
 	// 后序位置
-	if root.Val == target && left == nil && right == nil {
+	if root.Val == target && root.Left == nil && root.Right == nil {
 		return nil // return nil 相当于删除节点
 	}
-	root.Left = left   // 接住左子树
-	root.Right = right // 接住右子树
 	return root
 }
 
