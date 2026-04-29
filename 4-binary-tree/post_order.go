@@ -174,14 +174,12 @@ func pruneTree(root *TreeNode) *TreeNode {
 	if root == nil {
 		return nil
 	}
-	left := pruneTree(root.Left)   // 左子树剪枝
-	right := pruneTree(root.Right) // 右子树剪枝
+	root.Left = pruneTree(root.Left)   // 左子树剪枝
+	root.Right = pruneTree(root.Right) // 右子树剪枝
 	// 后序位置
-	if root.Val == 0 && left == nil && right == nil {
+	if root.Val == 0 && root.Left == nil && root.Right == nil {
 		return nil // return nil 相当于删除节点
 	}
-	root.Left = left   // 接住左子树
-	root.Right = right // 接住右子树
 	return root
 }
 
