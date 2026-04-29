@@ -42,9 +42,6 @@ func rangeSumBST(root *TreeNode, low int, high int) int {
 		}
 	}
 
-	if root == nil {
-		return 0
-	}
 	traverse(root, low, high)
 	return result
 }

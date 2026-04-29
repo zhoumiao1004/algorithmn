@@ -57,11 +57,10 @@ func longestUnivaluePath(root *TreeNode) int {
 		rightLen := maxLen(node.Right, node.Val)
 
 		// 后序位置
+		res = max(res, leftLen+rightLen) // 顺便计算以 node 为根的路径长度
 		if node.Val != parentVal {
 			return 0 // 不同值
 		}
-		// 同值，顺便计算以 node 为根的路径长度
-		res = max(res, leftLen+rightLen)
 		return 1 + max(leftLen, rightLen)
 	}
 
