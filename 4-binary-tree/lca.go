@@ -58,7 +58,7 @@ func lowestCommonAncestor2(root, p, q *TreeNode) *TreeNode {
 		}
 		return left
 	}
-	
+
 	return find(root, p, q)
 }
 
@@ -134,10 +134,10 @@ func findSecondMinimumValue(root *TreeNode) int {
 		return -1 // 叶子节点也没有第二小的节点
 	}
 	left, right := root.Left.Val, root.Right.Val
-	if root.Val == left {
+	if root.Left.Val == root.Val {
 		left = findSecondMinimumValue(root.Left)
 	}
-	if root.Val == right {
+	if root.Right.Val == root.Val {
 		right = findSecondMinimumValue(root.Right)
 	}
 	if left == -1 {

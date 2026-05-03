@@ -229,17 +229,20 @@ func averageOfLevels(root *TreeNode) []float64 {
 // 输出：true
 // 解释：最后一层前的每一层都是满的（即，节点值为 {1} 和 {2,3} 的两层），且最后一层中的所有节点（{4,5,6}）尽可能靠左。
 func isCompleteTree(root *TreeNode) bool {
+	if root == nil {
+		return false
+	}
 	end := false
 	q := []*TreeNode{root}
 	for len(q) > 0 {
-		n := len(q)
-		for i := 0; i < n; i++ {
+		sz := len(q)
+		for i := 0; i < sz; i++ {
 			node := q[0]
 			q = q[1:]
 			if node == nil {
 				end = true
 			} else {
-				if end == true {
+				if end {
 					return false
 				}
 				q = append(q, node.Left)
@@ -319,28 +322,121 @@ func deepestLeavesSum(root *TreeNode) int {
 	return result
 }
 
+// 1609. 奇偶树
+// https://leetcode.cn/problems/even-odd-tree/
+// 如果一棵二叉树满足下述几个条件，则可以称为 奇偶树 ：
+// 二叉树根节点所在层下标为 0 ，根的子节点所在层下标为 1 ，根的孙节点所在层下标为 2 ，依此类推。
+// 偶数下标 层上的所有节点的值都是 奇 整数，从左到右按顺序 严格递增
+// 奇数下标 层上的所有节点的值都是 偶 整数，从左到右按顺序 严格递减
+// 给你二叉树的根节点，如果二叉树为 奇偶树 ，则返回 true ，否则返回 false 。
+// 输入：root = [1,10,4,3,null,7,9,12,8,6,null,null,2]
+// 输出：true
+// 解释：每一层的节点值分别是：
+// 0 层：[1]
+// 1 层：[10,4]
+// 2 层：[3,7,9]
+// 3 层：[12,8,6,2]
+// 由于 0 层和 2 层上的节点值都是奇数且严格递增，而 1 层和 3 层上的节点值都是偶数且严格递减，因此这是一棵奇偶树。
+func isEvenOddTree(root *TreeNode) bool {
+	if root == nil {
+		return false
+	}
+	q := []*TreeNode{root}
+	level := 0
+	for len(q) > 0 {
+		sz := len(q)
+		for i := 0; i < sz; i++ {
+			node := q[0]
+			q = q[1:]
+			if level%2 == 0 {
+				if node.Val%2 == 0 {
+					return false
+				}
+				if i != sz-1 && node.Val >= q[0].Val {
+					return false
+				}
+			} else {
+				if node.Val%2 == 1 {
+					return false
+				}
+				if i != sz-1 && node.Val <= q[0].Val {
+					return false
+				}
+			}
+			if node.Left != nil {
+				q = append(q, node.Left)
+			}
+			if node.Right != nil {
+				q = append(q, node.Right)
+			}
+		}
+		level++
+	}
+	return true
+}
+
 // 872. 叶子相似的树
 // https://leetcode.cn/problems/leaf-similar-trees/description/
 // 输入：root1 = [3,5,1,6,2,9,8,null,null,7,4], root2 = [3,5,1,6,7,4,2,null,null,null,null,null,null,9,8]
 // 输出：true
-// 思路：遍历两颗二叉树，对比叶子节点集合
+// 思路1: 栈迭代 iterator
+type LeafIterator struct {
+	st []*TreeNode
+}
+
+func NewLeafIterator(root *TreeNode) LeafIterator {
+	return LeafIterator{st: []*TreeNode{root}}
+}
+func (it *LeafIterator) HasNext() bool {
+	return len(it.st) > 0
+}
+func (it *LeafIterator) Next() *TreeNode {
+	for len(it.st) > 0 {
+		cur := it.st[len(it.st)-1]
+		it.st = it.st[:len(it.st)-1]
+		if cur.Left == nil && cur.Right == nil {
+			return cur
+		}
+		if cur.Left != nil {
+			it.st = append(it.st, cur.Left)
+		}
+		if cur.Right != nil {
+			it.st = append(it.st, cur.Right)
+		}
+	}
+	return nil
+}
+
 func leafSimilar(root1 *TreeNode, root2 *TreeNode) bool {
+	it1 := NewLeafIterator(root1)
+	it2 := NewLeafIterator(root2)
+	for it1.HasNext() && it2.HasNext() {
+		if it1.Next().Val != it2.Next().Val {
+			return false
+		}
+	}
+	return !it1.HasNext() && !it2.HasNext()
+}
+
+// 思路2：遍历两颗二叉树，对比叶子节点集合
+func leafSimilar2(root1 *TreeNode, root2 *TreeNode) bool {
 
 	var getLeafVal func(node *TreeNode) []int
 
 	getLeafVal = func(node *TreeNode) []int {
-		var result []int
+		var res []int
 		if node == nil {
-			return result
+			return res
 		}
 		if node.Left == nil && node.Right == nil {
-			result = append(result, node.Val)
+			res = append(res, node.Val)
+			return res
 		}
 		left := getLeafVal(node.Left)
 		right := getLeafVal(node.Right)
-		result = append(result, left...)
-		result = append(result, right...)
-		return result
+		res = append(res, left...)
+		res = append(res, right...)
+		return res
 	}
 
 	nums1 := getLeafVal(root1)
@@ -361,14 +457,14 @@ func leafSimilar(root1 *TreeNode, root2 *TreeNode) bool {
 // 给定一个二叉树（具有根结点 root）， 一个目标结点 target ，和一个整数值 k ，返回到目标结点 target 距离为 k 的所有结点的值的数组。
 // 答案可以以 任何顺序 返回。
 func distanceK(root *TreeNode, target *TreeNode, k int) []int {
-	parent := make(map[int]*TreeNode) // 记录值到父节点的映射
+	nodeToParent := make(map[int]*TreeNode) // 记录值到父节点的映射
+	var traverse func(root *TreeNode, parent *TreeNode)
 
-	var traverse func(root *TreeNode, parentNode *TreeNode)
-	traverse = func(root *TreeNode, parentNode *TreeNode) {
+	traverse = func(root *TreeNode, parent *TreeNode) {
 		if root == nil {
 			return
 		}
-		parent[root.Val] = parentNode
+		nodeToParent[root.Val] = parent
 		traverse(root.Left, root)
 		traverse(root.Right, root)
 	}
@@ -377,34 +473,28 @@ func distanceK(root *TreeNode, target *TreeNode, k int) []int {
 	q := []*TreeNode{target}
 	visited := make(map[int]bool)
 	visited[target.Val] = true
-	dist := 0
 	var res []int
-	for len(q) > 0 {
-		if dist == k {
-			for _, node := range q {
-				res = append(res, node.Val)
-			}
-			return res
-		}
+	for k > 0 && len(q) > 0 {
 		sz := len(q)
 		for i := 0; i < sz; i++ {
 			cur := q[0]
 			q = q[1:]
+			visited[cur.Val] = true
 			// 向父节点、左右子节点扩散
-			if parentNode, ok := parent[cur.Val]; ok && parentNode != nil && !visited[parentNode.Val] {
-				visited[parentNode.Val] = true
-				q = append(q, parentNode)
+			if parent, ok := nodeToParent[cur.Val]; ok && parent != nil && !visited[parent.Val] {
+				q = append(q, parent)
 			}
 			if cur.Left != nil && !visited[cur.Left.Val] {
-				visited[cur.Left.Val] = true
 				q = append(q, cur.Left)
 			}
 			if cur.Right != nil && !visited[cur.Right.Val] {
-				visited[cur.Right.Val] = true
 				q = append(q, cur.Right)
 			}
 		}
-		dist++ // 向外扩展一圈
+		k-- // 向外扩展一圈
+	}
+	for _, node := range q {
+		res = append(res, node.Val)
 	}
 	return res
 }
@@ -426,17 +516,19 @@ func widthOfBinaryTree(root *TreeNode) int {
 		sz := len(q)
 		start, end := 0, 0
 		for i := 0; i < sz; i++ {
-			obj := q[0]
+			pair := q[0]
 			q = q[1:]
+			node := pair.Node
+			id := pair.Id
 			if start == 0 {
-				start = obj.Id
+				start = id
 			}
-			end = obj.Id
-			if obj.Node.Left != nil {
-				q = append(q, &Pair{Node: obj.Node.Left, Id: 2 * obj.Id})
+			end = id
+			if node.Left != nil {
+				q = append(q, &Pair{Node: node.Left, Id: 2 * id})
 			}
-			if obj.Node.Right != nil {
-				q = append(q, &Pair{Node: obj.Node.Right, Id: 2*obj.Id + 1})
+			if node.Right != nil {
+				q = append(q, &Pair{Node: node.Right, Id: 2*id + 1})
 			}
 		}
 		res = max(res, end-start+1)

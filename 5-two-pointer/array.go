@@ -38,33 +38,34 @@ func reverseString(s []byte) {
 }
 
 // 5. 最长回文子串
+// https://leetcode.cn/problems/longest-palindromic-substring/
 // 给你一个字符串 s，找到 s 中最长的 回文 子串。
 // 输入：s = "babad"
 // 输出："bab"
 // 解释："aba" 同样是符合题意的答案。
 // 思路1：中心扩散
 func longestPalindrome(s string) string {
-	var palindrome func(s string, left, right int) string
-	palindrome = func(s string, left, right int) string {
-		for left >= 0 && right < len(s) && s[left] == s[right] {
-			left--
-			right++
+	var palindrome func(s string, l, r int) string
+	palindrome = func(s string, l, r int) string {
+		for l >= 0 && r < len(s) && s[l] == s[r] {
+			l--
+			r++
 		}
-		return s[left+1 : right]
+		return s[l+1 : r]
 	}
 
-	result := ""
+	res := ""
 	for i := 0; i < len(s); i++ {
 		s1 := palindrome(s, i, i)
 		s2 := palindrome(s, i, i+1)
-		if len(s1) > len(result) {
-			result = s1
+		if len(s1) > len(res) {
+			res = s1
 		}
-		if len(s2) > len(result) {
-			result = s2
+		if len(s2) > len(res) {
+			res = s2
 		}
 	}
-	return result
+	return res
 }
 
 // 思路2：dp

@@ -29,8 +29,8 @@ func partition(head *ListNode, x int) *ListNode {
 	p1, p2 := dummy1, dummy2
 	cur := head
 	for cur != nil {
-		next := cur.Next // 修改节点的 Next 前，记录下个需要遍历的节点
-		cur.Next = nil
+		next := cur.Next
+		cur.Next = nil // 注：加入到2个列表之一前需要将当前节点的 Next 置空
 		if cur.Val < x {
 			p1.Next = cur
 			p1 = p1.Next
@@ -223,12 +223,12 @@ func findDuplicate(nums []int) int {
 			break
 		}
 	}
-	slow = 0
-	for slow != fast {
+	cur := 0
+	for cur != slow {
+		cur = nums[cur]
 		slow = nums[slow]
-		fast = nums[fast]
-		if slow == fast {
-			return slow
+		if cur == slow {
+			return cur
 		}
 	}
 	return -1

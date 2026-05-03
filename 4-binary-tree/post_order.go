@@ -315,6 +315,22 @@ func tree2str(root *TreeNode) string {
 	if root == nil {
 		return ""
 	}
+	left := tree2str(root.Left)
+	right := tree2str(root.Right)
+	if root.Left == nil && root.Right == nil {
+		return fmt.Sprintf("%d", root.Val)
+	} else if root.Left != nil && root.Right == nil {
+		return fmt.Sprintf("%d(%s)", root.Val, left)
+	} else if root.Left == nil && root.Right != nil {
+		return fmt.Sprintf("%d()(%s)", root.Val, right)
+	}
+	return fmt.Sprintf("%d(%s)(%s)", root.Val, left, right)
+}
+
+func tree2str2(root *TreeNode) string {
+	if root == nil {
+		return ""
+	}
 	if root.Left == nil && root.Right == nil {
 		return fmt.Sprintf("%d", root.Val)
 	}
@@ -343,8 +359,8 @@ func minTime(n int, edges [][]int, hasApple []bool) int {
 		graph[b] = append(graph[b], a)
 	}
 
-	var collect func(graph map[int][]int, root int) int // 明确函数定义：遍历以 root 为根的多叉树，返回收集所有苹果最少步数
-	collect = func(graph map[int][]int, root int) int {
+	var collect func(root int) int // 明确函数定义：遍历以 root 为根的多叉树，返回收集所有苹果最少步数
+	collect = func(root int) int {
 		if visited[root] {
 			return -1
 		}
@@ -352,7 +368,7 @@ func minTime(n int, edges [][]int, hasApple []bool) int {
 
 		sum := 0
 		for _, c := range graph[root] {
-			subTime := collect(graph, c)
+			subTime := collect(c)
 			if subTime != -1 {
 				sum += subTime + 2
 			}
@@ -361,13 +377,13 @@ func minTime(n int, edges [][]int, hasApple []bool) int {
 		if sum > 0 {
 			return sum
 		}
-		if sum == 0 && hasApple[root] {
+		if hasApple[root] {
 			return 0 // root 本身有苹果，子树中没有苹果
 		}
 		return -1
 	}
 
-	res := collect(graph, 0)
+	res := collect(0)
 	if res == -1 {
 		return 0
 	}
@@ -411,13 +427,13 @@ func sufficientSubset(root *TreeNode, limit int) *TreeNode {
 	// 前序位置
 	if root.Left == nil && root.Right == nil {
 		if root.Val < limit {
-			return nil
+			return nil // 是不足节点
 		}
-		return root
+		return root // 不是不足节点
 	}
 	root.Left = sufficientSubset(root.Left, limit-root.Val)
 	root.Right = sufficientSubset(root.Right, limit-root.Val)
-	// 后序位置
+	// 后序位置, 如果左右子树都不满足 limit - root.val 的约束，那么就存在经过 root 节点的路径不满足约束，也就说明 root 节点是「不足节点」，需要被删掉
 	if root.Left == nil && root.Right == nil {
 		return nil
 	}
@@ -430,7 +446,7 @@ func sufficientSubset(root *TreeNode, limit int) *TreeNode {
 // 一个子树的 大小 为这个子树内节点的数目。每个节点都有一个与之关联的 分数 。求出某个节点分数的方法是，将这个节点和与它相连的边全部 删除 ，剩余部分是若干个 非空 子树，这个节点的 分数 为所有这些子树 大小的乘积 。
 // 请你返回有 最高得分 节点的 数目 。
 func countHighestScoreNodes(parents []int) int {
-	scoreToCount := make(map[int64]int)
+	scoreToCount := make(map[int]int)
 	var countNode func(tree [][]int, root int) int
 	var buildTree func(parents []int) [][]int
 
@@ -441,43 +457,44 @@ func countHighestScoreNodes(parents []int) int {
 		}
 		// 二叉树中节点总数
 		n := len(tree)
-		leftCount := countNode(tree, tree[root][0])
-		rightCount := countNode(tree, tree[root][1])
+		left := countNode(tree, tree[root][0])
+		right := countNode(tree, tree[root][1])
 
 		// 后序位置，计算每个节点的「分数」
-		otherCount := n - leftCount - rightCount - 1
+		other := n - left - right - 1
 		// 注意，这里要把 int 转化成 long，否则会产生溢出！！！
-		score := int64(math.Max(float64(leftCount), 1)) *
-			int64(math.Max(float64(rightCount), 1)) * int64(math.Max(float64(otherCount), 1))
+		score := max(1, left) * max(1, right) * max(1, other)
 		// 给分数 score 计数
-		scoreToCount[score] = scoreToCount[score] + 1
+		scoreToCount[score]++
 
-		return leftCount + rightCount + 1
+		return left + right + 1
 	}
 
+	// 转换为邻接表
 	buildTree = func(parents []int) [][]int {
 		n := len(parents)
-		tree := make([][]int, n)
-		for i := range tree {
-			tree[i] = []int{-1, -1}
+		graph := make([][]int, n)
+		for i := range graph {
+			graph[i] = []int{-1, -1}
 		}
+		// 根据 parents 数组构建二叉树（跳过 parents[0] 根节点）
 		for i := 1; i < n; i++ {
-			parent_i := parents[i]
-			if tree[parent_i][0] == -1 {
-				tree[parent_i][0] = i
+			p := parents[i]
+			if graph[p][0] == -1 {
+				graph[p][0] = i // 左孩子
 			} else {
-				tree[parent_i][1] = i
+				graph[p][1] = i // 右孩子
 			}
 		}
-		return tree
+		return graph
 	}
 
-	tree := buildTree(parents)
-	countNode(tree, 0)
+	graph := buildTree(parents)
+	countNode(graph, 0)
 	// 计算最大分数出现的次数
-	var maxScore int64
+	maxScore := 0
 	for score := range scoreToCount {
-		maxScore = int64(math.Max(float64(maxScore), float64(score)))
+		maxScore = max(maxScore, score)
 	}
 	return scoreToCount[maxScore]
 }

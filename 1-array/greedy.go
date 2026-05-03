@@ -374,6 +374,47 @@ func minCameraCover(root *TreeNode) int {
 	return result
 }
 
+func minCameraCover2(root *TreeNode) int {
+	res := 0
+	var setCamera func(root *TreeNode, hasParent bool) int
+	// 定义：输入以 root 为根的二叉树，以最优策略在这棵二叉树上放置摄像头，
+	// 然后返回 root 节点的情况：
+	// 返回 -1 代表 root 为空，返回 0 代表 root 未被 cover，
+	// 返回 1 代表 root 已经被 cover，返回 2 代表 root 上放置了摄像头。
+	setCamera = func(root *TreeNode, hasParent bool) int {
+		if root == nil {
+			return -1
+		}
+		left := setCamera(root.Left, true)
+		right := setCamera(root.Right, true)
+		if left == -1 && right == -1 {
+			if hasParent {
+				return 0 // 有父节点的话，让父节点来 cover 自己
+			}
+			// 没有父节点的话，自己 set 一个摄像头
+			res++
+			return 2
+		}
+		if left == 0 || right == 0 {
+			res++
+			return 2 // 左右都未覆盖，需要放一个摄像头
+		}
+		if left == 2 || right == 2 {
+			return 1
+		}
+		// 剩下 left == 1 && right == 1 的情况
+		if hasParent {
+			return 0 // 又父节点，可以被父节点覆盖
+		} else {
+			res++
+			return 2 // 没有父节点，只能自己 set 一个摄像头
+		}
+	}
+
+	setCamera(root, false)
+	return res
+}
+
 // 2149. 按符号重排数组
 // https://leetcode.cn/problems/rearrange-array-elements-by-sign/description/
 func rearrangeArray(arr []int) []int {

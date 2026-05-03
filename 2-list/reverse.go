@@ -74,6 +74,16 @@ func reverseN(head *ListNode, n int) *ListNode {
 // 输入：head = [1,2,3,4,5], left = 2, right = 4
 // 输出：[1,4,3,2,5]
 func reverseBetween(head *ListNode, left int, right int) *ListNode {
+	dummy := &ListNode{Next: head}
+	cur := dummy
+	for i := 0; i < left-1; i++ {
+		cur = cur.Next
+	}
+	cur.Next = reverseN(cur.Next, right-left+1)
+	return dummy.Next
+}
+
+func reverseBetween2(head *ListNode, left int, right int) *ListNode {
 	if left == 1 {
 		return reverseN(head, right)
 	}
@@ -94,15 +104,15 @@ func reverseBetween(head *ListNode, left int, right int) *ListNode {
 // 输入：head = [1,2,3,4,5], k = 2
 // 输出：[2,1,4,3,5]
 func reverseKGroup(head *ListNode, k int) *ListNode {
-	cur := head
-	for i := 0; i < k; i++ {
-		if cur == nil {
-			return head
-		}
-		cur = cur.Next
+	cnt := 0
+	for cur := head; cur != nil; cur = cur.Next {
+		cnt++
+	}
+	if cnt < k {
+		return head
 	}
 	newHead := reverseN(head, k)
-	head.Next = reverseKGroup(cur, k)
+	head.Next = reverseKGroup(head.Next, k)
 	return newHead
 }
 

@@ -11,14 +11,14 @@ type ListNode struct {
 // 输出: 2, nums = [2,2,_,_]
 // 注意：和26题有序数组去重的解法有一个细节差异，我们这里是先给 nums[slow] 赋值然后再给 slow++，这样可以保证 nums[0..slow-1] 是不包含值为 val 的元素的，最后的结果数组长度就是 slow。
 func removeElement(nums []int, val int) int {
-	left := 0 // 维护 nums[0..slow] 左开右闭，为不包含val元素的结果子数组
-	for right := 0; right < len(nums); right++ {
-		if nums[right] != val {
-			nums[left] = nums[right]
-			left++
+	slow, fast := 0, 0 // 维护 nums[0..slow] 左开右闭，为不包含val元素的结果子数组
+	for ; fast < len(nums); fast++ {
+		if nums[fast] != val {
+			nums[slow] = nums[fast]
+			slow++
 		}
 	}
-	return left
+	return slow
 }
 
 // 283. 移动零
@@ -28,15 +28,15 @@ func removeElement(nums []int, val int) int {
 // 输入: nums = [0,1,0,3,12]
 // 输出: [1,3,12,0,0]
 func moveZeroes(nums []int) {
-	left := 0 // 维护 nums[0..slow] 左开右闭，为不包含0的结果子数组
-	for i := 0; i < len(nums); i++ {
-		if nums[i] != 0 {
-			nums[left] = nums[i]
-			left++
+	slow, fast := 0, 0
+	for ; fast < len(nums); fast++ {
+		if nums[fast] != 0 {
+			nums[slow] = nums[fast]
+			slow++
 		}
 	}
-	for ; left < len(nums); left++ {
-		nums[left] = 0
+	for ; slow < len(nums); slow++ {
+		nums[slow] = 0
 	}
 }
 
@@ -227,13 +227,13 @@ func deleteDuplicatesII2(head *ListNode) *ListNode {
 		if fast.Val != fast.Next.Val {
 			slow = slow.Next
 			fast = fast.Next
-			continue
+		} else {
+			val := fast.Val
+			for fast != nil && fast.Val == val {
+				fast = fast.Next
+			}
 		}
-		// 此时fast和它的下个节点值相同，跳过这些相同的节点
-		for fast.Next != nil && fast.Val == fast.Next.Val {
-			fast = fast.Next
-		}
-		slow.Next = fast.Next // fast.Next是第一个值不重复的节点
+		slow.Next = fast
 	}
 	return dummy.Next
 }

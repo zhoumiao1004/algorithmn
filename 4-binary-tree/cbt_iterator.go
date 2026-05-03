@@ -32,6 +32,31 @@ func Constructor(root *TreeNode) CBTInserter {
 	return CBTInserter{q: q, root: root}
 }
 
+func Constructor2(root *TreeNode) CBTInserter {
+	inserter := CBTInserter{root: root}
+	if root == nil {
+		return inserter
+	}
+	q := []*TreeNode{root}
+	for len(q) > 0 {
+		sz := len(q)
+		for i := 0; i < sz; i++ {
+			node := q[0]
+			q = q[1:]
+			if node.Left != nil {
+				q = append(q, node.Left)
+			}
+			if node.Right != nil {
+				q = append(q, node.Right)
+			}
+			if node.Left == nil || node.Right == nil {
+				inserter.q = append(inserter.q, node)
+			}
+		}
+	}
+	return inserter
+}
+
 func (this *CBTInserter) Insert(val int) int {
 	node := &TreeNode{Val: val}
 	cur := this.q[0]

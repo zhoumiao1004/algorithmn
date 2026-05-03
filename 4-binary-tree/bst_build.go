@@ -93,13 +93,9 @@ func bstFromPreorder(preorder []int) *TreeNode {
 	if n == 0 {
 		return nil
 	}
-	val := preorder[0]
-	if n == 1 {
-		return &TreeNode{Val: val}
-	}
-	root := &TreeNode{Val: val}
+	root := &TreeNode{Val: preorder[0]}
 	mid := 1
-	for mid < n && preorder[mid] < val {
+	for mid < n && preorder[mid] < root.Val {
 		mid++
 	}
 	root.Left = bstFromPreorder(preorder[1:mid])
@@ -235,7 +231,7 @@ func generateTrees(n int) []*TreeNode {
 // 答案的每个元素都是一棵真二叉树的根节点。你可以按 任意顺序 返回最终的真二叉树列表。
 // 真二叉树 是一类二叉树，树中每个节点恰好有 0 或 2 个子节点。
 func allPossibleFBT(n int) []*TreeNode {
-	
+
 	memo := make(map[int][]*TreeNode)
 	var build func(n int) []*TreeNode
 
@@ -248,8 +244,8 @@ func allPossibleFBT(n int) []*TreeNode {
 		if res, ok := memo[n]; ok {
 			return res
 		}
-		for i := 1; i<n; i+=2 {
-			j := n-i-1
+		for i := 1; i < n; i += 2 {
+			j := n - i - 1
 			leftSubTree := build(i)
 			rightSubTree := build(j)
 			for _, left := range leftSubTree {
