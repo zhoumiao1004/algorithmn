@@ -43,8 +43,6 @@ func rotate(matrix [][]int) {
 // 思路：1.删除多余的空格 2.整体反转 3.反转每个单词
 func reverseWords(s string) string {
 	var reverseString func(bs []byte)
-	var removeExtraSpaces func(s []byte) []byte
-
 	reverseString = func(bs []byte) {
 		left, right := 0, len(bs)-1
 		for left < right {
@@ -53,28 +51,9 @@ func reverseWords(s string) string {
 			right--
 		}
 	}
-	removeExtraSpaces = func(s []byte) []byte {
-		slow := 0
-		for fast := 0; fast < len(s); fast++ {
-			if s[fast] != ' ' {
-				if slow > 0 { // 单词之间补空格：除了第一个单词
-					s[slow] = ' '
-					slow++
-				}
-				for fast < len(s) && s[fast] != ' ' {
-					s[slow] = s[fast]
-					slow++
-					fast++
-				}
-			}
-		}
-		return s[:slow]
-	}
 
-	bs := removeExtraSpaces([]byte(s))
-
-	reverseString(bs)
-
+	s := removeExtraSpaces(s)
+	reverseString(s)
 	slow := 0
 	for fast := 0; fast <= len(bs); fast++ {
 		if fast == len(bs) || bs[fast] == ' ' {
@@ -83,6 +62,41 @@ func reverseWords(s string) string {
 		}
 	}
 	return string(bs)
+}
+
+func removeExtraSpaces(s string) string {
+	bs := []byte(s)
+	slow, fast := 0, 0
+	for ; fast < len(s); fast++ {
+		if bs[fast] != ' ' {
+			if slow > 0 && fast > 0 && bs[fast-1] == ' ' {
+				bs[slow] = ' ' // 单词之间补空格
+				slow++
+			}
+			bs[slow] = bs[fast]
+			slow++
+		}
+	}
+	return string(bs[:slow])
+}
+
+func removeExtraSpaces2(s string) string {
+	bs := []byte(s)
+	slow := 0
+	for fast := 0; fast < len(bs); fast++ {
+		if bs[fast] != ' ' {
+			if slow > 0 { // 单词之间补空格
+				bs[slow] = ' '
+				slow++
+			}
+			for fast < len(bs) && bs[fast] != ' ' {
+				bs[slow] = bs[fast]
+				slow++
+				fast++
+			}
+		}
+	}
+	return string(bs[:slow])
 }
 
 // 61. 旋转链表
@@ -100,9 +114,6 @@ func rotateRight(head *ListNode, k int) *ListNode {
 		length++
 	}
 	k = k % length
-	if k == 0 {
-		return head
-	}
 	// 寻找倒数第 k+1 个节点，倒数第k个节点作为头结点
 	slow, fast := head, head
 	for i := 0; i < k; i++ {
@@ -120,6 +131,7 @@ func rotateRight(head *ListNode, k int) *ListNode {
 
 // 54. 螺旋矩阵
 // https://leetcode.cn/problems/spiral-matrix/
+// https://leetcode.cn/problems/shun-shi-zhen-da-yin-ju-zhen-lcof/description/
 // 给你一个 m 行 n 列的矩阵 matrix ，请按照 顺时针螺旋顺序 ，返回矩阵中的所有元素。
 func spiralOrder(matrix [][]int) []int {
 	var result []int
@@ -362,24 +374,22 @@ func matrixReshape(mat [][]int, r int, c int) [][]int {
 // 思路：hashmap
 func diagonalSort(mat [][]int) [][]int {
 	m, n := len(mat), len(mat[0])
-	diaMap := make(map[int][]int)
+	diffToNums := make(map[int][]int)
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
-			k := i - j
-			diaMap[k] = append(diaMap[k], mat[i][j])
+			diffToNums[i-j] = append(diffToNums[i-j], mat[i][j])
 		}
 	}
-	for _, v := range diaMap {
-		sort.Slice(v, func(i, j int) bool {
-			return v[i] > v[j]
-		})
+	for _, nums := range diffToNums {
+		sort.Ints(nums)
 	}
-	// 结果回填到矩阵
+
+	res := make([][]int, m)
 	for i := 0; i < m; i++ {
+		res[i] = make([]int, n)
 		for j := 0; j < n; j++ {
-			arr := diaMap[i-j]
-			mat[i][j] = arr[len(arr)-1]
-			diaMap[i-j] = arr[:len(arr)-1]
+			res[i][j] = diffToNums[i-j][0]
+			diffToNums[i-j] = diffToNums[i-j][1:]
 		}
 	}
 	return mat
@@ -395,10 +405,40 @@ func diagonalSort(mat [][]int) [][]int {
 // 请你返回 k 次迁移操作后最终得到的 二维网格。
 // 输入：grid = [[1,2,3],[4,5,6],[7,8,9]], k = 1
 // 输出：[[9,1,2],[3,4,5],[6,7,8]]
-// 1.除最后一列向右移1位 2.最后一列一到第一列 3.右下角移到左上角
+// 思路：这道题有些像 151. 颠倒字符串中的单词，也要用到 二维数组的花式遍历中讲到的多次翻转的技巧。
+// 151 题让你把句子中的所有单词位置翻转，解法思路是先翻转整个句子，然后逐一翻转每个单词。
+// 这道题是同样的思路：你可以写一个 get 方法和 set 方法把二维数组抽象成一维数组，然后题目就变成了让你将一个一维的数组平移 k 位，相当于把前 mn - k 个元素的位置和后 k 个元素的位置对调，
+// 也可以分别翻转前 mn - k 个元素和后 k 个元素，最后反转所有元素，得到的结果就是题目想要的。
 func shiftGrid(grid [][]int, k int) [][]int {
-	var res [][]int
-	return res
+	m, n := len(grid), len(grid[0])
+	k = k % (m * n)
+	var res []int
+	for index := m*n - k; index < m*n; index++ {
+		res = append(res, get(grid, index))
+	}
+	for index := 0; index < m*n-k; index++ {
+		res = append(res, get(grid, index))
+	}
+	index := 0
+	mat := make([][]int, m)
+	for i := 0; i < m; i++ {
+		mat[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			mat[i][j] = res[index]
+			index++
+		}
+	}
+	return mat
+}
+
+func get(grid [][]int, index int) int {
+	n := len(grid[0])
+	return grid[index/n][index%n]
+}
+
+func set(grid [][]int, index, val int) {
+	n := len(grid[0])
+	grid[index/n][index%n] = val
 }
 
 // 867. 转置矩阵
@@ -409,16 +449,14 @@ func shiftGrid(grid [][]int, k int) [][]int {
 // 输出：[[1,4,7],[2,5,8],[3,6,9]]
 func transpose(matrix [][]int) [][]int {
 	m, n := len(matrix), len(matrix[0])
-	results := make([][]int, n)
+	res := make([][]int, n)
 	for i := 0; i < n; i++ {
-		results[i] = make([]int, m)
-	}
-	for i := 0; i < m; i++ {
+		res[i] = make([]int, m)
 		for j := 0; j < n; j++ {
-			results[j][i] = matrix[i][j]
+			res[j][i] = matrix[i][j]
 		}
 	}
-	return results
+	return res
 }
 
 // 14. 最长公共前缀
@@ -428,6 +466,20 @@ func transpose(matrix [][]int) [][]int {
 // 输入：strs = ["flower","flow","flight"]
 // 输出："fl"
 func longestCommonPrefix(strs []string) string {
+	m, n := len(strs), len(strs[0])
+	j := 0
+	for ; j < n; j++ {
+		// 第j列，对比每一行是否相同
+		for i := 1; i < m; i++ {
+			if len(strs[i]) <= j || strs[i][j] != strs[0][j] {
+				return strs[0][:j]
+			}
+		}
+	}
+	return strs[0][:j]
+}
+
+func longestCommonPrefix2(strs []string) string {
 	minLen := math.MaxInt
 	for _, s := range strs {
 		minLen = min(minLen, len(s))

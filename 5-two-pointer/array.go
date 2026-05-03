@@ -8,20 +8,22 @@ import "fmt"
 // 输出：[0,1,9,16,100]
 func sortedSquares(nums []int) []int {
 	n := len(nums)
-	results := make([]int, n)
+	res := make([]int, n)
 	left, right := 0, n-1
 	k := n - 1
 	for left <= right {
-		if nums[left]*nums[left] < nums[right]*nums[right] {
-			results[k] = nums[right] * nums[right]
+		s1 := nums[left] * nums[left]
+		s2 := nums[right] * nums[right]
+		if s1 < s2 {
+			res[k] = s2
 			right--
 		} else {
-			results[k] = nums[left] * nums[left]
+			res[k] = s1
 			left++
 		}
 		k--
 	}
-	return results
+	return res
 }
 
 // 344. 反转字符串

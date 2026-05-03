@@ -15,19 +15,17 @@ import (
 // 解释："amanaplanacanalpanama" 是回文串。
 func isPalindrome(s string) bool {
 	bs := []byte(s)
-	// 保留小写字母
-	slow := 0
-	for i := 0; i < len(bs); i++ {
-		c := s[i]
-		if (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') {
-			bs[slow] = c
+	slow, fast := 0, 0
+	for ; fast < len(bs); fast++ {
+		if bs[fast] >= 'A' && bs[fast] <= 'Z' {
+			bs[slow] = bs[fast] - 'A' + 'a'
 			slow++
-		} else if c >= 'A' && c <= 'Z' {
-			bs[slow] = c - 'A' + 'a'
+		} else if (bs[fast] >= '0' && bs[fast] <= '9') || (bs[fast] >= 'a' && bs[fast] <= 'z') {
+			bs[slow] = bs[fast]
 			slow++
 		}
 	}
-	// fmt.Println(string(bs[:slow]))
+
 	left, right := 0, slow-1
 	for left < right {
 		if bs[left] != bs[right] {

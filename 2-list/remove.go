@@ -142,7 +142,7 @@ func deleteDuplicates2(head *ListNode) *ListNode {
 // 输出：5, nums = [1,1,2,2,3]
 // 解释：函数应返回新长度 length = 5, 并且原数组的前五个元素被修改为 1, 1, 2, 2, 3。 不需要考虑数组中超出新长度后面的元素。
 // 思路1:快慢指针
-func removeDuplicatesII2(nums []int) int {
+func removeDuplicatesII(nums []int) int {
 	if len(nums) == 0 {
 		return 0
 	}
@@ -172,7 +172,7 @@ func removeDuplicatesII2(nums []int) int {
 }
 
 // 思路2: 双指针
-func removeDuplicatesII(nums []int) int {
+func removeDuplicatesII2(nums []int) int {
 	n := len(nums)
 	if n < 2 {
 		return n
@@ -186,6 +186,21 @@ func removeDuplicatesII(nums []int) int {
 		fast++
 	}
 	return slow
+}
+
+func removeDuplicatesII3(nums []int) int {
+	n := len(nums)
+	if n < 3 {
+		return n
+	}
+	slow, fast := 1, 2
+	for ; fast < n; fast++ {
+		if nums[fast] != nums[slow-1] {
+			slow++
+			nums[slow] = nums[fast]
+		}
+	}
+	return slow + 1
 }
 
 // 82. 删除排序链表中的重复元素 II
