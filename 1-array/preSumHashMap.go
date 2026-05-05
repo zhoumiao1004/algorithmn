@@ -15,7 +15,7 @@ import "fmt"
 func findMaxLength(nums []int) int {
 	n := len(nums)
 	preSum := make([]int, n+1) // preSum[i] 代表 [0..i-1]的区间和
-	result := 0
+	res := 0
 	indexMap := make(map[int]int)
 	indexMap[0] = 0 // 对0特殊处理
 	for i := 1; i <= n; i++ {
@@ -29,15 +29,32 @@ func findMaxLength(nums []int) int {
 		if !ok {
 			indexMap[preSum[i]] = i // key不存在：保存左边界
 		} else {
-			result = max(result, i-index) // key已存在：更新结果 (不能覆盖value，因为要求最大长度)
+			res = max(res, i-index) // key已存在：更新结果 (不能覆盖value，因为要求最大长度)
 		}
 	}
-	return result
+	return res
 }
 
-// 思路2: 滑动窗口
-func findMaxLength2(nums []int) int {
-	// TODO
+func findMaxLength1(nums []int) int {
+	n := len(nums)
+	preSum := 0
+	res := 0
+	indexMap := make(map[int]int)
+	indexMap[0] = 0 // 对0特殊处理
+	for i := 1; i < n; i++ {
+		if nums[i-1] == 0 {
+			preSum--
+		} else {
+			preSum++
+		}
+		// 查看hashmap中是否已经存在左边界
+		if index, ok := indexMap[preSum]; ok {
+			res = max(res, i-index) // key已存在：更新结果 (不能覆盖value，因为要求最大长度)
+		} else {
+			indexMap[preSum] = i // key不存在：保存左边界
+		}
+	}
+	return res
 }
 
 // 523. 连续的子数组和
@@ -63,6 +80,24 @@ func checkSubarraySum(nums []int, k int) bool {
 	valToIndex := make(map[int]int)
 	for i := 0; i <= n; i++ {
 		val := preSum[i] % k
+		if index, ok := valToIndex[val]; ok {
+			if i-index >= 2 {
+				return true
+			}
+		} else {
+			valToIndex[val] = i
+		}
+	}
+	return false
+}
+
+func checkSubarraySum1(nums []int, k int) bool {
+	n := len(nums)
+	preSum := 0
+	valToIndex := make(map[int]int)
+	for i := 0; i < n; i++ {
+		preSum += nums[i]
+		val := preSum % k
 		if index, ok := valToIndex[val]; ok {
 			if i-index >= 2 {
 				return true
@@ -102,7 +137,43 @@ func checkSubarraySum2(nums []int, k int) bool {
 // 输入：nums = [1,2,3], k = 3
 // 输出：2
 func subarraySum(nums []int, k int) int {
-	result := 0
+	n := len(nums)
+	preSum := make([]int, n+1)
+	for i := 1; i <= n; i++ {
+		preSum[i] = preSum[i-1] + nums[i-1]
+	}
+
+	res := 0
+	valToCnt := make(map[int]int)
+	for i := 0; i <= n; i++ {
+		// preSum[i] - preSum[x] == k
+		if cnt, ok := valToCnt[preSum[i]-k]; ok {
+			res += cnt
+		}
+		valToCnt[preSum[i]]++
+	}
+	return res
+}
+
+func subarraySum1(nums []int, k int) int {
+	n := len(nums)
+	preSum := 0
+	res := 0
+	valToCnt := make(map[int]int)
+	valToCnt[0] = 1
+	for i := 0; i <= n; i++ {
+		preSum += nums[i]
+		// preSum[i] - preSum[x] == k
+		if cnt, ok := valToCnt[preSum-k]; ok {
+			res += cnt
+		}
+		valToCnt[preSum]++
+	}
+	return res
+}
+
+func subarraySum2(nums []int, k int) int {
+	res := 0
 	n := len(nums)
 	cntMap := make(map[int]int)
 	cntMap[0] = 1 // 对0特殊处理
@@ -110,11 +181,11 @@ func subarraySum(nums []int, k int) int {
 	for i := 1; i <= n; i++ {
 		preSum[i] = preSum[i-1] + nums[i-1]
 		if cnt, ok := cntMap[preSum[i]-k]; ok {
-			result += cnt
+			res += cnt
 		}
 		cntMap[preSum[i]]++
 	}
-	return result
+	return res
 }
 
 // 1124. 表现良好的最长时间段
@@ -128,7 +199,37 @@ func subarraySum(nums []int, k int) int {
 // 解释：最长的表现良好时间段是 [9,9,6]。
 // 思路1: 前缀和
 func longestWPI(hours []int) int {
-	result := 0
+	n := len(hours)
+	preSum := make([]int, n+1)
+	for i := 1; i <= n; i++ {
+		val := -1
+		if hours[i-1] > 8 {
+			val = 1
+		}
+		preSum[i] = preSum[i-1] + val
+	}
+
+	res := 0
+	valToIndex := make(map[int]int)
+	for i := 0; i <= n; i++ {
+		// preSum[i] > 0 or preSum[i] - preSum[x] = 1
+		if preSum[i] > 0 {
+			res = max(res, i)
+		} else {
+			if index, ok := valToIndex[preSum[i]-1]; ok {
+				res = max(res, i-index)
+			}
+		}
+
+		if _, ok := valToIndex[preSum[i]]; !ok {
+			valToIndex[preSum[i]] = i
+		}
+	}
+	return res
+}
+
+func longestWPI2(hours []int) int {
+	res := 0
 	valToIndex := make(map[int]int)
 	valToIndex[0] = 0 // 对0特殊处理
 	n := len(hours)
@@ -141,11 +242,10 @@ func longestWPI(hours []int) int {
 			preSum[i] = preSum[i-1] - 1
 		}
 		if preSum[i] > 0 {
-			result = max(result, i)
+			res = max(res, i)
 		} else {
-			index, ok := valToIndex[preSum[i]-1]
-			if ok {
-				result = max(result, i-index)
+			if index, ok := valToIndex[preSum[i]-1]; ok {
+				res = max(res, i-index)
 			}
 		}
 		if _, ok := valToIndex[preSum[i]]; !ok {
@@ -153,7 +253,7 @@ func longestWPI(hours []int) int {
 		}
 	}
 
-	return result
+	return res
 }
 
 // 974. 和可被 K 整除的子数组
@@ -166,6 +266,29 @@ func longestWPI(hours []int) int {
 // 有 7 个子数组满足其元素之和可被 k = 5 整除：
 // [4, 5, 0, -2, -3, 1], [5], [5, 0], [5, 0, -2, -3], [0], [0, -2, -3], [-2, -3]
 func subarraysDivByK(nums []int, k int) int {
+	n := len(nums)
+	preSum := make([]int, n+1)
+	for i := 1; i <= n; i++ {
+		preSum[i] = preSum[i-1] + nums[i-1]
+	}
+
+	res := 0
+	valToCnt := make(map[int]int)
+	for i := 0; i <= n; i++ {
+		// (preSum[i] - preSumm[x]) % k == 0
+		val := preSum[i] % k
+		if val < 0 {
+			val += k
+		}
+		if cnt, ok := valToCnt[val]; ok {
+			res += cnt
+		}
+		valToCnt[val]++
+	}
+	return res
+}
+
+func subarraysDivByK2(nums []int, k int) int {
 	result := 0
 	n := len(nums)
 	cntMap := make(map[int]int)

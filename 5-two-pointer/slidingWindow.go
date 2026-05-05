@@ -239,16 +239,22 @@ func lengthOfLongestSubstring2(s string) int {
 // 输入：nums = [1,1,4,2,3], x = 5
 // 输出：2
 // 解释：最佳解决方案是移除后两个元素，将 x 减到 0 。
+// 思路1: 滑动窗口
 func minOperations(nums []int, x int) int {
+	n := len(nums)
 	s := 0
-	for i := 0; i < len(nums); i++ {
+	for i := 0; i < n; i++ {
 		s += nums[i]
 	}
 	target := s - x
+	if target < 0 {
+		return -1
+	}
+
 	left, right := 0, 0
 	sum := 0
 	maxLen := math.MinInt
-	for right < len(nums) {
+	for right < n {
 		c := nums[right]
 		right++
 		// 窗口内数据更新
@@ -267,7 +273,33 @@ func minOperations(nums []int, x int) int {
 	if maxLen == maxLen {
 		return -1
 	}
-	return len(nums) - maxLen
+	return n - maxLen
+}
+
+// 思路2: 前缀和
+func minOperations2(nums []int, x int) int {
+	n := len(nums)
+	preSum := make([]int, n+1)
+	for i := 1; i <= n; i++ {
+		preSum[i] = preSum[i-1] + nums[i-1]
+	}
+	target := preSum[n] - x
+	if target == 0 {
+		return n
+	}
+	res := math.MinInt
+	valToIndex := make(map[int]int)
+	for i := 0; i <= n; i++ {
+		val := preSum[i] - target
+		if index, ok := valToIndex[val]; ok {
+			res = max(res, i-index)
+		}
+		valToIndex[preSum[i]] = i
+	}
+	if res == math.MinInt {
+		return -1
+	}
+	return n - res
 }
 
 // 713. 乘积小于 K 的子数组
@@ -280,20 +312,42 @@ func minOperations(nums []int, x int) int {
 func numSubarrayProductLessThanK(nums []int, k int) int {
 	n := len(nums)
 	left, right := 0, 0
-	s := 1
-	result := 0
+	product := 1
+	res := 0
 	for right < n {
 		c := nums[right]
 		right++
-		s *= c
-		for left < right && s >= k {
+		product *= c
+		for left < right && product >= k {
 			d := nums[left]
 			left++
-			s /= d
+			product /= d
 		}
-		result += right - left // 以right结尾的子数组个数
+		res += right - left // 以right结尾的子数组个数
 	}
-	return result
+	return res
+}
+
+// 思路2: 前缀和, 无法通过所有测试用例，因为乘积过大，会超过MaxInt
+func numSubarrayProductLessThanK2(nums []int, k int) int {
+	n := len(nums)
+	prefix := make([]int, n+1)
+	prefix[0] = 1
+	for i := 1; i <= n; i++ {
+		prefix[i] = prefix[i-1] * nums[i-1]
+	}
+
+	res := 0
+	for i := 0; i <= n; i++ {
+		for j := i - 1; j >= 0; j-- {
+			if prefix[i]/prefix[j] >= k {
+				// [j+1...i] 子数组个数i-j-1
+				res += i - j - 1
+				break
+			}
+		}
+	}
+	return res
 }
 
 // 1004. 最大连续1的个数 III
@@ -305,9 +359,9 @@ func numSubarrayProductLessThanK(nums []int, k int) int {
 // 粗体数字从 0 翻转到 1，最长的子数组长度为 6。
 func longestOnes(nums []int, k int) int {
 	n := len(nums)
+	res := 0
 	var hash [2]int
 	left, right := 0, 0
-	result := 0
 	for right < n {
 		c := nums[right]
 		right++
@@ -317,9 +371,32 @@ func longestOnes(nums []int, k int) int {
 			left++
 			hash[d]--
 		}
-		result = max(result, right-left)
+		res = max(res, right-left)
 	}
-	return result
+	return res
+}
+
+func longestOnes2(nums []int, k int) int {
+	n := len(nums)
+	res := 0
+	left, right := 0, 0
+	zeroCnt := 0
+	for right < n {
+		c := nums[right]
+		right++
+		if c == 0 {
+			zeroCnt++
+		}
+		for left < right && zeroCnt > k {
+			d := nums[left]
+			left++
+			if d == 0 {
+				zeroCnt--
+			}
+		}
+		res = max(res, right-left)
+	}
+	return res
 }
 
 // 424. 替换后的最长重复字符
@@ -361,39 +438,39 @@ func characterReplacement(s string, k int) int {
 // 输出：true
 // 思路1: 滑动窗口
 func containsNearbyDuplicate1(nums []int, k int) bool {
+	set := make(map[int]bool)
 	left, right := 0, 0
-	window := make(map[int]bool)
 	for right < len(nums) {
 		c := nums[right]
 		right++
 		// 更新结果
-		if window[c] {
+		if set[c] {
 			return true
 		}
 		// 窗口内数据更新
-		window[c] = true
+		set[c] = true
 
 		if right-left > k {
 			d := nums[left]
 			left++
 			// 窗口内数据更新
-			delete(window, d)
+			set[d] = false
 		}
 	}
 	return false
 }
 
-// 思路2: 单指针 + hashmap保存前面遍历过的元素的下标
+// 思路2: hashmap 保存前面遍历过的元素的下标
 func containsNearbyDuplicate(nums []int, k int) bool {
 	n := len(nums)
-	window := make(map[int]int)
-	for right := 0; right < n; right++ {
-		c := nums[right]
-		index, ok := window[c]
-		if ok && right-index <= k {
+	valToIndex := make(map[int]int)
+	for i := 0; i < n; i++ {
+		val := nums[i]
+		index, ok := valToIndex[val]
+		if ok && i-index <= k {
 			return true
 		}
-		window[c] = right
+		valToIndex[val] = i
 	}
 	return false
 }
@@ -463,26 +540,26 @@ https://leetcode.cn/problems/minimum-size-subarray-sum/description/
 解释：子数组 [4,3] 是该条件下的长度最小的子数组。
 */
 func minSubArrayLen(target int, nums []int) int {
-	result := math.MaxInt
+	res := math.MaxInt
 	left, right := 0, 0
-	s := 0
+	windowSum := 0
 	for right < len(nums) {
 		c := nums[right]
 		right++
 		// 窗口内数据更新
-		s += c
-		for s >= target {
-			result = min(result, right-left) // 更新结果
+		windowSum += c
+		for windowSum >= target {
+			res = min(res, right-left) // 更新结果
 			d := nums[left]
 			left++
 			// 窗口内数据更新
-			s -= d
+			windowSum -= d
 		}
 	}
-	if result == math.MaxInt {
+	if res == math.MaxInt {
 		return 0
 	}
-	return result
+	return res
 }
 
 // 文件拷贝：某一个大文件被拆成了 N 个小文件，每个小文件编号从 0 至 N-1，相应大小分别记为 S(i)。给定磁盘空间为 C ，
@@ -515,48 +592,50 @@ https://leetcode.cn/problems/longest-substring-with-at-least-k-repeating-charact
 解释：最长子串为 "aaa" ，其中 'a' 重复了 3 次。
 */
 func longestSubstring(s string, k int) int {
-	result := 0
+	res := 0
 	for i := 1; i <= 26; i++ {
 		r := longestKLetterSubstr(s, k, i)
-		result = max(result, r)
+		res = max(res, r)
 	}
-	return result
+	return res
 }
 
-// 寻找s中含有count种字符，且每种字符出现次数都大于k的子串长度
-func longestKLetterSubstr(s string, k, count int) int {
-	result := 0
+// 寻找s中含有 n 种字符，且每种字符出现次数都大于k的子串长度
+func longestKLetterSubstr(s string, k, n int) int {
+	res := 0
 	left, right := 0, 0
 	var window [26]int
-	uniqueCount := 0
-	validCount := 0
+	uniqueCnt := 0
+	validCnt := 0
 	for right < len(s) {
 		c := s[right]
-		if window[c-'a'] == 0 {
-			uniqueCount++
-		}
-		window[c-'a']++
-		if window[c-'a'] == k {
-			validCount++
-		}
 		right++
-
-		for uniqueCount > count {
-			d := s[left]
-			if window[d-'a'] == k {
-				validCount--
-			}
-			window[d-'a']--
-			if window[d-'a'] == 0 {
-				uniqueCount--
-			}
-			left++
+		window[c-'a']++
+		cnt := window[c-'a']
+		if cnt == 1 {
+			uniqueCnt++
 		}
-		if validCount == count {
-			result = max(result, right-left)
+		if cnt == k {
+			validCnt++
+		}
+
+		for uniqueCnt > n {
+			d := s[left]
+			left++
+			window[d-'a']--
+			cnt := window[d-'a']
+			if cnt == k-1 {
+				validCnt--
+			}
+			if cnt == 0 {
+				uniqueCnt--
+			}
+		}
+		if validCnt == n {
+			res = max(res, right-left)
 		}
 	}
-	return result
+	return res
 }
 
 func main() {

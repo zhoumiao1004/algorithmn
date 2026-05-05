@@ -11,6 +11,25 @@ package main
 // suffix: [24, 24, 12,  4]
 func productExceptSelf(nums []int) []int {
 	n := len(nums)
+	prefix := make([]int, n+1)
+	prefix[0] = 1
+	for i := 1; i <= n; i++ {
+		prefix[i] = prefix[i-1] * nums[i-1]
+	}
+	suffix := make([]int, n+1)
+	suffix[n] = 1
+	for i := n - 1; i >= 0; i-- {
+		suffix[i] = suffix[i+1] * nums[i]
+	}
+	res := make([]int, n)
+	for i := 0; i < n; i++ {
+		res[i] = prefix[i] * suffix[i+1]
+	}
+	return res
+}
+
+func productExceptSelf2(nums []int) []int {
+	n := len(nums)
 	prefix := make([]int, n)
 	prefix[0] = nums[0]
 	for i := 1; i < n; i++ {
@@ -56,7 +75,7 @@ func Constructor() ProductOfNumbers {
 }
 
 func (this *ProductOfNumbers) Add(num int) {
-	if len(this.prefix) == 0 {
+	if num == 0 {
 		this.prefix = []int{1}
 	} else {
 		this.prefix = append(this.prefix, this.prefix[len(this.prefix)-1]*num)
