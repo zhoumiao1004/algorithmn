@@ -282,7 +282,27 @@ func coinChange(coins []int, amount int) int {
 	if dp[amount] == math.MaxInt {
 		return -1
 	}
-	fmt.Println(dp)
+	// fmt.Println(dp)
+	return dp[amount]
+}
+
+func coinChange2(coins []int, amount int) int {
+	// dp[j]含义：组成总金额为j的硬币数最少为dp[j]
+	// 求组合中最少硬币个数，递推公式：dp[j] = min(dp[j], dp[j-coins[i]]+1)
+	dp := make([]int, amount+1)
+	for i := 1; i <= amount; i++ {
+		dp[i] = amount + 1
+	}
+
+	for i := 0; i < len(coins); i++ {
+		for j := coins[i]; j <= amount; j++ {
+			dp[j] = min(dp[j], dp[j-coins[i]]+1)
+		}
+	}
+	if dp[amount] == amount+1 {
+		return -1
+	}
+	// fmt.Println(dp)
 	return dp[amount]
 }
 
