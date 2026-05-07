@@ -41,7 +41,9 @@ func minDistance(word1 string, word2 string) int {
 }
 
 // 暴力解法
-func minDistanceForce(word1 string, word2 string) int {
+// 状态：i, j; 选择：min() ；状态转移方程：min(dp(i, j-1), dp(i-1, j), dp(i-1,j-1))
+// 重叠子问题：状态在重叠
+func minDistanceForce(s1 string, s2 string) int {
 	// dp(i, j) 返回 s1[0...i] 和 s2【0...j] 的最小编辑距离
 	var dp func(i, j int) int
 	dp = func(i, j int) int {
@@ -52,7 +54,7 @@ func minDistanceForce(word1 string, word2 string) int {
 			return i + 1
 		}
 
-		if word1[i] == word2[j] {
+		if s1[i] == s2[j] {
 			return dp(i-1, j-1)
 		} else {
 			return min(
@@ -62,7 +64,7 @@ func minDistanceForce(word1 string, word2 string) int {
 			)
 		}
 	}
-	return dp(len(word1)-1, len(word2)-1)
+	return dp(len(s1)-1, len(s2)-1)
 }
 
 // 带备忘录递归解法

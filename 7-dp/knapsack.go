@@ -6,12 +6,30 @@ import (
 	"sort"
 )
 
-// 物品0 1 15
-// 物品1 3 20
-// 物品2 4 30
-// weight := []int{1, 3, 4}
-// value := []int{15, 20, 30}
-func test_2_wei_bag_problem1(weight, value []int, n int) int {
+// 0-1背包
+// 明确状态：背包容量和可选择的物品；选择：装进背包 or 不装进背包
+func knapsack(wt, val []int, W int) int {
+	// 定义dp[i][j]: 对于前 i 个物品，当前背包的容量为 j，这种情况下可以装的最大价值是 dp[i][j]。
+	N := len(wt)
+	dp := make([][]int, N+1)
+	for i := 0; i <= N; i++ {
+		dp[i] = make([]int, W+1)
+	}
+
+	// 由于数组索引从 0 开始，而我们定义中的 i 是从 1 开始计数的，所以 val[i-1] 和 wt[i-1] 表示第 i 个物品的价值和重量。
+	for i := 1; i <= N; i++ {
+		for j := 1; j <= W; j++ {
+			if j < wt[i-1] {
+				dp[i][j] = dp[i-1][j]
+			} else {
+				dp[i][j] = max(dp[i-1][j], dp[i-1][j-wt[i-1]]+val[i-1])
+			}
+		}
+	}
+	return dp[N][W]
+}
+
+func knapsack2(weight, value []int, n int) int {
 	// 定义dp[i][j]数组：从下表0-i的物品中取，放进j大小的背包的价值总和
 	m := len(weight)
 	dp := make([][]int, m)
@@ -21,13 +39,8 @@ func test_2_wei_bag_problem1(weight, value []int, n int) int {
 	for j := weight[0]; j <= n; j++ {
 		dp[0][j] = value[0]
 	}
-	// 初始化，从后往前，防止越界
-	//for j := n; j >= weight[0]; j-- {
-	//	dp[0][j] = dp[0][j-weight[0]] + value[0]
-	//}
-	// 递推公式
+
 	for i := 1; i < m; i++ {
-		//正序,也可以倒序
 		for j := 0; j <= n; j++ {
 			if j < weight[i] {
 				dp[i][j] = dp[i-1][j]
@@ -40,39 +53,16 @@ func test_2_wei_bag_problem1(weight, value []int, n int) int {
 	return dp[m-1][n]
 }
 
-func test_1_wei_bag_problem(weight, value []int, n int) int {
-	// 定义 and 初始化
+// 用滚动数组进行空间压缩
+func knapsackN(weight, value []int, n int) int {
 	m := len(weight)
 	dp := make([]int, n+1)
-	// 递推顺序
 	for i := 0; i < m; i++ {
-		// 这里必须倒序,区别二维,因为二维dp保存了i的状态
 		for j := n; j >= weight[i]; j-- {
-			// 递推公式
 			dp[j] = max(dp[j], dp[j-weight[i]]+value[i])
 		}
 	}
-	fmt.Println(dp)
-	return dp[n]
-}
-
-// 物品0 1 15
-// 物品1 3 20
-// 物品2 4 30
-// weight := []int{1, 3, 4}
-// value := []int{15, 20, 30}
-func fullPackage(weight, value []int, n int) int {
-	m := len(weight)
-	// dp[j]含义：大小为j的背包能装的最大价值
-	dp := make([]int, n+1)
-	// 初始化
-	// 遍历顺序：先遍历物品再遍历背包
-	for i := 0; i < m; i++ {
-		for j := weight[i]; j <= n; j++ {
-			dp[j] = max(dp[j], dp[j-weight[i]]+value[i])
-		}
-	}
-	fmt.Println(dp)
+	// fmt.Println(dp)
 	return dp[n]
 }
 
@@ -91,16 +81,63 @@ func canPartition(nums []int) bool {
 		return false
 	}
 	target := s / 2
-	// 转换为01背包问题，大小为target的背包尽量装，能否装价值为target的物品
-	// dp[j]含义：大小为j的背包，能装的最大价值
-	// 递推公式：dp[j] = max(dp[j], dp[j-nums[i]] + nums[i])
-	dp := make([]int, target+1)
+
+	dp := make([]int, target+1)      // dp[j]含义：大小为j的背包，能装的最大价值
 	for i := 0; i < len(nums); i++ { // 物品
 		for j := target; j >= nums[i]; j-- { // 背包逆序
 			dp[j] = max(dp[j], dp[j-nums[i]]+nums[i])
 		}
 	}
 	return dp[target] == target
+}
+
+func canPartition2(nums []int) bool {
+	s := 0
+	for i := 0; i < len(nums); i++ {
+		s += nums[i]
+	}
+	if s%2 == 1 {
+		return false
+	}
+	target := s / 2
+
+	dp := make([]bool, target+1) // dp[j]含义：能否装满大小为j的背包
+	dp[0] = true
+	for i := 0; i < len(nums); i++ {
+		for j := target; j >= nums[i]; j-- {
+			dp[j] = dp[j] || dp[j-nums[i]]
+		}
+	}
+	return dp[target]
+}
+
+func canPartition3(nums []int) bool {
+	s := 0
+	for i := 0; i < len(nums); i++ {
+		s += nums[i]
+	}
+	if s%2 == 1 {
+		return false
+	}
+	target := s / 2
+
+	n := len(nums)
+	dp := make([][]bool, n+1) // dp[i][j]含义：对于前 i 个物品，当前背包大小为 j，这种情况下能否装满背包 dp[i][j]。
+	for i := 0; i <= n; i++ {
+		dp[i] = make([]bool, target+1)
+		dp[i][0] = true
+	}
+
+	for i := 1; i <= n; i++ {
+		for j := 1; j <= target; j++ {
+			if j >= nums[i-1] {
+				dp[i][j] = dp[i-1][j] || dp[i-1][j-nums[i-1]]
+			} else {
+				dp[i][j] = dp[i-1][j]
+			}
+		}
+	}
+	return dp[n][target]
 }
 
 // 1049.最后一块石头的重量II
@@ -198,10 +235,22 @@ func findMaxForm(strs []string, m int, n int) int {
 	return dp[m][n]
 }
 
-/* 完全背包
-求组合数：先遍历物品，再遍历背包
-求排列数：先遍历背包再遍历物品
-*/
+// 完全背包
+func knapsackII(weight, value []int, n int) int {
+	m := len(weight)
+	// dp[j]含义：大小为j的背包能装的最大价值
+	dp := make([]int, n+1)
+	// 初始化
+	// 遍历顺序：先遍历物品再遍历背包
+	for i := 0; i < m; i++ {
+		for j := weight[i]; j <= n; j++ {
+			dp[j] = max(dp[j], dp[j-weight[i]]+value[i])
+		}
+	}
+	// fmt.Println(dp)
+	return dp[n]
+}
+
 // 518.零钱兑换II
 // https://leetcode.cn/problems/coin-change-ii/
 // 给定不同面额的硬币和一个总金额。写出函数来计算可以凑成总金额的硬币组合数。假设每一种面额的硬币有无限个。
@@ -212,7 +261,30 @@ func findMaxForm(strs []string, m int, n int) int {
 // 5=2+1+1+1
 // 5=1+1+1+1+1
 // 注意：求的是组合数
+// 思路：
+// 明确状态：背包容量和可选择的物品；选择：装进背包 or 不装进背包
 func change(amount int, coins []int) int {
+	n := len(coins)
+	dp := make([][]int, n+1) // 若只使用 coins 中的前 i 个（i 从 1 开始计数）硬币的面值，若想凑出金额 j，有 dp[i][j] 种凑法。
+	for i := 0; i <= n; i++ {
+		dp[i] = make([]int, amount+1)
+		dp[i][0] = 1
+	}
+
+	for i := 1; i <= n; i++ {
+		for j := 1; j <= amount; j++ {
+			if j >= coins[i-1] {
+				dp[i][j] = dp[i-1][j] + dp[i][j-coins[i-1]] // 不把第i个物品放入背包 or 把第i个物品放入背包
+			} else {
+				dp[i][j] = dp[i-1][j] // 不把第i个物品放入背包
+			}
+		}
+	}
+	// fmt.Println(dp)
+	return dp[n][amount]
+}
+
+func change2(amount int, coins []int) int {
 	// dp[i]含义：总金额为i的总方法数
 	n := len(coins)
 	dp := make([]int, amount+1)
@@ -304,6 +376,31 @@ func coinChange2(coins []int, amount int) int {
 	}
 	// fmt.Println(dp)
 	return dp[amount]
+}
+
+// 暴力递归解法
+// 状态：目标金额 amount
+// 选择：coins 数组中列出的所有硬币面额
+// dp定义：凑出总金额 amount 至少需要的硬币数
+func coinChange3(coins []int, amount int) int {
+	if amount == 0 {
+		return 0
+	}
+	if amount < 1 {
+		return -1
+	}
+	res := math.MaxInt
+	for _, coin := range coins {
+		subProblem := coinChange3(coins, amount-coin)
+		if subProblem == -1 {
+			continue
+		}
+		res = min(res, subProblem+1)
+	}
+	if res == math.MaxInt {
+		return -1
+	}
+	return res
 }
 
 // 279.完全平方数
@@ -403,12 +500,10 @@ func maxTotalReward(rewardValues []int) int {
 }
 
 func main() {
+	fmt.Println(knapsack2([]int{1, 3, 4}, []int{15, 20, 30}, 4)) // 35 = 15+20
 	fmt.Println(change(5, []int{1, 2, 5}))
 	fmt.Println(findTargetSumWays([]int{1, 1, 1, 1, 1}, 3))
 	fmt.Println(coinChange([]int{1, 2, 5}, 11))
 	fmt.Println(coinChange([]int{2}, 3))
 	fmt.Println(numSquares(13))
-
-	fmt.Println(wordBreak("leetcode", []string{"leet", "code"}))
-	fmt.Println(wordBreak("applepenapple", []string{"apple", "pen"}))
 }

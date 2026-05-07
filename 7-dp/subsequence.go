@@ -3,31 +3,84 @@ package main
 import (
 	"fmt"
 	"math"
+	"sort"
 )
 
 // 300.最长递增子序列
+// https://leetcode.cn/problems/longest-increasing-subsequence/description/
 // 给你一个整数数组 nums ，找到其中最长严格递增子序列的长度。
 // 子序列 是由数组派生而来的序列，删除（或不删除）数组中的元素而不改变其余元素的顺序。例如，[3,6,2,7] 是数组 [0,3,1,6,2,2,7] 的子序列。
 // 输入：nums = [10,9,2,5,3,7,101,18] 输出：4
 // 解释：最长递增子序列是 [2,3,7,101]，因此长度为 4 。
 // 时间复杂度 O(N*N)
 func lengthOfLIS(nums []int) int {
-	// dp[i]含义：以nums[i]这个数结尾的最长递增子序列的长度
 	n := len(nums)
+	if n < 2 {
+		return n
+	}
+	// dp[i]含义：以nums[i]这个数结尾的LIS的长度
 	dp := make([]int, n)
 	for i := 0; i < n; i++ {
 		dp[i] = 1 // base case
 	}
-	result := 0
+	res := 0
 	for i := 1; i < n; i++ {
 		for j := 0; j < i; j++ {
 			if nums[i] > nums[j] {
 				dp[i] = max(dp[i], dp[j]+1)
-				result = max(result, dp[i]) // 顺便求所有nums[i]结尾的LIS长度最大值
 			}
+			res = max(res, dp[i])
 		}
 	}
-	return result
+	return res
+}
+
+// 354. 俄罗斯套娃信封问题
+// https://leetcode.cn/problems/russian-doll-envelopes/description/
+func maxEnvelopes(envelopes [][]int) int {
+
+	var lengthOfLIS func(nums []int) int
+	lengthOfLIS = func(nums []int) int {
+		piles := 0
+		n := len(nums)
+		top := make([]int, n)
+		for _, poker := range nums {
+			// 要处理的扑克牌
+			left, right := 0, piles
+			// 二分查找插入位置
+			for left < right {
+				mid := (left + right) / 2
+				if top[mid] >= poker {
+					right = mid
+				} else {
+					left = mid + 1
+				}
+			}
+			if left == piles {
+				piles++
+			}
+			// 把这张牌放到牌堆顶
+			top[left] = poker
+		}
+		// 牌堆数就是 LIS 长度
+		return piles
+	}
+
+	n := len(envelopes)
+	// 按宽度升序排列，如果宽度一样，则按高度降序排列
+	sort.Slice(envelopes, func(i, j int) bool {
+		if envelopes[i][0] == envelopes[j][0] {
+			return envelopes[i][1] > envelopes[j][1]
+		}
+		return envelopes[i][0] < envelopes[j][0]
+	})
+	// 对高度数组寻找 LIS
+	height := make([]int, n)
+	for i := 0; i < n; i++ {
+		height[i] = envelopes[i][1]
+	}
+
+	return lengthOfLIS(height)
 }
 
 // 674. 最长连续递增序列（子数组）
@@ -39,21 +92,18 @@ func lengthOfLIS(nums []int) int {
 func findLengthOfLCIS(nums []int) int {
 	// dp[i]含义：以下标i结尾的字符串的最长连续递增序列的长度
 	n := len(nums)
-	if n == 0 {
-		return 0
-	}
 	dp := make([]int, n)
 	for i := 0; i < n; i++ {
 		dp[i] = 1
 	}
-	result := 0
+	res := 1
 	for i := 1; i < n; i++ {
 		if nums[i] > nums[i-1] {
 			dp[i] = dp[i-1] + 1
-			result = max(result, dp[i])
+			res = max(res, dp[i])
 		}
 	}
-	return result
+	return res
 }
 
 // 718. 最长重复子数组
@@ -370,6 +420,72 @@ func findNumberOfLIS2(nums []int) int {
 		}
 	}
 	return 1
+}
+
+// 115. 不同的子序列
+// https://leetcode.cn/problems/distinct-subsequences/description/
+// 给你两个字符串 s 和 t ，统计并返回在 s 的 子序列 中 t 出现的个数
+// 输入：s = "babgbag", t = "bag" 输出：5
+// 2种视角：从s的视角；从t的视角
+// 思路1: 从s的视角,如果s[0]能匹配t[0],又有两种情况
+// 如果s[0] 匹配 t[0], 原问题转化为s[1...]的所有子序列中计算t[1...]出现的次数
+// 也可以不让 s[0] 匹配 t[0], 原问题转化为s[1...]的所有子序列中计算t[0...]出现的次数
+// 为了给 s[0] 之后的元素匹配的机会，比如 s = "aab", t = "ab"，就有两种匹配方式：a_b 和 _ab。
+// 思路1: 带memo的递归解法
+func numDistinctMemo(s string, t string) int {
+	m, n := len(s), len(t)
+	memo := make([][]int, m)
+	for i := 0; i < m; i++ {
+		memo[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			memo[i][j] = -1
+		}
+	}
+
+	var dp func(s, t string, i, j int) int
+	dp = func(s, t string, i, j int) int {
+		if j == len(t) {
+			return 1
+		}
+		if len(s)-i < len(t)-j {
+			return 0
+		}
+
+		if memo[i][j] != -1 {
+			return memo[i][j]
+		}
+		if s[i] == t[j] {
+			memo[i][j] = dp(s, t, i+1, j+1) + dp(s, t, i+1, j)
+		} else {
+			memo[i][j] = dp(s, t, i+1, j)
+		}
+		return memo[i][j]
+	}
+	return dp(s, t, 0, 0)
+}
+
+// 思路2: 自底向上递归dp数组
+func numDistinct(s string, t string) int {
+	// dp[i][j]含义：[0,i-1]的s和[0,j-1]的t的个数
+	// 1.s[i] == t[j]: dp[i][j] = dp[i-1][j-1] + dp[i-1][j]
+	// 2.s[i] != t[j]: dp[i][j] = dp[i-1][j]
+	m, n := len(s), len(t)
+	dp := make([][]int, m+1)
+	for i := 0; i <= m; i++ {
+		dp[i] = make([]int, n+1)
+		dp[i][0] = 1
+	}
+	for i := 1; i <= m; i++ {
+		for j := 1; j <= n; j++ {
+			if s[i-1] == t[j-1] {
+				dp[i][j] = dp[i-1][j-1] + dp[i-1][j] // 两边都删除的个数 + 删除s最后一个
+			} else {
+				dp[i][j] = dp[i-1][j]
+			}
+		}
+	}
+	// fmt.Println(dp)
+	return dp[m][n]
 }
 
 func main() {
