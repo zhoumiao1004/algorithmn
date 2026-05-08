@@ -199,6 +199,67 @@ func findTargetSumWays(nums []int, target int) int {
 	return dp[m]
 }
 
+// 二维dp数组，明确状态：背包容量和可选择的物品；选择：不放第 i 个物品 or 放第 i 个物品
+// 定义dp[i][j]: 对于前 i 个物品，当前背包的容量为 j，这种情况下可以装的最大价值是 dp[i][j]。
+func findTargetSumWays2(nums []int, target int) int {
+	n := len(nums)
+	s := 0
+	for i := 0; i < n; i++ {
+		s += nums[i]
+	}
+	if (s+target)%2 != 0 {
+		return 0
+	}
+	if target > s || target < -s {
+		return 0
+	}
+	target = (s + target) / 2
+
+	dp := make([][]int, n+1)
+	for i := 0; i <= n; i++ {
+		dp[i] = make([]int, target+1)
+	}
+	dp[0][0] = 1
+	for i := 1; i <= n; i++ {
+		for j := 0; j <= target; j++ {
+			if j >= nums[i-1] {
+				dp[i][j] = dp[i-1][j] + dp[i-1][j-nums[i-1]]
+			} else {
+				dp[i][j] = dp[i-1][j]
+			}
+		}
+	}
+	return dp[n][target]
+}
+
+// 回溯，时间复杂度O(2^n)
+func findTargetSumWays3(nums []int, target int) int {
+	n := len(nums)
+	if n == 0 {
+		return 0
+	}
+	res := 0
+	s := 0
+	var backtrack func(i int)
+	backtrack = func(i int) {
+		if i == n {
+			if s == target {
+				res++
+			}
+			return
+		}
+		s += nums[i]
+		backtrack(i + 1)
+		s -= nums[i]
+
+		s -= nums[i]
+		backtrack(i + 1)
+		s += nums[i]
+	}
+	backtrack(0)
+	return res
+}
+
 // 474. 一和零
 // https://leetcode.cn/problems/ones-and-zeroes/description/
 // 给你一个二进制字符串数组 strs 和两个整数 m 和 n 。

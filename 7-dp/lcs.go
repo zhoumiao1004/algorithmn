@@ -176,34 +176,3 @@ func minimumDeleteSum(s1 string, s2 string) int {
 	}
 	return dp[m][n]
 }
-
-// 1312. 让字符串成为回文串的最少插入次数
-// https://leetcode.cn/problems/minimum-insertion-steps-to-make-a-string-palindrome/description/
-// 给你一个字符串 s ，每一次操作你都可以在字符串的任意位置插入任意字符。
-// 请你返回让 s 成为回文串的 最少操作次数 。
-// 「回文串」是正读和反读都相同的字符串。
-// 输入：s = "zzazz"
-// 输出：0
-// 输入：s = "mbadm"
-// 输出：2
-// 解释：字符串可变为 "mbdadbm" 或者 "mdbabdm" 。
-func minInsertions(s string) int {
-	// dp[i][j]含义：字符串s[i..j]，最少需要插入dp[i][j]次才能成为回文串。因此要求的是dp[0, n-1]
-	// 假设已经计算出了子问题 dp[i+1][j-1] 的值，如果s[i] == s[j], s[i..j]需要的次数也是dp[i+1][j-1]; 如果s[i] != s[j] 有几种情况：
-	// i左边插入s[j]相同的字符 or j右边插入s[i]相同的字符
-	n := len(s)
-	dp := make([][]int, n)
-	for i := 0; i<n; i++ {
-		dp[i] = make([]int, n)
-	}
-	for i := n-1; i>=0; i-- {
-		for j := i+1; j<n; j++ {
-			if s[i] == s[j] {
-				dp[i][j] = dp[i+1][j-1]
-			} else {
-				dp[i][j] = min(dp[i+1][j], dp[i][j-1]) + 1
-			}
-		}
-	}
-	return dp[0][n-1]
-}
