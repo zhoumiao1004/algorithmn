@@ -5,7 +5,9 @@ import (
 	"sort"
 )
 
-// 贪心-区间调度问题，算出这些区间中最多有几个互不相交的区间
+// 贪心-区间调度问题一般都要排序，为什么按右边界排序？因为排序后，当处理到第 i 个区间时，所有可能与它有交集的区间都在它之后
+
+// 求这些区间中最多有几个互不相交的区间
 func intervalSchedule(intervals [][]int) int {
 	if len(intervals) == 0 {
 		return 0
@@ -33,6 +35,10 @@ func intervalSchedule(intervals [][]int) int {
 // 解释: 移除 [1,3] 后，剩下的区间没有重叠。
 // 输入: intervals = [ [1,2], [1,2], [1,2] ] 输出: 2
 // 解释: 你需要移除两个 [1,2] 来使剩下的区间没有重叠。
+// 思路：
+// 1.从区间集合 intvs 中选择一个区间x, 这个x是当前所有区间中结束最早的
+// 2.把所有与x区间相交的区间从区间集合 intvs 中删除
+// 3.重复1和2，直到 intvs 为空为止。之前选出的那些就是最大不相交子集
 func eraseOverlapIntervals(intervals [][]int) int {
 	sort.Slice(intervals, func(i, j int) bool {
 		if intervals[i][0] == intervals[j][0] {
@@ -43,8 +49,7 @@ func eraseOverlapIntervals(intervals [][]int) int {
 	result := 0
 	for i := 1; i < len(intervals); i++ {
 		if intervals[i][0] < intervals[i-1][1] {
-			// 重叠，更新右边界，相当于删除右边界更大的区间
-			intervals[i][1] = min(intervals[i][1], intervals[i-1][1])
+			intervals[i][1] = min(intervals[i][1], intervals[i-1][1]) // 更新右边界
 			result++
 		}
 	}
