@@ -17,8 +17,7 @@ func lengthOfLIS(nums []int) int {
 	if n < 2 {
 		return n
 	}
-	// dp[i]含义：以nums[i]这个数结尾的LIS的长度
-	dp := make([]int, n)
+	dp := make([]int, n) // dp[i]含义：以nums[i]这个数结尾的LIS的长度
 	for i := 0; i < n; i++ {
 		dp[i] = 1 // base case
 	}
@@ -28,7 +27,7 @@ func lengthOfLIS(nums []int) int {
 			if nums[i] > nums[j] {
 				dp[i] = max(dp[i], dp[j]+1)
 			}
-			res = max(res, dp[i])
+			res = max(res, dp[i]) // 顺便计算以各个 nums[i] 结尾的LIS长度最大值
 		}
 	}
 	return res

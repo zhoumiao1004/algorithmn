@@ -5,18 +5,19 @@ import (
 	"strings"
 )
 
+// 动态规划和回溯算法的思维转换
+
 // 139.单词拆分
 // https://leetcode.cn/problems/word-break/
 // 输入: s = "leetcode", wordDict = ["leet", "code"] 输出: true
 // 解释: 返回 true 因为 "leetcode" 可以被拆分成 "leet code"。
 // 注意：单词放入是有顺序的，所以是排列问题，不能求组合
-// 1.遍历的思路，就是用回溯算法解决，回溯最经典的应用就是排列组合问题。时间复杂度2的N次方
-func wordBreakBT(s string, wordDict []string) bool {
-	// memo := make(map[string]bool)
+// 1.遍历的思路，就是用回溯算法解决，回溯最经典的应用就是排列组合问题。时间复杂度2的N次方，无法通过所有测试用例
+func wordBreak1(s string, wordDict []string) bool {
 	found := false
 	var path []string
-	var backtrack func(wordDict []string, start int)
-	backtrack = func(wordDict []string, start int) {
+	var backtrack func(start int)
+	backtrack = func(start int) {
 		if found {
 			return
 		}
@@ -28,71 +29,112 @@ func wordBreakBT(s string, wordDict []string) bool {
 		for i := 0; i < len(wordDict); i++ {
 			word := wordDict[i]
 			if start+len(word) <= len(s) && s[start:start+len(word)] == word {
-				// 做选择
-				path = append(path, word)
-				// 进入下一层回溯树
-				backtrack(wordDict, i+len(word))
-				// 撤销选择
-				path = path[:len(path)-1]
+				path = append(path, word) // 做选择
+				backtrack(i + len(word))  // 进入下一层回溯树
+				path = path[:len(path)-1] // 撤销选择
 			}
-
 		}
 	}
-	backtrack(wordDict, 0)
+	backtrack(0)
 	return found
 }
 
 // 2.分解的思路
-func wordBreakMemo(s string, wordDict []string) bool {
+func wordBreak2(s string, wordDict []string) bool {
 	wordSet := make(map[string]bool)
 	for _, word := range wordDict {
 		wordSet[word] = true
 	}
-	memo := make([]int, len(s)) // s[i]能否被单词拼出, -1 代表未计算，0 代表无法凑出，1 代表可以凑出
-	// 定义：返回s[start...] 子串是否能被单词拼出
-	var dp func(s string, start int) bool
-	dp = func(s string, start int) bool {
-		if start == len(s) {
+	n := len(s)
+	memo := make([]int, n) // s[i]能否被单词拼出, -1 代表未计算，0 代表无法凑出，1 代表可以凑出
+	for i := 0; i < n; i++ {
+		memo[i] = -1
+	}
+	var dp func(start int) bool // 定义：返回s[start...] 子串是否能被单词拼出
+	dp = func(start int) bool {
+		if start == n {
 			return true
 		}
-		if memo[start] != 0 {
+		if memo[start] != -1 {
 			return memo[start] == 1
 		}
-		// 遍历 s[start...] 的所有前缀，看看哪些前缀存在 wordDict 中
-		for i := 1; start+i <= len(s); i++ {
-			prefix := s[start : start+i]
-			if wordSet[prefix] && dp(s, start+i) {
+		for i := start; i <= len(s); i++ {
+			if wordSet[s[start:i]] && dp(i) {
 				memo[start] = 1
 				return true
 			}
 		}
-		// s[1...] 无法被拼出
 		memo[start] = 0
 		return false
 	}
-	return dp(s, 0)
+	return dp(0)
 }
 
-func wordBreak(s string, wordDict []string) bool {
-	// dp[j]含义：[0,j)范围的子串，能否由字典里的单词组成
-	// 用集合中的物品，装大小为j的背包
-	// if dp[i] = true && [i,j]区间内的字符串在字典中 : dp[j] = true
-	// 遍历顺序：求排列，先遍历背包再遍历物品
-	wordMap := make(map[string]bool)
-	for _, w := range wordDict {
-		wordMap[w] = true
+func wordBreak3(s string, wordDict []string) bool {
+	wordSet := make(map[string]bool)
+	for _, word := range wordDict {
+		wordSet[word] = true
 	}
 	n := len(s)
-	dp := make([]bool, n+1)
+	memo := make([]int, n+1) // s[i]能否被单词拼出, -1 代表未计算，0 代表无法凑出，1 代表可以凑出
+	for i := 0; i <= n; i++ {
+		memo[i] = -1
+	}
+	var dp func(j int) bool // 定义：返回s[start...] 子串是否能被单词拼出
+	dp = func(j int) bool {
+		if j == 0 {
+			return true
+		}
+		if memo[j] != -1 {
+			return memo[j] == 1
+		}
+		for i := j; i >= 0; i-- {
+			if wordSet[s[i:j]] && dp(i) {
+				memo[j] = 1
+				return true
+			}
+		}
+		memo[j] = 0
+		return false
+	}
+	return dp(n)
+}
+
+// 自底向上，也可以转换成完全背包思路：把 wordDict 中的单词放进s这个背包，有顺序要求
+func wordBreak(s string, wordDict []string) bool {
+	wordSet := make(map[string]bool)
+	for _, w := range wordDict {
+		wordSet[w] = true
+	}
+	n := len(s)
+	dp := make([]bool, n+1) // dp[j]定义：s的前i个字符能否被wordDict中的单词组成。我们要求的就是dp[n]
 	dp[0] = true
-	for j := 1; j <= n; j++ { // 背包
-		for i := 0; i <= j; i++ { // 物品
-			if dp[i] && wordMap[s[i:j]] {
+	for j := 1; j <= n; j++ {
+		// 穷举所有单词的开头，s[i...j-1]在不在 wordDict 中
+		for i := 0; i <= j; i++ {
+			if dp[i] && wordSet[s[i:j]] {
 				dp[j] = true
 			}
 		}
 	}
-	// fmt.Println(dp)
+	return dp[n]
+}
+
+func wordBreak4(s string, wordDict []string) bool {
+	wordSet := make(map[string]bool)
+	for _, w := range wordDict {
+		wordSet[w] = true
+	}
+	n := len(s)
+	dp := make([]bool, n+1) // dp[j]定义：s的前i个字符能否被wordDict中的单词组成。我们要求的就是dp[n]
+	dp[0] = true
+	for j := 1; j <= n; j++ {
+		for _, w := range wordDict {
+			if j-len(w) >= 0 && dp[j-len(w)] && wordSet[s[j-len(w):j]] {
+				dp[j] = true
+			}
+		}
+	}
 	return dp[n]
 }
 
@@ -103,30 +145,57 @@ func wordBreak(s string, wordDict []string) bool {
 // 输入:s = "catsanddog", wordDict = ["cat","cats","and","sand","dog"]
 // 输出:["cats and dog","cat sand dog"]
 // 1.遍历的思路（回溯算法）
-func wordBreakIIBT(s string, wordDict []string) []string {
-	var result []string
+func wordBreakII(s string, wordDict []string) []string {
+	var res []string
 	var path []string
 
-	var backtrack func(s string, start int)
-	backtrack = func(s string, start int) {
+	var backtrack func(start int)
+	backtrack = func(start int) {
 		if start == len(s) {
-			result = append(result, strings.Join(path, " "))
+			res = append(res, strings.Join(path, " "))
 			return
 		}
 		for _, word := range wordDict {
 			if start+len(word) <= len(s) && s[start:start+len(word)] == word {
 				path = append(path, word)
-				backtrack(s, start+len(word))
+				backtrack(start + len(word))
 				path = path[:len(path)-1]
 			}
 		}
 	}
-	backtrack(s, 0)
-	return result
+	backtrack(0)
+	return res
+}
+
+func wordBreakII2(s string, wordDict []string) []string {
+	wordSet := make(map[string]bool)
+	for _, w := range wordDict {
+		wordSet[w] = true
+	}
+	n := len(s)
+	var res []string
+	var track []string
+	var backtrack func(start int)
+	backtrack = func(start int) {
+		if start == n {
+			res = append(res, strings.Join(track, " "))
+			return
+		}
+		for i := start + 1; i <= n; i++ {
+			if wordSet[s[start:i]] {
+				track = append(track, s[start:i])
+				backtrack(i)
+				track = track[:len(track)-1]
+			}
+		}
+	}
+
+	backtrack(0)
+	return res
 }
 
 // 2.分解的思路（动态规划）
-func wordBreakII(s string, wordDict []string) []string {
+func wordBreakII3(s string, wordDict []string) []string {
 	wordSet := make(map[string]bool)
 	for _, word := range wordDict {
 		wordSet[word] = true
