@@ -6,21 +6,6 @@ import (
 	"sort"
 )
 
-// 509. 斐波那契数
-// https://leetcode.cn/problems/fibonacci-number/description/
-func fib(n int) int {
-	if n < 2 {
-		return n
-	}
-	dp := make([]int, n+1)
-	dp[0] = 0
-	dp[1] = 1
-	for i := 2; i <= n; i++ {
-		dp[i] = dp[i-1] + dp[i-2]
-	}
-	return dp[n]
-}
-
 // 70. 爬楼梯
 // https://leetcode.cn/problems/climbing-stairs/description/
 // 每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶?
@@ -332,7 +317,6 @@ func findLength(nums1 []int, nums2 []int) int {
 	}
 	return result
 }
-
 
 func main() {
 	fmt.Println(climbStairsN(3, 2)) // 3

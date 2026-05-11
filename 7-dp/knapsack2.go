@@ -18,7 +18,7 @@ func knapsackII(weight, value []int, W int) int {
 			if j < weight[i-1] {
 				dp[i][j] = dp[i-1][j]
 			} else {
-				dp[i][j] = max(dp[i-1][j], dp[i][j-weight[i-1]]+value[i-1])
+				dp[i][j] = max(dp[i-1][j], dp[i][j-weight[i-1]]+value[i-1]) // 和0-背包的区别是可以重复取，所以dp[i][j-weight[i-1]]
 			}
 		}
 	}
@@ -113,7 +113,7 @@ func combinationSum4(nums []int, target int) int {
 	return dp[n][target]
 }
 
-// 注意：求的是排列数，所以遍历顺序是先遍历背包，再遍历物品
+// 状态压缩写法：1维dp数组，注意：求的是排列数，所以遍历顺序是先遍历背包，再遍历物品
 func combinationSum42(nums []int, target int) int {
 	dp := make([]int, target+1) // dp[j]含义：组成总和为j有n种排列
 	dp[0] = 1
@@ -126,76 +126,6 @@ func combinationSum42(nums []int, target int) int {
 		}
 	}
 	return dp[target]
-}
-
-// 322. 零钱兑换
-// https://leetcode.cn/problems/coin-change/description/
-// 给你一个整数数组 coins ，表示不同面额的硬币；以及一个整数 amount ，表示总金额。
-// 计算并返回可以凑成总金额所需的 最少的硬币个数 。如果没有任何一种硬币组合能组成总金额，返回 -1 。
-// 输入：coins = [1, 2, 5], amount = 11 输出：3
-// 解释：11 = 5 + 5 + 1
-func coinChange(coins []int, amount int) int {
-	// dp[j]含义：组成总金额为j的硬币数最少为dp[j]
-	// 求组合中最少硬币个数，递推公式：dp[j] = min(dp[j], dp[j-coins[i]]+1)
-	dp := make([]int, amount+1)
-	dp[0] = 0
-	for i := 1; i <= amount; i++ {
-		dp[i] = math.MaxInt
-	}
-	// 不强调顺序，求组合数，先遍历物品，再遍历背包
-	for i := 0; i < len(coins); i++ { // 物品
-		for j := coins[i]; j <= amount; j++ { // 背包
-			if dp[j-coins[i]] != math.MaxInt { // 条件判断
-				dp[j] = min(dp[j], dp[j-coins[i]]+1)
-			}
-		}
-	}
-	if dp[amount] == math.MaxInt {
-		return -1
-	}
-	return dp[amount]
-}
-
-func coinChange2(coins []int, amount int) int {
-	dp := make([]int, amount+1)
-	for i := 1; i <= amount; i++ {
-		dp[i] = amount + 1
-	}
-
-	for i := 0; i < len(coins); i++ {
-		for j := coins[i]; j <= amount; j++ {
-			dp[j] = min(dp[j], dp[j-coins[i]]+1)
-		}
-	}
-	if dp[amount] == amount+1 {
-		return -1
-	}
-	return dp[amount]
-}
-
-// 暴力递归解法
-// 状态：目标金额 amount
-// 选择：coins 数组中列出的所有硬币面额
-// dp定义：凑出总金额 amount 至少需要的硬币数
-func coinChange3(coins []int, amount int) int {
-	if amount == 0 {
-		return 0
-	}
-	if amount < 1 {
-		return -1
-	}
-	res := math.MaxInt
-	for _, coin := range coins {
-		subProblem := coinChange3(coins, amount-coin)
-		if subProblem == -1 {
-			continue
-		}
-		res = min(res, subProblem+1)
-	}
-	if res == math.MaxInt {
-		return -1
-	}
-	return res
 }
 
 // 279.完全平方数

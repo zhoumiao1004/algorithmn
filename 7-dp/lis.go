@@ -38,6 +38,7 @@ func lengthOfLIS(nums []int) int {
 func maxEnvelopes(envelopes [][]int) int {
 
 	var lengthOfLIS func(nums []int) int
+	
 	lengthOfLIS = func(nums []int) int {
 		piles := 0
 		n := len(nums)

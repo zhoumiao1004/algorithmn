@@ -21,7 +21,7 @@ func knapsack(wt, val []int, W int) int {
 			if j < wt[i-1] {
 				dp[i][j] = dp[i-1][j]
 			} else {
-				dp[i][j] = max(dp[i-1][j], dp[i-1][j-wt[i-1]]+val[i-1])
+				dp[i][j] = max(dp[i-1][j], dp[i-1][j-wt[i-1]]+val[i-1]) // 和0-背包的区别是dp[i-1][j-weight[i-1]]
 			}
 		}
 	}
