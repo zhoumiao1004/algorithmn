@@ -212,3 +212,104 @@ func minFallingPathSum2(matrix [][]int) int {
 	}
 	return res
 }
+
+// 115. 不同的子序列
+// https://leetcode.cn/problems/distinct-subsequences/description/
+// 给你两个字符串 s 和 t ，统计并返回在 s 的 子序列 中 t 出现的个数
+// 输入：s = "babgbag", t = "bag" 输出：5
+
+// 2种视角：s的视角 or t的视角
+// 思路1: 从s的视角,如果s[0]能匹配t[0],又有两种情况
+// 如果s[0] 匹配 t[0], 原问题转化为s[1...]的所有子序列中计算t[1...]出现的次数
+// 也可以不让 s[0] 匹配 t[0], 原问题转化为s[1...]的所有子序列中计算t[0...]出现的次数
+// 为了给 s[0] 之后的元素匹配的机会，比如 s = "aab", t = "ab"，就有两种匹配方式：a_b 和 _ab。
+
+// 视角1: 从t的视角穷举。时间复杂度：状态的个数O(M*N) * 函数本身O(M)
+func numDistinct(s string, t string) int {
+	m, n := len(s), len(t)
+	memo := make([][]int, m)
+	for i := 0; i < m; i++ {
+		memo[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			memo[i][j] = -1 // 未计算初始化为-1
+		}
+	}
+
+	var dp func(i, j int) int // s[i...] 中出现 t[j...] 的次数
+
+	dp = func(i, j int) int {
+		if j == len(t) {
+			return 1 // t已经全部匹配完
+		}
+		if len(s)-i < len(t)-j {
+			return 0 // s[i...] 比 t[j...] 还短，必然没有匹配的子序列
+		}
+		if memo[i][j] != -1 {
+			return memo[i][j] // 计算过
+		}
+		res := 0
+		for k := i; k < len(s); k++ {
+			if s[k] == t[j] {
+				res += dp(k+1, j+1)
+			}
+		}
+		memo[i][j] = res
+		return res
+	}
+
+	return dp(0, 0)
+}
+
+// 视角2: 从s的视角穷举，时间复杂度：状态的个数O(M*N)
+func numDistinct2(s string, t string) int {
+	m, n := len(s), len(t)
+	memo := make([][]int, m)
+	for i := 0; i < m; i++ {
+		memo[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			memo[i][j] = -1 // 未计算初始化为-1
+		}
+	}
+
+	var dp func(i, j int) int // s[i...] 中出现 t[j...] 的次数
+
+	dp = func(i, j int) int {
+		if j == len(t) {
+			return 1 // t已经全部匹配完
+		}
+		if len(s)-i < len(t)-j {
+			return 0 // s[i...] 比 t[j...] 还短，必然没有匹配的子序列
+		}
+		if memo[i][j] != -1 {
+			return memo[i][j] // 计算过
+		}
+		if s[i] == t[j] {
+			memo[i][j] = dp(i+1, j+1) + dp(i+1, j) // 明明可以匹配，为什么不让他俩匹配呢？主要是为了给s[i]之后的元素匹配的机会
+		} else {
+			memo[i][j] = dp(i+1, j)
+		}
+		return memo[i][j]
+	}
+
+	return dp(0, 0)
+}
+
+// 思路2: 自底向上递归dp数组
+func numDistinct3(s string, t string) int {
+	m, n := len(s), len(t)
+	dp := make([][]int, m+1) // dp[i][j]含义：[0,i-1]的s和[0,j-1]的t的个数
+	for i := 0; i <= m; i++ {
+		dp[i] = make([]int, n+1)
+		dp[i][0] = 1 // base case
+	}
+	for i := 1; i <= m; i++ {
+		for j := 1; j <= n; j++ {
+			if s[i-1] == t[j-1] {
+				dp[i][j] = dp[i-1][j-1] + dp[i-1][j] // 两边都删除的个数 + 删除s最后一个
+			} else {
+				dp[i][j] = dp[i-1][j]
+			}
+		}
+	}
+	return dp[m][n]
+}

@@ -5,8 +5,30 @@ import (
 	"sort"
 )
 
-// 贪心-区间调度问题一般都要排序，为什么按右边界排序？因为排序后，当处理到第 i 个区间时，所有可能与它有交集的区间都在它之后
+/* 贪心-区间调度问题一般都要排序，为什么按右边界排序？因为排序后，当处理到第 i 个区间时，所有可能与它有交集的区间都在它之后
+场景1: 假设现在只有一个会议室，还有若干会议，你如何将尽可能多的会议安排到这个会议室里？
+这个问题需要将这些会议（区间）按结束时间（右端点）排序，然后进行处理。435. 无重叠区间(https://leetcode.cn/problems/non-overlapping-intervals/description/)
 
+场景2: 给你若干较短的视频片段，和一个较长的视频片段，请你从较短的片段中尽可能少地挑出一些片段，拼接出较长的这个片段。
+这个问题需要将这些视频片段（区间）按开始时间（左端点）排序，然后进行处理。1024. 视频拼接()
+
+场景3: 给你若干区间，其中可能有些区间比较短，被其他区间完全覆盖住了，请你删除这些被覆盖的区间。
+这个问题需要将这些区间按左端点排序，然后就能找到并删除那些被完全覆盖的区间了。1288. 删除被覆盖区间
+
+场景4: 给你若干区间，请你将所有有重叠部分的区间进行合并。
+这个问题需要将这些区间按左端点排序，方便找出存在重叠的区间，56. 合并区间
+
+场景5: 有两个部门同时预约了同一个会议室的若干时间段，请你计算会议室的冲突时段。
+这个问题就是给你两组区间列表，请你找出这两组区间的交集，这需要你将这些区间按左端点排序，986. 区间列表的交集
+
+场景6: 假设现在只有一个会议室，还有若干会议，如何安排会议才能使这个会议室的闲置时间最少？
+这个问题需要动动脑筋，说白了这就是个 0-1 背包问题的变形：
+会议室可以看做一个背包，每个会议可以看做一个物品，物品的价值就是会议的时长，请问你如何选择物品（会议）才能最大化背包中的价值（会议室的使用时长）？
+当然，这里背包的约束不是一个最大重量，而是各个物品（会议）不能互相冲突。把各个会议按照结束时间进行排序。253. 会议室 II
+
+场景7: 给你若干会议，让你最小化申请会议室的数量。1235. 规划兼职工作
+
+*/
 // 求这些区间中最多有几个互不相交的区间
 func intervalSchedule(intervals [][]int) int {
 	if len(intervals) == 0 {
@@ -40,24 +62,40 @@ func intervalSchedule(intervals [][]int) int {
 // 2.把所有与x区间相交的区间从区间集合 intvs 中删除
 // 3.重复1和2，直到 intvs 为空为止。之前选出的那些就是最大不相交子集
 func eraseOverlapIntervals(intervals [][]int) int {
+	n := len(intervals)
+	sort.Slice(intervals, func(i, j int) bool {
+		return intervals[i][1] < intervals[j][1]
+	})
+	res := 0
+	for i := 1; i < n; i++ {
+		if intervals[i][0] < intervals[i-1][1] {
+			res++
+			intervals[i][1] = intervals[i-1][1]
+		}
+	}
+	return res
+}
+
+// 按左边界排序
+func eraseOverlapIntervals2(intervals [][]int) int {
 	sort.Slice(intervals, func(i, j int) bool {
 		if intervals[i][0] == intervals[j][0] {
 			return intervals[i][1] < intervals[j][1]
 		}
 		return intervals[i][0] < intervals[j][0]
 	})
-	result := 0
+	res := 0
 	for i := 1; i < len(intervals); i++ {
 		if intervals[i][0] < intervals[i-1][1] {
 			intervals[i][1] = min(intervals[i][1], intervals[i-1][1]) // 更新右边界
-			result++
+			res++
 		}
 	}
-	return result
+	return res
 }
 
 // 思路2: 区间调度
-func eraseOverlapIntervals2(intervals [][]int) int {
+func eraseOverlapIntervals3(intervals [][]int) int {
 	return len(intervals) - intervalSchedule(intervals)
 }
 
@@ -205,6 +243,23 @@ func removeCoveredIntervals(intervals [][]int) int {
 	return len(intervals) - cnt
 }
 
+func removeCoveredIntervals2(intervals [][]int) int {
+	sort.Slice(intervals, func(i, j int) bool {
+		if intervals[i][0] == intervals[j][0] {
+			return intervals[i][1] > intervals[j][1]
+		}
+		return intervals[i][0] < intervals[j][0]
+	})
+	cnt := 0
+	for i := 1; i < len(intervals); i++ {
+		if intervals[i][1] <= intervals[i-1][1] {
+			cnt++
+			intervals[i][1] = max(intervals[i-1][1], intervals[i][1])
+		}
+	}
+	return len(intervals) - cnt
+}
+
 // 56. 合并区间
 // https://leetcode.cn/problems/merge-intervals/description/
 // 以数组 intervals 表示若干个区间的集合，其中单个区间为 intervals[i] = [starti, endi] 。请你合并所有重叠的区间，并返回 一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间 。
@@ -212,38 +267,23 @@ func removeCoveredIntervals(intervals [][]int) int {
 // 输出：[[1,6],[8,10],[15,18]]
 // 解释：区间 [1,3] 和 [2,6] 重叠, 将它们合并为 [1,6].
 func merge(intervals [][]int) [][]int {
-	var results [][]int
+	n := len(intervals)
 	sort.Slice(intervals, func(i, j int) bool {
+		if intervals[i][0] == intervals[j][0] {
+			return intervals[i][1] < intervals[j][1]
+		}
 		return intervals[i][0] < intervals[j][0]
 	})
-	for i := 1; i < len(intervals); i++ {
-		if intervals[i][0] > intervals[i-1][1] {
-			// 不重叠
-			results = append(results, intervals[i-1])
-		} else {
-			// 重叠，更新左右边界
-			intervals[i][0] = intervals[i-1][0]
-			intervals[i][1] = max(intervals[i][1], intervals[i-1][1])
-		}
-	}
-	results = append(results, intervals[len(intervals)-1])
-	return results
-}
 
-func merge2(intervals [][]int) [][]int {
-	var results [][]int
-	sort.Slice(intervals, func(i, j int) bool {
-		return intervals[i][0] < intervals[j][0]
-	})
-	results = append(results, intervals[0])
-	for i := 1; i < len(intervals); i++ {
-		if intervals[i][0] > results[len(results)-1][1] {
-			results = append(results, intervals[i]) // 不重叠
+	res := [][]int{intervals[0]}
+	for i := 1; i < n; i++ {
+		if intervals[i][0] <= res[len(res)-1][1] {
+			res[len(res)-1][1] = max(res[len(res)-1][1], intervals[i][1])
 		} else {
-			results[len(results)-1][1] = max(results[len(results)-1][1], intervals[i][1]) // 重叠
+			res = append(res, intervals[i])
 		}
 	}
-	return results
+	return res
 }
 
 // 986. 区间列表的交集
@@ -262,13 +302,13 @@ func intervalIntersection(firstList [][]int, secondList [][]int) [][]int {
 	for i < len(firstList) && j < len(secondList) {
 		a1, a2 := firstList[i][0], firstList[i][1]
 		b1, b2 := secondList[j][0], secondList[j][1]
-		if b2 >= a1 && a2 >= b1 {
+		if a1 <= b2 && b1 <= a2 {
 			res = append(res, []int{max(a1, b1), min(a2, b2)})
 		}
-		if b2 < a2 {
-			j++
-		} else {
+		if a2 < b2 {
 			i++
+		} else {
+			j++
 		}
 	}
 	return res
@@ -302,6 +342,55 @@ func minMeetingRooms(meetings [][]int) int {
 		result = max(result, count)
 	}
 	return result
+}
+
+// 1024. 视频拼接
+// https://leetcode.cn/problems/video-stitching/description/
+// 你将会获得一系列视频片段，这些片段来自于一项持续时长为 time 秒的体育赛事。这些片段可能有所重叠，也可能长度不一。
+// 使用数组 clips 描述所有的视频片段，其中 clips[i] = [starti, endi] 表示：某个视频片段开始于 starti 并于 endi 结束。
+// 甚至可以对这些片段自由地再剪辑：
+// 例如，片段 [0, 7] 可以剪切成 [0, 1] + [1, 3] + [3, 7] 三部分。
+// 我们需要将这些片段进行再剪辑，并将剪辑后的内容拼接成覆盖整个运动过程的片段（[0, time]）。返回所需片段的最小数目，如果无法完成该任务，则返回 -1 。
+// 输入：clips = [[0,2],[4,6],[8,10],[1,9],[1,5],[5,9]], time = 10
+// 输出：3
+// 解释：
+// 选中 [0,2], [8,10], [1,9] 这三个片段。
+// 然后，按下面的方案重制比赛片段：
+// 将 [1,9] 再剪辑为 [1,2] + [2,8] + [8,9] 。
+// 现在手上的片段为 [0,2] + [2,8] + [8,10]，而这些覆盖了整场比赛 [0, 10]。
+func videoStitching(clips [][]int, T int) int {
+	if T == 0 {
+		return 0
+	}
+	// 按起点升序排列，起点相同的降序排列
+	// PS：其实起点相同的不用降序排列也可以，不过我觉得这样更清晰
+	sort.Slice(clips, func(i, j int) bool {
+		if clips[i][0] == clips[j][0] {
+			return clips[i][1] > clips[j][1]
+		}
+		return clips[i][0] < clips[j][0]
+	})
+	// 记录选择的短视频个数
+	res := 0
+
+	curEnd, nextEnd := 0, 0
+	i, n := 0, len(clips)
+	for i < n && clips[i][0] <= curEnd {
+		// 在第 res 个视频的区间内贪心选择下一个视频
+		for i < n && clips[i][0] <= curEnd {
+			nextEnd = max(nextEnd, clips[i][1])
+			i++
+		}
+		// 找到下一个视频，更新 curEnd
+		res++
+		curEnd = nextEnd
+		if curEnd >= T {
+			// 已经可以拼出区间 [0, T]
+			return res
+		}
+	}
+	// 无法连续拼出区间 [0, T]
+	return -1
 }
 
 func main() {
