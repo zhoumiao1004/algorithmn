@@ -4,7 +4,7 @@ import "math"
 
 // 509. 斐波那契数
 // https://leetcode.cn/problems/fibonacci-number/description/
-// 思路1: 暴力递归解法
+// 思路1: 自顶向下带备忘录的递归解法
 func fib(n int) int {
 	memo := make([]int, n+1)
 	var dp func(n int) int
@@ -21,6 +21,7 @@ func fib(n int) int {
 	return dp(n)
 }
 
+// 思路2: 自底向上的迭代写法
 func fib2(n int) int {
 	if n < 2 {
 		return n
@@ -143,7 +144,7 @@ func coinChange4(coins []int, amount int) int {
 // 给你一个 n x n 的 方形 整数数组 matrix ，请你找出并返回通过 matrix 的下降路径 的 最小和 。
 // 输入：matrix = [[2,1,3],[6,5,4],[7,8,9]]
 // 输出：13
-// 暴力思路：定义dp函数
+// 自顶向下带备忘录的递归解法
 func minFallingPathSum(matrix [][]int) int {
 	n := len(matrix)
 	memos := make([][]int, n)
@@ -182,7 +183,7 @@ func minFallingPathSum(matrix [][]int) int {
 	return res
 }
 
-// 自底向上迭代：dp数组
+// 自底向上迭代解法
 func minFallingPathSum2(matrix [][]int) int {
 	n := len(matrix)
 	dp := make([][]int, n) // dp[i][j]含义：下降路径最小和
