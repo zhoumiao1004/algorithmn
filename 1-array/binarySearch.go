@@ -42,7 +42,7 @@ func searchRange(nums []int, target int) []int {
 			} else if nums[mid] > target {
 				right = mid - 1
 			} else if nums[mid] == target {
-				right = mid - 1
+				right = mid - 1 // 相等时继续收缩右边界
 			}
 		}
 		if left < 0 || left >= len(nums) {
@@ -111,8 +111,7 @@ func searchInsert(nums []int, target int) int {
 		} else if nums[mid] < target {
 			left = mid + 1
 		} else if nums[mid] == target {
-			// 收缩右边界
-			right = mid - 1
+			right = mid - 1 // 相等时继续收缩右边界
 		}
 	}
 	// right指向第一个小于的位置，left指向后一个位置

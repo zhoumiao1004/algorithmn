@@ -13,13 +13,14 @@ import (
 // 输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
 // 思路1: 盒视角
 func permute(nums []int) [][]int {
-	var results [][]int
+	var res [][]int
 	var path []int
 	used := make([]bool, len(nums))
-	var backtrack func(nums []int)
-	backtrack = func(nums []int) {
+	var backtrack func()
+
+	backtrack = func() {
 		if len(path) == len(nums) {
-			results = append(results, append([]int{}, path...))
+			res = append(res, append([]int{}, path...))
 			return
 		}
 		for i := 0; i < len(nums); i++ {
@@ -28,34 +29,34 @@ func permute(nums []int) [][]int {
 			}
 			used[i] = true
 			path = append(path, nums[i])
-			backtrack(nums)
+			backtrack()
 			path = path[:len(path)-1]
 			used[i] = false
 		}
 	}
-	backtrack(nums)
-	return results
+	backtrack()
+	return res
 }
 
 // 思路2: swap，start含义：是nums数组中每个索引位置，选择不同的元素放入这个索引位置。
 // start之前的元素已经心有所属，被其他位置挑走了。所以stat位置只能从nums[start...]中选择元素
 func permute2(nums []int) [][]int {
 	var results [][]int
-	var backtrack func(nums []int, start int)
+	var backtrack func(start int)
 
-	backtrack = func(nums []int, start int) {
+	backtrack = func(start int) {
 		if start == len(nums) {
 			results = append(results, append([]int{}, nums...))
 			return
 		}
 		for i := start; i < len(nums); i++ {
 			nums[i], nums[start] = nums[start], nums[i]
-			backtrack(nums, start+1)
+			backtrack(start + 1)
 			nums[i], nums[start] = nums[start], nums[i]
 		}
 	}
 
-	backtrack(nums, 0)
+	backtrack(0)
 	return results
 }
 
@@ -104,14 +105,14 @@ func permute3(nums []int) [][]int {
 // 输出：[[1,1,2],[1,2,1],[2,1,1]]
 func permuteUnique(nums []int) [][]int {
 	sort.Ints(nums)
-	var results [][]int
+	var res [][]int
 	var path []int
 	used := make([]bool, len(nums))
-	var backtrack func(nums []int)
+	var backtrack func()
 
-	backtrack = func(nums []int) {
+	backtrack = func() {
 		if len(path) == len(nums) {
-			results = append(results, append([]int{}, path...))
+			res = append(res, append([]int{}, path...))
 			return
 		}
 		for i := 0; i < len(nums); i++ {
@@ -123,14 +124,14 @@ func permuteUnique(nums []int) [][]int {
 			}
 			used[i] = true
 			path = append(path, nums[i])
-			backtrack(nums)
+			backtrack()
 			path = path[:len(path)-1]
 			used[i] = false
 		}
 	}
 
-	backtrack(nums)
-	return results
+	backtrack()
+	return res
 }
 
 // 967. 连续差相同的数字
@@ -143,7 +144,7 @@ func permuteUnique(nums []int) [][]int {
 // 解释：注意，070 不是一个有效的数字，因为它有前导零。
 // 思路：元素无重可复选的排列
 func numsSameConsecDiff(n int, k int) []int {
-	var results []int
+	var res []int
 	var path []int
 	var backtrack func()
 
@@ -154,7 +155,7 @@ func numsSameConsecDiff(n int, k int) []int {
 			for i := 0; i < n; i++ {
 				s = 10*s + path[i]
 			}
-			results = append(results, s)
+			res = append(res, s)
 			return
 		}
 		for i := 0; i <= 9; i++ {
@@ -171,7 +172,7 @@ func numsSameConsecDiff(n int, k int) []int {
 	}
 
 	backtrack()
-	return results
+	return res
 }
 
 func main() {

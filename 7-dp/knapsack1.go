@@ -28,15 +28,15 @@ func knapsack(wt, val []int, W int) int {
 	return dp[N][W]
 }
 
+// 由于dp[i][j]代表前 i 个物品，定义的i从0开始计数，因此需要初始化第一列
 func knapsack2(weight, value []int, n int) int {
-	// 定义dp[i][j]数组：从下表0-i的物品中取，放进j大小的背包的价值总和
 	m := len(weight)
 	dp := make([][]int, m)
 	for i := 0; i < m; i++ {
 		dp[i] = make([]int, n+1)
 	}
 	for j := weight[0]; j <= n; j++ {
-		dp[0][j] = value[0]
+		dp[0][j] = value[0] // base case
 	}
 
 	for i := 1; i < m; i++ {
@@ -48,7 +48,6 @@ func knapsack2(weight, value []int, n int) int {
 			}
 		}
 	}
-	// fmt.Println(dp)
 	return dp[m-1][n]
 }
 
@@ -61,7 +60,6 @@ func knapsackN(weight, value []int, n int) int {
 			dp[j] = max(dp[j], dp[j-weight[i]]+value[i])
 		}
 	}
-	// fmt.Println(dp)
 	return dp[n]
 }
 

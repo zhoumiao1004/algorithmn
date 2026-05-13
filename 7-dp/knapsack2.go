@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 )
 
 // 完全背包: 计算容量为 N 的背包能装的最大价值
@@ -138,42 +137,34 @@ func numSquares(n int) int {
 	if n < 2 {
 		return n
 	}
-	// dp[j]含义：组成和为j的，需要dp[j]个完全平方数
-	dp := make([]int, n+1)
+	dp := make([]int, n+1) // dp[j]含义：组成和为j的，需要dp[j]个完全平方数
 	dp[0] = 0
 	dp[1] = 1
 	for i := 2; i <= n; i++ {
-		dp[i] = math.MaxInt
+		dp[i] = n + 1 // 最少的完全平方数个数范围在1-n之间，初始化为不可能的值：n+1
 	}
-	// 递推公式：dp[j] = min(dp[j], dp[j-i*i]+1)
-	// 遍历顺序：无所谓顺序，先遍历物品再遍历背包
-	for i := 1; i*i <= n; i++ { // 物品
-		for j := i * i; j <= n; j++ { // 背包
-			if dp[j-i*i] != math.MaxInt {
-				dp[j] = min(dp[j], dp[j-i*i]+1)
-			}
+
+	for i := 1; i*i <= n; i++ {
+		for j := i * i; j <= n; j++ {
+			dp[j] = min(dp[j], dp[j-i*i]+1)
 		}
 	}
-	// fmt.Println(dp)
-	return dp[n]
+	return dp[n] // 因为有1这个完全平方数，所以一定有结果
 }
 
 // 每次可以爬 1 、 2、.....、m 个台阶。问有多少种不同的方法可以爬到楼顶呢？
-// 转换为完全背包问题：装满大小为n的背包。可以装1/2/3/4...m,有几种方式
+// 转换为完全背包问题：装满大小为n的背包。可以装1/2/3/4...m,有几种排列方式
 // 递推公式：dp[j] += dp[j-i]
 func climbStairsN(n, m int) int {
-	// dp[j]含义：爬到j个台阶的方法数
-	dp := make([]int, n+1)
-	dp[0] = 1
-	// 求的是排列数，遍历顺序：先遍历背包，再遍历物品
-	for j := 0; j <= n; j++ { // 背包
-		for i := 1; i <= m; i++ { // 物品
+	dp := make([]int, n+1) // dp[j]含义：爬到j个台阶的方法数
+	dp[0] = 1              // base case
+	for j := 0; j <= n; j++ {
+		for i := 1; i <= m; i++ {
 			if j >= i {
 				dp[j] += dp[j-i]
 			}
 		}
 	}
-	// fmt.Println(dp)
 	return dp[n]
 }
 

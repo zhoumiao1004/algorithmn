@@ -20,24 +20,24 @@ import (
 func combine(n int, k int) [][]int {
 	var results [][]int
 	var path []int
-	var backtrack func(int, int, int)
+	var backtrack func(start int)
 
-	backtrack = func(n, k, startIndex int) {
+	backtrack = func(start int) {
 		if len(path) == k {
 			results = append(results, append([]int{}, path...))
 			return
 		}
-		for i := startIndex; i <= n; i++ {
+		for i := start; i <= n; i++ {
 			if n-i+1+len(path) < k {
 				break // 剪枝优化
 			}
 			path = append(path, i)
-			backtrack(n, k, i+1)
+			backtrack(i + 1)
 			path = path[:len(path)-1]
 		}
 	}
 
-	backtrack(n, k, 1)
+	backtrack(1)
 	return results
 }
 
@@ -47,27 +47,27 @@ func combine(n int, k int) [][]int {
 // 输入: k = 3, n = 7 输出: [[1,2,4]]
 // 解释: 1 + 2 + 4 = 7
 func combinationSum3(k int, n int) [][]int {
-	var results [][]int
-	var path []int
+	var res [][]int
+	var track []int
 	s := 0
-	var backtrack func(k, n, startIndex int)
+	var backtrack func(start int)
 
-	backtrack = func(k, n, startIndex int) {
-		if len(path) == k && s == n {
-			results = append(results, append([]int{}, path...))
+	backtrack = func(start int) {
+		if len(track) == k && s == n {
+			res = append(res, append([]int{}, track...))
 			return
 		}
-		for i := startIndex; i <= 9 && s+i <= n; i++ {
-			path = append(path, i)
+		for i := start; i <= 9 && s+i <= n; i++ {
+			track = append(track, i)
 			s += i
-			backtrack(k, n, i+1) // 每个数字只能用一次，所以i+1
+			backtrack(i + 1) // 每个数字只能用一次，所以i+1
 			s -= i
-			path = path[:len(path)-1]
+			track = track[:len(track)-1]
 		}
 	}
 
-	backtrack(k, n, 1)
-	return results
+	backtrack(1)
+	return res
 }
 
 // 17.电话号码的字母组合
@@ -77,25 +77,25 @@ func combinationSum3(k int, n int) [][]int {
 // 思路：每次从不同的集合中选择
 func letterCombinations(digits string) []string {
 	strs := []string{"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"}
-	var results []string
+	var res []string
 	var path []byte
-	var backtrack func(digits string, startIndex int)
+	var backtrack func(start int)
 
-	backtrack = func(digits string, startIndex int) {
+	backtrack = func(start int) {
 		if len(path) == len(digits) {
-			results = append(results, string(path))
+			res = append(res, string(path))
 			return
 		}
-		s := strs[digits[startIndex]-'0']
+		s := strs[digits[start]-'0']
 		for i := 0; i < len(s); i++ {
 			path = append(path, s[i])
-			backtrack(digits, startIndex+1) // 只能用一次
+			backtrack(start + 1) // 只能用一次
 			path = path[:len(path)-1]
 		}
 	}
 
-	backtrack(digits, 0)
-	return results
+	backtrack(0)
+	return res
 }
 
 /** 情况2: 元素无重可复选 **/
@@ -110,56 +110,56 @@ func letterCombinations(digits string) []string {
 // 注意：候选值可以选多次，目标和为target，其实也是子集问题，candicates的哪些子集的和为target
 // 思路1：利用元素都是正数来剪枝
 func combinationSumWithoutSort(candidates []int, target int) [][]int {
-	var results [][]int
+	var res [][]int
 	var path []int
 	s := 0
-	var backtrack func([]int, int, int)
+	var backtrack func(start int)
 
-	backtrack = func(candidates []int, target int, startIndex int) {
+	backtrack = func(start int) {
 		if s > target {
 			return // 因为题目中说所有元素都是正整数才能这么剪枝
 		}
 		if s == target {
-			results = append(results, append([]int{}, path...))
+			res = append(res, append([]int{}, path...))
 			return
 		}
-		for i := startIndex; i < len(candidates); i++ {
+		for i := start; i < len(candidates); i++ {
 			path = append(path, candidates[i])
 			s += candidates[i]
-			backtrack(candidates, target, i) // 可以用多次
+			backtrack(i) // 可以用多次
 			s -= candidates[i]
 			path = path[:len(path)-1]
 		}
 	}
 
-	backtrack(candidates, target, 0)
-	return results
+	backtrack(0)
+	return res
 }
 
 // 思路2：排序，递归终止条件放在for的条件里
 func combinationSum(candidates []int, target int) [][]int {
 	sort.Ints(candidates) // 排序
-	var results [][]int
+	var res [][]int
 	var path []int
 	s := 0
-	var backtrack func([]int, int, int)
+	var backtrack func(int)
 
-	backtrack = func(candidates []int, target int, startIndex int) {
+	backtrack = func(start int) {
 		if s == target {
-			results = append(results, append([]int{}, path...))
+			res = append(res, append([]int{}, path...))
 			return
 		}
-		for i := startIndex; i < len(candidates) && s+candidates[i] <= target; i++ {
+		for i := start; i < len(candidates) && s+candidates[i] <= target; i++ {
 			path = append(path, candidates[i])
 			s += candidates[i]
-			backtrack(candidates, target, i) // 可以用多次
+			backtrack(i) // 可以用多次
 			s -= candidates[i]
 			path = path[:len(path)-1]
 		}
 	}
 
-	backtrack(candidates, target, 0)
-	return results
+	backtrack(0)
+	return res
 }
 
 /** 情况3: 元素可重不可复选 **/
@@ -177,36 +177,36 @@ func combinationSum(candidates []int, target int) [][]int {
 // 注意：1.选过的不能再选 2.组合不能重复
 func combinationSum2(candidates []int, target int) [][]int {
 	sort.Ints(candidates) // 让相同元素靠在一起
-	var results [][]int
+	var res [][]int
 	var path []int
 	used := make([]bool, len(candidates))
 	s := 0
-	var backtrack func(candidates []int, target int, startIndex int)
+	var backtrack func(start int)
 
-	backtrack = func(candidates []int, target, startIndex int) {
+	backtrack = func(start int) {
 		if s > target {
 			return
 		}
 		if s == target {
-			results = append(results, append([]int{}, path...))
+			res = append(res, append([]int{}, path...))
 		}
 		// 因为题目说所有元素是正整数所以可以剪枝
-		for i := startIndex; i < len(candidates); i++ {
+		for i := start; i < len(candidates); i++ {
 			if i > 0 && candidates[i-1] == candidates[i] && !used[i-1] {
 				continue // 树层去重，上个数没用过说明重复，处于同一层相同的两个数
 			}
 			path = append(path, candidates[i])
 			s += candidates[i]
-			used[i] = true                     // 标记上一个数用过了
-			backtrack(candidates, target, i+1) // 只能用一次
+			used[i] = true   // 标记上一个数用过了
+			backtrack(i + 1) // 只能用一次
 			used[i] = false
 			s -= candidates[i]
 			path = path[:len(path)-1]
 		}
 	}
 
-	backtrack(candidates, target, 0)
-	return results
+	backtrack(0)
+	return res
 }
 
 // 491. 非递减子序列
@@ -217,16 +217,16 @@ func combinationSum2(candidates []int, target int) [][]int {
 // 输出：[[4,6],[4,6,7],[4,6,7,7],[4,7],[4,7,7],[6,7],[6,7,7],[7,7]]
 // 思路: 元素可重不可复选，注：不能排序
 func findSubsequences(nums []int) [][]int {
-	var results [][]int
+	var res [][]int
 	var path []int
-	var backtrack func(nums []int, startIndex int)
+	var backtrack func(start int)
 
-	backtrack = func(nums []int, startIndex int) {
+	backtrack = func(start int) {
 		if len(path) > 1 {
-			results = append(results, append([]int{}, path...)) // 注意这里没有return，因为找到一个子序列，还能继续往树的下一层找更长的子序列
+			res = append(res, append([]int{}, path...)) // 注意这里没有return，因为找到一个子序列，还能继续往树的下一层找更长的子序列
 		}
 		uset := make(map[int]bool) // 同层去重
-		for i := startIndex; i < len(nums); i++ {
+		for i := start; i < len(nums); i++ {
 			if uset[nums[i]] {
 				continue
 			}
@@ -235,13 +235,13 @@ func findSubsequences(nums []int) [][]int {
 			}
 			path = append(path, nums[i])
 			uset[nums[i]] = true // 标记nums[i]这个数用过了
-			backtrack(nums, i+1)
+			backtrack(i + 1)
 			path = path[:len(path)-1]
 		}
 	}
 
-	backtrack(nums, 0)
-	return results
+	backtrack(0)
+	return res
 }
 
 func main() {

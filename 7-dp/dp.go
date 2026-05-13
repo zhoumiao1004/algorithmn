@@ -41,7 +41,8 @@ func fib2(n int) int {
 // 计算并返回可以凑成总金额所需的 最少的硬币个数 。如果没有任何一种硬币组合能组成总金额，返回 -1 。
 // 输入：coins = [1, 2, 5], amount = 11 输出：3
 // 解释：11 = 5 + 5 + 1
-// 思路1: 暴力递归解法，时间复杂度 = 递归次数O(k^N) * 单次递归O(k)
+
+// 思路1: 自顶向下递归解法，时间复杂度 = 递归次数O(k^N) * 单次递归O(k)
 // 状态：目标金额 amount
 // 选择：coins 数组中列出的所有硬币面额
 func coinChange(coins []int, amount int) int {
@@ -80,7 +81,7 @@ func coinChange(coins []int, amount int) int {
 	return dp(coins, amount)
 }
 
-// 思路2：1维dp最推荐的写法，初始化为amount+1, 处理起来最简单，没有MaxInt溢出的问题，还能直接min运算
+// 思路2：自底向上迭代解法，初始化为amount+1, 处理起来最简单，没有MaxInt溢出的问题，还能直接min运算
 func coinChange2(coins []int, amount int) int {
 	dp := make([]int, amount+1)
 	for i := 1; i <= amount; i++ {
@@ -120,20 +121,18 @@ func coinChange3(coins []int, amount int) int {
 	return dp[amount]
 }
 
+// 求组合数，先遍历物品，再遍历背包
 func coinChange4(coins []int, amount int) int {
 	dp := make([]int, amount+1) // dp[j]含义：组成总金额为j的硬币数最少为dp[j]
 	for i := 1; i <= amount; i++ {
-		dp[i] = math.MaxInt
+		dp[i] = amount + 1
 	}
-	// 不强调顺序，求组合数，先遍历物品，再遍历背包
-	for i := 0; i < len(coins); i++ { // 物品
-		for j := coins[i]; j <= amount; j++ { // 背包
-			if dp[j-coins[i]] != math.MaxInt { // 条件判断
-				dp[j] = min(dp[j], dp[j-coins[i]]+1)
-			}
+	for i := 0; i < len(coins); i++ {
+		for j := coins[i]; j <= amount; j++ {
+			dp[j] = min(dp[j], dp[j-coins[i]]+1)
 		}
 	}
-	if dp[amount] == math.MaxInt {
+	if dp[amount] == amount+1 {
 		return -1
 	}
 	return dp[amount]

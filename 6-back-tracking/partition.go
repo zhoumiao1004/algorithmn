@@ -10,7 +10,7 @@ import (
 // https://leetcode.cn/problems/palindrome-partitioning/description/
 // 输入：s = "aab" 输出：[["a","a","b"],["aa","b"]]
 func partition(s string) [][]string {
-	var results [][]string
+	var res [][]string
 	var path []string
 	var backtrack func(start int)
 	var isPalindrome func(s string) bool
@@ -29,7 +29,7 @@ func partition(s string) [][]string {
 
 	backtrack = func(start int) {
 		if start == len(s) {
-			results = append(results, append([]string{}, path...))
+			res = append(res, append([]string{}, path...))
 			return
 		}
 		for i := start; i < len(s); i++ {
@@ -43,7 +43,7 @@ func partition(s string) [][]string {
 	}
 
 	backtrack(0)
-	return results
+	return res
 }
 
 // 93.复原IP地址
@@ -53,7 +53,7 @@ func partition(s string) [][]string {
 // 有效 IP 地址 正好由四个整数（每个整数位于 0 到 255 之间组成，且不能含有前导 0），整数之间用 '.' 分隔。
 // 转换为3个.放在哪几个位置，能放[1,len(s)-1]
 func restoreIpAddresses(s string) []string {
-	var results []string
+	var res []string
 	var path []string
 	var isValidIp func(s string) bool
 	var backtrack func(startIndex int)
@@ -68,13 +68,13 @@ func restoreIpAddresses(s string) []string {
 		return n <= 255
 	}
 
-	backtrack = func(startIndex int) {
-		if startIndex == len(s) && len(path) == 4 {
-			results = append(results, strings.Join(path, "."))
+	backtrack = func(start int) {
+		if start == len(s) && len(path) == 4 {
+			res = append(res, strings.Join(path, "."))
 			return
 		}
-		for i := startIndex; i < len(s); i++ {
-			ip := s[startIndex : i+1]
+		for i := start; i < len(s); i++ {
+			ip := s[start : i+1]
 			if isValidIp(ip) {
 				path = append(path, ip)
 				backtrack(i + 1)
@@ -84,7 +84,7 @@ func restoreIpAddresses(s string) []string {
 	}
 
 	backtrack(0)
-	return results
+	return res
 }
 
 func main() {
