@@ -61,19 +61,16 @@ func subsetsWithDup(nums []int) [][]int {
 	var res [][]int
 	var path []int
 	sort.Ints(nums)
-	used := make([]bool, len(nums))
 	var backtrack func(start int)
 
 	backtrack = func(start int) {
 		res = append(res, append([]int{}, path...))
 		for i := start; i < len(nums); i++ {
-			if i > 0 && nums[i-1] == nums[i] && !used[i-1] {
+			if i > start && nums[i-1] == nums[i] {
 				continue // 树层去重
 			}
 			path = append(path, nums[i])
-			used[i] = true
 			backtrack(i + 1)
-			used[i] = false
 			path = path[:len(path)-1]
 		}
 	}
