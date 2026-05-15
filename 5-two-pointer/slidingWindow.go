@@ -35,14 +35,14 @@ func minWindow(s string, t string) string {
 	window := make(map[byte]int)
 	left, right := 0, 0
 	valid := 0
-	start, length := 0, math.MaxInt
+	start, offset := 0, math.MaxInt // 取不到的值，len(s)+1也可以
 	for right < len(s) {
 		c := s[right]
 		right++ // 扩大窗口
 		// 窗口内数据更新
-		if _, ok := need[c]; ok {
+		if cnt, ok := need[c]; ok {
 			window[c]++
-			if window[c] == need[c] {
+			if window[c] == cnt {
 				valid++
 			}
 		}
@@ -50,25 +50,24 @@ func minWindow(s string, t string) string {
 		// 判断左侧窗口是否需要收缩
 		for valid == len(need) {
 			// 更新结果
-			if right-left < length {
-				start = left
-				length = right - left
+			if right-left < offset {
+				start, offset = left, right-left
 			}
 			d := s[left]
 			left++
 			// 窗口内数据更新
-			if _, ok := need[d]; ok {
-				if need[d] == window[d] {
+			if cnt, ok := need[d]; ok {
+				if cnt == window[d] {
 					valid--
 				}
+				window[d]--
 			}
-			window[d]--
 		}
 	}
-	if length == math.MaxInt {
+	if offset == math.MaxInt {
 		return ""
 	}
-	return s[start : start+length]
+	return s[start : start+offset]
 }
 
 // 567. 字符串的排列

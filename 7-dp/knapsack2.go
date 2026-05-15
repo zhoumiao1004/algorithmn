@@ -17,7 +17,7 @@ func knapsackII(weight, value []int, W int) int {
 			if j < weight[i-1] {
 				dp[i][j] = dp[i-1][j]
 			} else {
-				dp[i][j] = max(dp[i-1][j], dp[i][j-weight[i-1]]+value[i-1]) // 和0-背包的区别是可以重复取，所以dp[i][j-weight[i-1]]
+				dp[i][j] = max(dp[i-1][j], dp[i][j-weight[i-1]]+value[i-1]) // 0-1和完全背包的区别，0-1背包：dp[i-1][j-weight[i-1]]；完全背包dp[i][j-weight[i-1]]
 			}
 		}
 	}
