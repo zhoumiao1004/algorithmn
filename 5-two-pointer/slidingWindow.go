@@ -79,11 +79,11 @@ func minWindow(s string, t string) string {
 // 解释：s2 包含 s1 的排列之一 ("ba").
 // 思路1:滑动窗口
 func checkInclusion(s1 string, s2 string) bool {
+	window := make(map[byte]int)
 	need := make(map[byte]int)
 	for i := 0; i < len(s1); i++ {
 		need[s1[i]]++
 	}
-	window := make(map[byte]int)
 	left, right := 0, 0
 	valid := 0
 	for right < len(s2) {
@@ -101,8 +101,8 @@ func checkInclusion(s1 string, s2 string) bool {
 			d := s2[left]
 			left++
 			// 窗口内数据更新
-			if _, ok := need[d]; ok {
-				if need[d] == window[d] {
+			if cnt, ok := need[d]; ok {
+				if window[d] == cnt {
 					valid--
 				}
 				window[d]--
