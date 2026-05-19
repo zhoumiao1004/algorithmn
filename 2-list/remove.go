@@ -134,6 +134,30 @@ func deleteDuplicates2(head *ListNode) *ListNode {
 	return head
 }
 
+// 思路3: 链表分解
+func deleteDuplicates3(head *ListNode) *ListNode {
+	dummy1 := &ListNode{}
+	dummy2 := &ListNode{}
+	p1, p2 := dummy1, dummy2
+	prev := 101
+	cur := head
+	for cur != nil {
+		next := cur.Next
+		if cur.Val != prev {
+			p1.Next = cur
+			p1 = p1.Next
+			p1.Next = nil
+		} else {
+			p2.Next = cur
+			p2 = p2.Next
+			p2.Next = nil
+		}
+		prev = cur.Val
+		cur = next
+	}
+	return dummy1.Next
+}
+
 // 80.删除有序数组中的重复项 II
 // https://leetcode.cn/problems/remove-duplicates-from-sorted-array-ii/description/
 // 给你一个有序数组 nums ，请你 原地 删除重复出现的元素，使得出现次数超过两次的元素只出现两次 ，返回删除后数组的新长度。
@@ -209,7 +233,7 @@ func removeDuplicatesII3(nums []int) int {
 // 输入：head = [1,2,3,3,4,4,5]
 // 输出：[1,2,5]
 // 和上题的区别：上题要求把多于的重复元素去掉，这道题要求把所有重复的元素全都去掉。
-// 思路1:链表分解,将原链表分解为两条链表,一条不含重复元素，另一条含重复元素
+// 思路1: 链表分解,将原链表分解为两条链表,一条不含重复元素，另一条含重复元素
 func deleteDuplicatesII(head *ListNode) *ListNode {
 	dummy1, dummy2 := &ListNode{}, &ListNode{Val: 101}
 	p1, p2 := dummy1, dummy2
@@ -217,17 +241,18 @@ func deleteDuplicatesII(head *ListNode) *ListNode {
 	for cur != nil {
 		next := cur.Next
 		if (next != nil && cur.Val == next.Val) || cur.Val == p2.Val {
-			// 重复
 			p2.Next = cur
 			p2 = p2.Next
+			p2.Next = nil
 		} else {
 			p1.Next = cur
 			p1 = p1.Next
+			p1.Next = nil
 		}
-		cur.Next = nil
+		// cur.Next = nil
 		cur = next
 	}
-	return p1
+	return dummy1.Next
 }
 
 // 思路2: 快慢指针
@@ -273,7 +298,7 @@ func deleteDuplicatesII3(head *ListNode) *ListNode {
 }
 
 // 思路4: 递归解法
-func deleteDuplicates3(head *ListNode) *ListNode {
+func deleteDuplicatesII4(head *ListNode) *ListNode {
 	// 定义：输入一条单链表头结点，返回去重之后的单链表头结点
 	// base case
 	if head == nil || head.Next == nil {
@@ -281,7 +306,7 @@ func deleteDuplicates3(head *ListNode) *ListNode {
 	}
 	if head.Val != head.Next.Val {
 		// 如果头结点和身后节点的值不同，则对之后的链表去重即可
-		head.Next = deleteDuplicates3(head.Next)
+		head.Next = deleteDuplicatesII4(head.Next)
 		return head
 	}
 	// 如果如果头结点和身后节点的值相同，则说明从 head 开始存在若干重复节点
@@ -290,7 +315,7 @@ func deleteDuplicates3(head *ListNode) *ListNode {
 		head = head.Next
 	}
 	// 直接返回那个不重复节点开头的链表的去重结果，就把重复节点删掉了
-	return deleteDuplicates3(head.Next)
+	return deleteDuplicatesII4(head.Next)
 }
 
 func main() {

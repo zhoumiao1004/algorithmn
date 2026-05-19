@@ -98,16 +98,17 @@ func kthSmallest(matrix [][]int, k int) int {
 	for i := 0; i < len(matrix); i++ {
 		heap.Push(h, matrix[i])
 	}
-	result := -1
+	res := -1
 	for h.Len() > 0 && k > 0 {
-		nums := heap.Pop(h).([]int)
-		result = nums[0]
 		k--
-		if len(nums) > 1 {
-			heap.Push(h, append([]int{}, nums[1:]...))
+		nums := heap.Pop(h).([]int)
+		res = nums[0]
+		nums = nums[1:]
+		if len(nums) > 0 {
+			heap.Push(h, nums)
 		}
 	}
-	return result
+	return res
 }
 
 // 23.合并 k 个有序链表
@@ -163,24 +164,46 @@ func mergeKLists(lists []*ListNode) *ListNode {
 
 // 思路2：分治,时间复杂度O(Nlogk), k 条链表分别遍历 O(logk) 次; 空间复杂度，该算法的空间复杂度只有递归树堆栈的开销，也就是 O(logk)，要优于优先级队列解法的 O(k)
 func mergeKLists2(lists []*ListNode) *ListNode {
+
+	var mergeTwoList func(list1, list2 *ListNode) *ListNode
+	var merge func(lists []*ListNode, start, end int) *ListNode // 定义：合并 lists[start..end] 为一个有序链表
+
+	mergeTwoList = func(list1, list2 *ListNode) *ListNode {
+		dummy := &ListNode{}
+		cur := dummy
+		p1, p2 := list1, list2
+		for p1 != nil && p2 != nil {
+			if p1.Val < p2.Val {
+				cur.Next = p1
+				p1 = p1.Next
+			} else {
+				cur.Next = p2
+				p2 = p2.Next
+			}
+			cur = cur.Next
+		}
+		if p1 == nil {
+			cur.Next = p1
+		} else {
+			cur.Next = p2
+		}
+		return dummy.Next
+	}
+
+	merge = func(lists []*ListNode, start, end int) *ListNode {
+		if start == end {
+			return lists[start]
+		}
+		mid := start + (end-start)/2
+		left := merge(lists, start, mid)  // 合并左半边 lists[start..mid] 为一个有序链表
+		right := merge(lists, mid+1, end) // 合并右半边 lists[mid+1..end] 为一个有序链表
+		return mergeTwoList(left, right)  // 合并左右两个有序链表
+	}
+
 	if len(lists) == 0 {
 		return nil
 	}
-	return mergeKLists3(lists, 0, len(lists)-1)
-}
-
-// 定义：合并 lists[start..end] 为一个有序链表
-func mergeKLists3(lists []*ListNode, start, end int) *ListNode {
-	if start == end {
-		return lists[start]
-	}
-	mid := start + (end-start)/2
-	// 合并左半边 lists[start..mid] 为一个有序链表
-	left := mergeKLists3(lists, start, mid)
-	// 合并右半边 lists[mid+1..end] 为一个有序链表
-	right := mergeKLists3(lists, mid+1, end)
-	// 合并左右两个有序链表
-	return mergeTwoLists(left, right)
+	return merge(lists, 0, len(lists)-1)
 }
 
 // 373. 查找和最小的 K 对数字

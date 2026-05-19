@@ -8,12 +8,12 @@ package main
 // 输出：[7,0,8]
 // 解释：342 + 465 = 807.
 func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
-	p1, p2 := l1, l2
 	dummy := &ListNode{}
 	cur := dummy
-	flag := 0
-	for p1 != nil || p2 != nil {
-		val := flag
+	p1, p2 := l1, l2
+	carry := 0
+	for p1 != nil || p2 != nil || carry > 0 {
+		val := carry
 		if p1 != nil {
 			val += p1.Val
 			p1 = p1.Next
@@ -22,13 +22,13 @@ func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
 			val += p2.Val
 			p2 = p2.Next
 		}
-		flag = val / 10
+		carry = val / 10
 		cur.Next = &ListNode{Val: val % 10}
 		cur = cur.Next
 	}
-	if flag == 1 {
-		cur.Next = &ListNode{Val: 1}
-	}
+	// if carry == 1 {
+	// 	cur.Next = &ListNode{Val: 1}
+	// }
 	return dummy.Next
 }
 
@@ -48,7 +48,7 @@ func addTwoNumbers2(l1 *ListNode, l2 *ListNode) *ListNode {
 	}
 	dummy := &ListNode{}
 	carry := 0
-	for len(st1) > 0 || len(st2) > 0 {
+	for len(st1) > 0 || len(st2) > 0 || carry > 0 {
 		val := carry
 		if len(st1) > 0 {
 			val += st1[len(st1)-1]
@@ -59,13 +59,12 @@ func addTwoNumbers2(l1 *ListNode, l2 *ListNode) *ListNode {
 			st2 = st2[:len(st2)-1]
 		}
 		carry = val / 10
-		// 头插法
-		next := dummy.Next
-		dummy.Next = &ListNode{Val: val % 10, Next: next}
+		node := &ListNode{Val: val % 10, Next: dummy.Next}
+		dummy.Next = node
 	}
-	if carry == 1 {
-		next := dummy.Next
-		dummy.Next = &ListNode{Val: 1, Next: next}
-	}
+	// if carry == 1 {
+	// 	next := dummy.Next
+	// 	dummy.Next = &ListNode{Val: 1, Next: next}
+	// }
 	return dummy.Next
 }

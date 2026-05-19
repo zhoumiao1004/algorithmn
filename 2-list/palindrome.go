@@ -29,25 +29,39 @@ func isPalindrome(head *ListNode) bool {
 
 // 思路2:递归+后序遍历，模仿双指针实现回文判断的功能
 func isPalindrome2(head *ListNode) bool {
-	if head == nil {
-		return false
-	}
 	left := head
-	result := true
-	var traverse func(right *ListNode)
-	traverse = func(right *ListNode) {
-		if right == nil {
+	flag := true
+	var traverse func(head *ListNode)
+
+	traverse = func(head *ListNode) {
+		if head == nil {
 			return
 		}
-		traverse(right.Next)
-		// 后序遍历位置
-		if left.Val != right.Val {
-			result = false
+		traverse(head.Next)
+		// 后序位置
+		if left.Val != head.Val {
+			flag = false
 		}
 		left = left.Next
 	}
+
 	traverse(head)
-	return result
+	return flag
+}
+
+// 思路3:栈
+func isPalindrome3(head *ListNode) bool {
+	var st []int
+	for cur := head; cur != nil; cur = cur.Next {
+		st = append(st, cur.Val)
+	}
+	for cur := head; cur != nil; cur = cur.Next {
+		if cur.Val != st[len(st)-1] {
+			return false
+		}
+		st = st[:len(st)-1]
+	}
+	return true
 }
 
 func main() {
