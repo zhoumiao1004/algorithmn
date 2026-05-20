@@ -97,6 +97,9 @@ func twoSumII(numbers []int, target int) []int {
 
 // 1. 两数之和
 // https://leetcode.cn/problems/two-sum/description/
+// 给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出 和为目标值 target  的那 两个 整数，并返回它们的数组下标。
+// 你可以假设每种输入只会对应一个答案，并且你不能使用两次相同的元素。
+// 你可以按任意顺序返回答案。
 // 思路1: hashmap
 func twoSum(nums []int, target int) []int {
 	m := make(map[int]int)
@@ -142,9 +145,9 @@ func twoSum2(nums []int, target int) []int {
 // 输入：nums = [-1,0,1,2,-1,-4]
 // 输出：[[-1,-1,2],[-1,0,1]]
 // 思路: 双指针，关键在如何去重
-func threeSum2(nums []int) [][]int {
-	var results [][]int
+func threeSum(nums []int) [][]int {
 	sort.Ints(nums)
+	var res [][]int
 	n := len(nums)
 	for i := 0; i < n-2; i++ {
 		a := nums[i]
@@ -154,25 +157,25 @@ func threeSum2(nums []int) [][]int {
 		if i > 0 && nums[i] == nums[i-1] {
 			continue
 		}
-		l, r := i+1, n-1
-		for l < r {
-			b, c := nums[l], nums[r]
+		left, right := i+1, n-1
+		for left < right {
+			b, c := nums[left], nums[right]
 			if a+b+c == 0 {
-				results = append(results, []int{a, b, c})
-				for l < r && nums[l] == b {
-					l++
+				res = append(res, []int{a, b, c})
+				for left < right && nums[left] == b {
+					left++
 				}
-				for l < r && nums[r] == c {
-					r--
+				for left < right && nums[right] == c {
+					right--
 				}
 			} else if a+b+c < 0 {
-				l++
+				left++
 			} else {
-				r--
+				right--
 			}
 		}
 	}
-	return results
+	return res
 }
 
 // 18. 四数之和
@@ -180,7 +183,31 @@ func threeSum2(nums []int) [][]int {
 // 给你一个由 n 个整数组成的数组 nums ，和一个目标值 target 。请你找出并返回满足下述全部条件且不重复的四元组 [nums[a], nums[b], nums[c], nums[d]] （若两个四元组元素一一对应，则认为两个四元组重复）：
 // 输入：nums = [1,0,-1,0,-2,2], target = 0
 // 输出：[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]
+// 思路1
 func fourSum(nums []int, target int) [][]int {
+	// 数组需要排序
+	sort.Ints(nums)
+	n := len(nums)
+	var res [][]int
+	// 穷举 fourSum 的第一个数
+	for i := 0; i < n; i++ {
+		// 对 target - nums[i] 计算 threeSum
+		triples := threeSumTarget(nums, i+1, target-nums[i])
+		// 如果存在满足条件的三元组，再加上 nums[i] 就是结果四元组
+		for _, triple := range triples {
+			triple = append(triple, nums[i])
+			res = append(res, triple)
+		}
+		// fourSum 的第一个数不能重复
+		for i < n-1 && nums[i] == nums[i+1] {
+			i++
+		}
+	}
+	return res
+}
+
+// 思路2
+func fourSum2(nums []int, target int) [][]int {
 	sort.Ints(nums)
 	var results [][]int
 	for i := 0; i < len(nums)-3; i++ {

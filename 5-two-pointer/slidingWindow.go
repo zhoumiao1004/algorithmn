@@ -246,13 +246,9 @@ func minOperations(nums []int, x int) int {
 		s += nums[i]
 	}
 	target := s - x
-	if target < 0 {
-		return -1
-	}
-
 	left, right := 0, 0
 	sum := 0
-	maxLen := math.MinInt
+	maxLen := -1
 	for right < n {
 		c := nums[right]
 		right++
@@ -269,7 +265,7 @@ func minOperations(nums []int, x int) int {
 			maxLen = max(maxLen, right-left)
 		}
 	}
-	if maxLen == maxLen {
+	if maxLen == -1 {
 		return -1
 	}
 	return n - maxLen
@@ -449,7 +445,7 @@ func containsNearbyDuplicate1(nums []int, k int) bool {
 		// 窗口内数据更新
 		set[c] = true
 
-		if right-left > k {
+		for right-left > k {
 			d := nums[left]
 			left++
 			// 窗口内数据更新
@@ -593,8 +589,7 @@ https://leetcode.cn/problems/longest-substring-with-at-least-k-repeating-charact
 func longestSubstring(s string, k int) int {
 	res := 0
 	for i := 1; i <= 26; i++ {
-		r := longestKLetterSubstr(s, k, i)
-		res = max(res, r)
+		res = max(res, longestKLetterSubstr(s, k, i))
 	}
 	return res
 }
@@ -610,25 +605,23 @@ func longestKLetterSubstr(s string, k, n int) int {
 		c := s[right]
 		right++
 		window[c-'a']++
-		cnt := window[c-'a']
-		if cnt == 1 {
+		if window[c-'a'] == 1 {
 			uniqueCnt++
 		}
-		if cnt == k {
+		if window[c-'a'] == k {
 			validCnt++
 		}
 
 		for uniqueCnt > n {
 			d := s[left]
 			left++
-			window[d-'a']--
-			cnt := window[d-'a']
-			if cnt == k-1 {
-				validCnt--
-			}
-			if cnt == 0 {
+			if window[d-'a'] == 1 {
 				uniqueCnt--
 			}
+			if window[d-'a'] == k {
+				validCnt--
+			}
+			window[d-'a']--
 		}
 		if validCnt == n {
 			res = max(res, right-left)

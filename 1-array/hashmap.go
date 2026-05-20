@@ -264,22 +264,6 @@ func containsDuplicate(nums []int) bool {
 	return false
 }
 
-// 219.存在重复元素 II
-// 给你一个整数数组 nums 和一个整数 k ，判断数组中是否存在两个 不同的索引 i 和 j ，满足 nums[i] == nums[j] 且 abs(i - j) <= k 。如果存在，返回 true ；否则，返回 false 。
-// 输入：nums = [1,2,3,1], k = 3
-// 输出：true
-func containsNearbyDuplicate(nums []int, k int) bool {
-	m := make(map[int]int)
-	for i := 0; i < len(nums); i++ {
-		index, ok := m[nums[i]]
-		if ok && i-index <= k {
-			return true
-		}
-		m[nums[i]] = i
-	}
-	return false
-}
-
 // 442. 数组中重复的数据
 // https://leetcode.cn/problems/find-all-duplicates-in-an-array/description/
 // 给你一个长度为 n 的整数数组 nums ，其中 nums 的所有整数都在范围 [1, n] 内，且每个整数出现 最多两次 。请你找出所有出现 两次 的整数，并以数组形式返回。
