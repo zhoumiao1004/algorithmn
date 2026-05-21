@@ -210,34 +210,6 @@ func shipWithinDays(weights []int, days int) int {
 }
 
 /*
-392. 判断子序列
-https://leetcode.cn/problems/is-subsequence/
-给定字符串 s 和 t ，判断 s 是否为 t 的子序列。
-字符串的一个子序列是原始字符串删除一些（也可以不删除）字符而不改变剩余字符相对位置形成的新字符串。（例如，"ace"是"abcde"的一个子序列，而"aec"不是）。
-进阶：
-如果有大量输入的 S，称作 S1, S2, ... , Sk 其中 k >= 10亿，你需要依次检查它们是否为 T 的子序列。在这种情况下，你会怎样改变代码？
-输入：s = "abc", t = "ahbgdc"
-输出：true
-*/
-// 思路1: dp,最长公共子序列长度是否等于len(s)
-// 思路2: 双指针
-func isSubsequence(s string, t string) bool {
-	if s == "" {
-		return true
-	}
-	left := 0
-	for right := 0; right < len(t); right++ {
-		if t[right] == s[left] {
-			left++
-			if left == len(s) {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-/*
 792. 匹配子序列的单词数
 https://leetcode.cn/problems/number-of-matching-subsequences/description/
 给定字符串 s 和字符串数组 words, 返回  words[i] 中是s的子序列的单词个数 。
@@ -247,27 +219,25 @@ https://leetcode.cn/problems/number-of-matching-subsequences/description/
 输出: 3
 解释: 有三个是 s 的子序列的单词: "a", "acd", "ace"。
 */
-// 思路1:
+// 思路1: 依次判断words中的元素是否为s的子序列，无法通过所有用例
 func numMatchingSubseq(s string, words []string) int {
-	var isSubsequence func(s, t string) bool
-	isSubsequence = func(s string, t string) bool {
-		if s == "" {
-			return true
+	var isSubSequence func(s, w string) bool // w是否是s的子序列
+	isSubSequence = func(s, w string) bool {
+		if len(s) < len(w) {
+			return false
 		}
-		left := 0
-		for right := 0; right < len(t); right++ {
-			if t[right] == s[left] {
-				left++
-				if left == len(s) {
-					return true
-				}
+		i := 0
+		for j := 0; j < len(s); j++ {
+			if i < len(w) && s[j] == w[i] {
+				i++
 			}
 		}
-		return false
+		return i == len(w)
 	}
+
 	cnt := 0
 	for _, w := range words {
-		if isSubsequence(w, s) {
+		if isSubSequence(s, w) {
 			cnt++
 		}
 	}
@@ -278,7 +248,7 @@ func numMatchingSubseq(s string, words []string) int {
 func numMatchingSubseq2(s string, words []string) int {
 	var getLeftBound func(nums []int, target int) int
 	getLeftBound = func(nums []int, target int) int {
-		left, right := 0, len(nums)
+		left, right := 0, len(nums)-1
 		for left <= right {
 			mid := left + (right-left)/2
 			if nums[mid] < target {
@@ -291,32 +261,31 @@ func numMatchingSubseq2(s string, words []string) int {
 		}
 		return left
 	}
-	// 对 s 进行预处理，记录 char -> 该 char 的索引列表
-	charToIndexes := make([][]int, 26)
+
+	hash := make([][]int, 26) // 对 s 进行预处理，记录 char -> 该 char 的索引列表
 	for i := 0; i < len(s); i++ {
 		c := s[i]
-		if charToIndexes[c-'a'] == nil {
-			charToIndexes[c-'a'] = []int{}
+		if hash[c-'a'] == nil {
+			hash[c-'a'] = []int{}
 		}
-		charToIndexes[c-'a'] = append(charToIndexes[c-'a'], i)
+		hash[c-'a'] = append(hash[c-'a'], i)
 	}
 
 	res := 0
 	for _, word := range words {
-		i, j := 0, 0 // i: 字符串 word 上的指针 j:字符串 s 上的指针
+		i, j := 0, 0 // i 指向 word, j 指向 s
 		// 判断 word 是否是 s 的子序列, 借助 charToIndexes 查找 word 中每个字符在 s 中的索引
 		for i < len(word) {
-			c := word[i]
-			// 整个 s 压根儿没有字符 word[i]
-			if charToIndexes[c-'a'] == nil {
+			nums := hash[word[i]-'a']
+			if nums == nil {
 				break
 			}
-			// 二分搜索大于等于 j 的最小索引, 即在 s[j..] 中搜索等于 word[i] 的最小索引
-			pos := getLeftBound(charToIndexes[c-'a'], j)
-			if pos == len(charToIndexes[c-'a']) {
-				break
+			// 找到大于等于 j 的最小索引, 即在 s[j..] 中搜索等于 word[i] 的最小索引
+			pos := getLeftBound(nums, j)
+			if pos == len(nums) {
+				break // 没找到
 			}
-			j = charToIndexes[c-'a'][pos] // 如果找到，即 word[i] == s[j]，继续往后匹配
+			j = nums[pos] // 如果找到，即 word[i] == s[j]，继续往后匹配
 			j++
 			i++
 		}

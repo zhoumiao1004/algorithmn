@@ -356,15 +356,15 @@ func matrixReshape(mat [][]int, r int, c int) [][]int {
 	if m*n != r*c {
 		return mat
 	}
-	result := make([][]int, r)
+	res := make([][]int, r)
 	for i := 0; i < r; i++ {
-		result[i] = make([]int, c)
+		res[i] = make([]int, c)
 		for j := 0; j < c; j++ {
 			index := i*c + j
-			result[i][j] = mat[index/n][index%n]
+			res[i][j] = mat[index/n][index%n]
 		}
 	}
-	return result
+	return res
 }
 
 // 1329. 将矩阵按对角线排序

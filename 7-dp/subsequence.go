@@ -16,8 +16,6 @@ import (
 // [0, 0, 0, 0, 0, 0, 3]
 func isSubsequence(s string, t string) bool {
 	m, n := len(s), len(t)
-	// dp[i][j]含义：[0,i-1]的s和[0,j-1]的t，相同子序列长度
-	// 递推公式： if s[i-1] == s[j-1] : dp[i][j] = dp[i-1][j-1] + 1 else：dp[i][j] = dp[i][j-1]
 	dp := make([][]int, m+1)
 	for i := 0; i <= m; i++ {
 		dp[i] = make([]int, n+1)
@@ -27,12 +25,23 @@ func isSubsequence(s string, t string) bool {
 			if s[i-1] == t[j-1] {
 				dp[i][j] = dp[i-1][j-1] + 1
 			} else {
-				dp[i][j] = dp[i][j-1] // 求的是s是不是t的子序列，t模拟删除最后一个字符
+				// dp[i][j] = dp[i][j-1] // 求的是s是不是t的子序列，t模拟删除最后一个字符
+				dp[i][j] = max(dp[i][j-1], dp[i-1][j]) // lcs
 			}
 		}
 	}
-	// fmt.Println(dp)
 	return dp[m][n] == len(s)
+}
+
+// 思路2: 双指针
+func isSubsequence2(s string, t string) bool {
+	i := 0
+	for j := 0; j < len(t); j++ {
+		if i < len(s) && t[j] == s[i] {
+			i++
+		}
+	}
+	return i == len(s)
 }
 
 // 647. 回文子串
@@ -45,20 +54,14 @@ func isSubsequence(s string, t string) bool {
 // 输入：s = "aaa" 输出：6
 // 解释：6个回文子串: "a", "a", "a", "aa", "aa", "aaa"
 func countSubstrings(s string) int {
-	// dp[i][j]含义：[i,j]范围内的回文子串个数
-	// 递推公式
-	// 1.相同 s[i] == s[j]
-	//  a.j-i <=1 dp[i][j] = true 回文个数+1
-	//  b.        if dp[i+1][j-1] == true => dp[i][j] = true 回文个数+1
-	// 2.不同 false
 	n := len(s)
 	dp := make([][]bool, n)
 	for i := 0; i < n; i++ {
 		dp[i] = make([]bool, n)
 	}
 	result := 0
-	for i := n - 1; i >= 0; i-- { // 从下往上
-		for j := i; j < n; j++ { // 从左往右
+	for i := n - 1; i >= 0; i-- {
+		for j := i; j < n; j++ {
 			if s[i] == s[j] {
 				if j-i <= 1 || dp[i+1][j-1] {
 					dp[i][j] = true
@@ -67,17 +70,10 @@ func countSubstrings(s string) int {
 			}
 		}
 	}
-	// fmt.Println(dp)
 	return result
 }
 
 func countSubstrings2(s string) int {
-	// 1.dp[i][j]含义：左闭右闭区间s[i:j]是不是回文串
-	// 2.递推公式：
-	// if s[i] == s[j]:
-	//   if j-i<=1 || dp[i+1][j-1]: dp[i][j] = true
-	// 3.初始化：dp[i][i] = true
-	// 4.遍历顺序：i从下到上，j从左到右
 	n := len(s)
 	dp := make([][]bool, n)
 	result := 0
@@ -137,11 +133,6 @@ func longestPalindromeSubseq(s string) int {
 // 输出：2
 // 解释：字符串可变为 "mbdadbm" 或者 "mdbabdm" 。
 func minInsertions(s string) int {
-	// dp[i][j]含义：字符串s[i..j]，最少需要插入dp[i][j]次才能成为回文串。因此要求的是dp[0, n-1]
-	// 假设已经计算出了子问题 dp[i+1][j-1] 的值，
-	// 如果s[i] == s[j], s[i..j]需要的次数也是dp[i+1][j-1];
-	// 如果s[i] != s[j] 有几种情况：
-	// i左边插入s[j]相同的字符 or j右边插入s[i]相同的字符
 	n := len(s)
 	dp := make([][]int, n)
 	for i := 0; i < n; i++ {
@@ -276,8 +267,8 @@ func findNumberOfLIS2(nums []int) int {
 			}
 		}
 	}
-	fmt.Println(dp)
-	fmt.Println(maxCount)
+	// fmt.Println(dp)
+	// fmt.Println(maxCount)
 	for i := 0; i < n; i++ {
 		if dp[i][0] == maxCount {
 			return dp[i][1]
