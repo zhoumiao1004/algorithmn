@@ -311,7 +311,7 @@ https://leetcode.cn/problems/find-k-closest-elements/description/
 func findClosestElements(arr []int, k int, x int) []int {
 	var getLeftBound func(nums []int, target int) int
 	getLeftBound = func(nums []int, target int) int {
-		left, right := 0, len(nums)
+		left, right := 0, len(nums)-1
 		for left <= right {
 			mid := left + (right-left)/2
 			if nums[mid] < target {
@@ -325,7 +325,7 @@ func findClosestElements(arr []int, k int, x int) []int {
 		return left
 	}
 
-	var results []int
+	var res []int
 	p := getLeftBound(arr, x)
 	left, right := p-1, p
 	// 拓展区间，直到区间内包含k个数
@@ -340,10 +340,7 @@ func findClosestElements(arr []int, k int, x int) []int {
 			left--
 		}
 	}
-	for i := left + 1; i < right; i++ {
-		results = append(results, arr[i])
-	}
-	return results
+	return arr[left+1 : right]
 }
 
 // 162. 寻找峰值
