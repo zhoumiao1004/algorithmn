@@ -325,7 +325,6 @@ func findClosestElements(arr []int, k int, x int) []int {
 		return left
 	}
 
-	var res []int
 	p := getLeftBound(arr, x)
 	left, right := p-1, p
 	// 拓展区间，直到区间内包含k个数
@@ -439,7 +438,7 @@ func search2(nums []int, target int) int {
 	}
 	minIndex := left
 	if nums[n-1] < target {
-		left, right = 0, minIndex
+		left, right = 0, minIndex-1
 	} else {
 		left, right = minIndex, n-1
 	}

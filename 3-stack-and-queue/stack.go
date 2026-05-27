@@ -93,62 +93,31 @@ func isValid(s string) bool {
 // 输出：9
 // 解释：该算式转化为常见的中缀算术表达式为：((2 + 1) * 3) = 9
 func evalRPN(tokens []string) int {
-	r := 0
 	var st []string
-	for _, s := range tokens {
-		if s == "+" || s == "-" || s == "*" || s == "/" {
-			a := st[len(st)-1]
-			st = st[:len(st)-1] // 出栈
-			b := st[len(st)-1]
-			st = st[:len(st)-1] // 出栈
-			v2, _ := strconv.Atoi(a)
-			v1, _ := strconv.Atoi(b)
-			if s == "+" {
-				r = v1 + v2
-			} else if s == "-" {
-				r = v1 - v2
-			} else if s == "*" {
-				r = v1 * v2
-			} else if s == "/" {
-				r = v1 / v2
-			}
-			st = append(st, fmt.Sprintf("%d", r))
-		} else {
-			st = append(st, s)
-		}
-	}
-	if len(st) > 0 {
-		r, _ = strconv.Atoi(st[0])
-	}
-	return r
-}
-
-func evalRPN2(tokens []string) int {
-	result := 0
-	var st []int
 	for i := 0; i < len(tokens); i++ {
-		if tokens[i] != "+" && tokens[i] != "-" && tokens[i] != "*" && tokens[i] != "/" {
-			x, _ := strconv.Atoi(tokens[i])
-			st = append(st, x)
-			continue
+		if tokens[i] == "+" || tokens[i] == "-" || tokens[i] == "*" || tokens[i] == "/" {
+			b, _ := strconv.Atoi(st[len(st)-1])
+			st = st[:len(st)-1]
+			a, _ := strconv.Atoi(st[len(st)-1])
+			st = st[:len(st)-1]
+			res := 0
+			switch tokens[i] {
+			case "+":
+				res = a + b
+			case "-":
+				res = a - b
+			case "*":
+				res = a * b
+			case "/":
+				res = a / b
+			}
+			st = append(st, fmt.Sprintf("%d", res))
+		} else {
+			st = append(st, tokens[i])
 		}
-		a := st[len(st)-1]
-		st = st[:len(st)-1]
-		b := st[len(st)-1]
-		st = st[:len(st)-1]
-		switch {
-		case tokens[i] == "+":
-			result = a + b
-		case tokens[i] == "-":
-			result = b - a
-		case tokens[i] == "*":
-			result = a * b
-		case tokens[i] == "/":
-			result = b / a
-		}
-		st = append(st, result)
 	}
-	return st[0]
+	n, _ := strconv.Atoi(st[0])
+	return n
 }
 
 // 388. 文件的最长绝对路径
@@ -197,7 +166,7 @@ func decodeString(s string) string {
 	for i := 0; i < len(s); i++ {
 		c := s[i]
 		if c >= '0' && c <= '9' {
-			k = 10 * k + int(c - '0')
+			k = 10*k + int(c-'0')
 		} else if c == '[' {
 			strStack = append(strStack, cur)
 			cntStack = append(cntStack, k)

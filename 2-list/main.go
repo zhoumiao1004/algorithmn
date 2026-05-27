@@ -88,10 +88,8 @@ func reorderList(head *ListNode) {
 // 思路2：栈
 func reorderList2(head *ListNode) {
 	var st []*ListNode
-	n := 0
 	for cur := head; cur != nil; cur = cur.Next {
 		st = append(st, cur)
-		n++
 	}
 
 	cur := head
@@ -107,6 +105,26 @@ func reorderList2(head *ListNode) {
 		cur.Next = last
 		cur = next
 	}
+}
+
+func reorderList3(head *ListNode) {
+	n := 0
+	var st []*ListNode
+	for cur := head; cur != nil; cur = cur.Next {
+		st = append(st, cur)
+		n++
+	}
+	cur := head
+	p := st[len(st)-1]
+	for i := 0; i < (n+1)/2; i++ {
+		next := cur.Next
+		p = st[len(st)-1]
+		st = st[:len(st)-1]
+		p.Next = next
+		cur.Next = p
+		cur = next
+	}
+	p.Next = nil
 }
 
 func main() {

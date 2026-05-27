@@ -102,6 +102,24 @@ func rightSideView(root *TreeNode) []int {
 	return result
 }
 
+func rightSideView0(root *TreeNode) []int {
+	var res []int
+	var traverse func(root *TreeNode, depth int)
+	traverse = func(root *TreeNode, depth int) {
+		if root == nil {
+			return
+		}
+		if depth == len(res) {
+			res = append(res, root.Val)
+		}
+		traverse(root.Right, depth+1)
+		traverse(root.Left, depth+1)
+	}
+
+	traverse(root, 0)
+	return res
+}
+
 func rightSideView1(root *TreeNode) []int {
 	var result []int
 	maxDepth := math.MinInt
@@ -389,9 +407,8 @@ func addOneRow2(root *TreeNode, val int, depth int) *TreeNode {
 			return
 		}
 		if level == depth-1 {
-			left := &TreeNode{Val: val, Left: node.Left}
-			right := &TreeNode{Val: val, Right: node.Right}
-			node.Left, node.Right = left, right
+			root.Left = &TreeNode{Val: val, Left: root.Left}
+			root.Right = &TreeNode{Val: val, Right: root.Right}
 			return
 		}
 		traverse(node.Left, level+1)
@@ -410,7 +427,7 @@ func addOneRow2(root *TreeNode, val int, depth int) *TreeNode {
 // 输出：[-1]
 // 解释：翻转节点无法令先序遍历匹配预期行程。
 func flipMatchVoyage(root *TreeNode, voyage []int) []int {
-	var results []int
+	var res []int
 	canFlip := true
 	i := 0
 	var traverse func(node *TreeNode)
@@ -425,14 +442,14 @@ func flipMatchVoyage(root *TreeNode, voyage []int) []int {
 		i++
 		if node.Left != nil && node.Left.Val != voyage[i] {
 			node.Left, node.Right = node.Right, node.Left
-			results = append(results, node.Val)
+			res = append(res, node.Val)
 		}
 		traverse(node.Left)
 		traverse(node.Right)
 	}
 	traverse(root)
 	if canFlip {
-		return results
+		return res
 	}
 	return []int{-1}
 }

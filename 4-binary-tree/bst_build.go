@@ -166,8 +166,13 @@ func numTrees(n int) int {
 
 // 方法2: 递归，分解问题的思路
 func numTrees2(n int) int {
-	var count func(low, high int, memo [][]int) int
-	count = func(low, high int, memo [][]int) int {
+	// 计算闭区间 [1, n] 组成的 BST 个数
+	memo := make([][]int, n+1)
+	for i := 0; i <= n; i++ {
+		memo[i] = make([]int, n+1)
+	}
+	var count func(low, high int) int
+	count = func(low, high int) int {
 		if low > high {
 			return 1
 		}
@@ -175,22 +180,18 @@ func numTrees2(n int) int {
 			return memo[low][high]
 		}
 
-		result := 0
+		res := 0
 		for i := low; i <= high; i++ {
 			// i的值作为root
-			left := count(low, i-1, memo)
-			right := count(i+1, high, memo)
-			result += left * right
+			left := count(low, i-1)
+			right := count(i+1, high)
+			res += left * right
 		}
-		memo[low][high] = result
-		return result
+		memo[low][high] = res
+		return res
 	}
-	// 计算闭区间 [1, n] 组成的 BST 个数
-	memo := make([][]int, n+1)
-	for i := 0; i <= n; i++ {
-		memo[i] = make([]int, n+1)
-	}
-	return count(1, n, memo)
+
+	return count(1, n)
 }
 
 // 95. 不同的二叉搜索树 II
@@ -202,10 +203,10 @@ func generateTrees(n int) []*TreeNode {
 	var build func(low, high int) []*TreeNode // 明确函数定义：使用[low..high]构造二叉搜索树
 
 	build = func(low, high int) []*TreeNode {
-		var results []*TreeNode
+		var res []*TreeNode
 		if low > high {
-			results = append(results, nil)
-			return results
+			res = append(res, nil)
+			return res
 		}
 		// 1.穷举 root 节点的所有可能
 		for i := low; i <= high; i++ {
@@ -215,11 +216,11 @@ func generateTrees(n int) []*TreeNode {
 			// 3.给 root 穷举所有左右子树的组合
 			for _, left := range left {
 				for _, right := range right {
-					results = append(results, &TreeNode{Val: i, Left: left, Right: right})
+					res = append(res, &TreeNode{Val: i, Left: left, Right: right})
 				}
 			}
 		}
-		return results
+		return res
 	}
 
 	return build(1, n) // 构造闭区间 [1, n] 组成的 BST

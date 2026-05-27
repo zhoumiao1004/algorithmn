@@ -28,18 +28,18 @@ func dailyTemperatures(temperatures []int) []int {
 
 func dailyTemperatures2(temperatures []int) []int {
 	n := len(temperatures)
-	result := make([]int, len(temperatures))
+	res := make([]int, n))
 	var st []int
 	for i := n - 1; i >= 0; i-- {
-		for len(st) > 0 && temperatures[i] >= temperatures[st[len(st)-1]] {
-			st = st[:len(st)-1] // 弹出栈顶元素
+		for len(st) > 0 && temperatures[st[len(st)-1]] <= temperatures[i] {
+			st = st[:len(st)-1]
 		}
 		if len(st) > 0 {
-			result[i] = st[len(st)-1] - i
+			res[i] = st[len(st)-1] - i
 		}
 		st = append(st, i)
 	}
-	return result
+	return res
 }
 
 // 496. 下一个更大元素 I
@@ -98,6 +98,30 @@ func nextGreaterElement2(nums1 []int, nums2 []int) []int {
 		st = append(st, nums2[i])
 	}
 	return result
+}
+
+func nextGreaterElement3(nums1 []int, nums2 []int) []int {
+	var st []int
+	nextMap := make(map[int]int)
+	for i := len(nums2) - 1; i >= 0; i-- {
+		for len(st) > 0 && st[len(st)-1] <= nums2[i] {
+			st = st[:len(st)-1]
+		}
+		if len(st) > 0 {
+			nextMap[nums2[i]] = st[len(st)-1]
+		}
+		st = append(st, nums2[i])
+	}
+
+	res := make([]int, len(nums1))
+	for i := 0; i < len(nums1); i++ {
+		if next, ok := nextMap[nums1[i]]; ok {
+			res[i] = next
+		} else {
+			res[i] = -1
+		}
+	}
+	return res
 }
 
 // 503. 下一个更大元素 II
