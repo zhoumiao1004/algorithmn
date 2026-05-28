@@ -239,7 +239,7 @@ func allPossibleFBT(n int) []*TreeNode {
 	build = func(n int) []*TreeNode {
 		var res []*TreeNode
 		if n == 1 {
-			res = append(res, &TreeNode{Val: 0})
+			res = append(res, &TreeNode{})
 			return res
 		}
 		if res, ok := memo[n]; ok {
@@ -251,7 +251,7 @@ func allPossibleFBT(n int) []*TreeNode {
 			rightSubTree := build(j)
 			for _, left := range leftSubTree {
 				for _, right := range rightSubTree {
-					root := &TreeNode{Val: 0, Left: left, Right: right}
+					root := &TreeNode{Left: left, Right: right}
 					res = append(res, root)
 				}
 			}

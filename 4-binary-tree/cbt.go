@@ -61,11 +61,12 @@ func countNodesNormal(root *TreeNode) int {
 // 而偶数行（即，第二行、第四行、第六行……）中，按从右到左的顺序进行标记。
 // 考察完全二叉树性质：一层的最小和最大为 2^n 2*2^n-1
 func pathInZigZagTree(label int) []int {
-	var log func(x int) int
+	var res []int
+	var log func(n int) int
 	var reverse func(nums []int)
 
-	log = func(x int) int {
-		return int(math.Log(float64(x)) / math.Log(2))
+	log = func(n int) int {
+		return int(math.Log(float64(n)) / math.Log(2))
 	}
 	reverse = func(nums []int) {
 		left, right := 0, len(nums)-1
@@ -75,18 +76,17 @@ func pathInZigZagTree(label int) []int {
 			right--
 		}
 	}
-	var path []int
-	for label >= 1 {
-		path = append(path, label)
+
+	for label > 0 {
+		res = append(res, label)
 		label /= 2
 		depth := log(label)
-		fmt.Println(depth)
 		minVal := int(math.Pow(2, float64(depth)))
 		maxVal := 2*minVal - 1
 		label = maxVal - (label - minVal)
 	}
-	reverse(path)
-	return path
+	reverse(res)
+	return res
 }
 
 func main() {

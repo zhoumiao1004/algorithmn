@@ -698,14 +698,14 @@ func findBottomLeftValue3(root *TreeNode) int {
 // 输入：n = 13
 // 输出：[1,10,11,12,13,2,3,4,5,6,7,8,9]
 func lexicalOrder(n int) []int {
-	var results []int
+	var res []int
 	var traverse func(root, n int)
 
 	traverse = func(root, n int) {
 		if root > n {
 			return
 		}
-		results = append(results, root)
+		res = append(res, root)
 		for child := root * 10; child < root*10+10; child++ {
 			if child > n {
 				return
@@ -717,7 +717,28 @@ func lexicalOrder(n int) []int {
 	for i := 1; i <= 9; i++ {
 		traverse(i, n)
 	}
-	return results
+	return res
+}
+
+func lexicalOrder2(n int) []int {
+	var res []int
+	var traverse func(i, n, s int)
+
+	traverse = func(i, n, s int) {
+		s = 10*s + i
+		if s > n {
+			return
+		}
+		res = append(res, s)
+		for i := 0; i <= 9; i++ {
+			traverse(i, n, s)
+		}
+	}
+
+	for i := 1; i <= 9; i++ {
+		traverse(i, n, 0)
+	}
+	return res
 }
 
 // 1145. 二叉树着色游戏
@@ -777,6 +798,10 @@ func btreeGameWinningMove(root *TreeNode, n int, x int) bool {
 // 输入：root = [5,1,2,3,null,6,4], startValue = 3, destValue = 6
 // 输出："UURL"
 // 解释：最短路径为：3 → 1 → 5 → 2 → 6 。
+// 这题的思路比较巧妙，主要分三步：
+// 1、分别记录从根节点到 startValue 和 destValue 的路径 startPath 和 destPath。
+// 2、然后去除 startPath 和 destPath 的公共前缀。
+// 3、最后将 startPath 全部变成 U，把 startPath 和 destPath 接在一起，就是题目要求的路径了。
 func getDirections(root *TreeNode, startValue int, destValue int) string {
 	var srcPath, dstPath []byte
 	var path []byte
@@ -802,12 +827,12 @@ func getDirections(root *TreeNode, startValue int, destValue int) string {
 
 	traverse(root)
 	// 去除公共前缀
-	p, m, n := 0, len(srcPath), len(dstPath)
-	for p < m && p < n && srcPath[p] == dstPath[p] {
-		p++
+	i := 0
+	for i < min(len(srcPath), len(dstPath)) && srcPath[i] == dstPath[i] {
+		i++
 	}
-	srcPath = srcPath[p:]
-	dstPath = dstPath[p:]
+	srcPath = srcPath[i:]
+	dstPath = dstPath[i:]
 	for i := 0; i < len(srcPath); i++ {
 		srcPath[i] = 'U'
 	}
@@ -830,10 +855,7 @@ func isSubtree(root *TreeNode, subRoot *TreeNode) bool {
 	if root == nil {
 		return false
 	}
-	if isSameTree(root, subRoot) {
-		return true
-	}
-	return isSubtree(root.Left, subRoot) || isSubtree(root.Right, subRoot)
+	return isSameTree(root, subRoot) || isSubtree(root.Left, subRoot) || isSubtree(root.Right, subRoot)
 }
 
 // 1367. 二叉树中的链表
