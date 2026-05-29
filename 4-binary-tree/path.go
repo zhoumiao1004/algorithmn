@@ -176,7 +176,7 @@ func pathSumII(root *TreeNode, targetSum int) [][]int {
 // 给你一个二叉树的根节点 root ，返回其 最大路径和 。
 // 思路：分解问题，明确函数定义：以 node 为根节点的二叉树，返回双边最大和
 func maxPathSum(root *TreeNode) int {
-	result := math.MinInt
+	res := math.MinInt
 	var oneSideMax func(node *TreeNode) int
 
 	oneSideMax = func(node *TreeNode) int {
@@ -187,13 +187,13 @@ func maxPathSum(root *TreeNode) int {
 		right := max(0, oneSideMax(node.Right))
 
 		// 后序位置，顺便计算双边最大路径和
-		result = max(result, left+right+node.Val)
+		res = max(res, left+right+node.Val)
 
 		return max(left, right) + node.Val // 返回单边最大路径和
 	}
 
 	oneSideMax(root)
-	return result
+	return res
 }
 
 // 437. 路径总和 III

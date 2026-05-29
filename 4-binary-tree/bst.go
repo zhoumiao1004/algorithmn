@@ -44,10 +44,9 @@ func increasingBST(root *TreeNode) *TreeNode {
 	if root == nil {
 		return nil
 	}
-	left := increasingBST(root.Left)   // 左
-	root.Left = nil                    // 断掉左子树
-	right := increasingBST(root.Right) // 右
-	root.Right = right
+	left := increasingBST(root.Left)
+	root.Left = nil
+	root.Right = increasingBST(root.Right)
 
 	// 后序位置
 	if left == nil {
