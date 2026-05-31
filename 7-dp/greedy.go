@@ -382,22 +382,23 @@ type TreeNode struct {
 // 计算监控树的所有节点所需的最小摄像头数量。
 // 思路：从叶子节点向上，叶子的父节点放一个，向上空2个节点放一个 3种状态转移：0.无覆盖 1.有摄像头 2.有覆盖
 func minCameraCover(root *TreeNode) int {
-	result := 0
-	var dfs func(*TreeNode) int
-	dfs = func(root *TreeNode) int {
+	res := 0
+	var setCamera func(root *TreeNode) int
+
+	setCamera = func(root *TreeNode) int {
 		// 空节点有覆盖，上面的叶子节点就无覆盖
 		if root == nil {
 			return 2
 		}
-		left := dfs(root.Left)
-		right := dfs(root.Right)
+		left := setCamera(root.Left)
+		right := setCamera(root.Right)
 		// 1.左右都有覆盖 => 父节点无覆盖
 		if left == 2 && right == 2 {
 			return 0
 		}
 		// 2.左或右无覆盖 => 父节点要放一个摄像头
 		if left == 0 || right == 0 {
-			result++
+			res++
 			return 1
 		}
 		// 3.左或右有摄像头 => 父节点有覆盖
@@ -406,11 +407,12 @@ func minCameraCover(root *TreeNode) int {
 		}
 		return -1
 	}
-	status := dfs(root)
+
+	status := setCamera(root)
 	if status == 0 {
-		result++
+		res++
 	}
-	return result
+	return res
 }
 
 func minCameraCover2(root *TreeNode) int {

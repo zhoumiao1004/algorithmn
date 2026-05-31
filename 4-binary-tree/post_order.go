@@ -321,8 +321,6 @@ func tree2str(root *TreeNode) string {
 		return fmt.Sprintf("%d", root.Val)
 	} else if root.Left != nil && root.Right == nil {
 		return fmt.Sprintf("%d(%s)", root.Val, left)
-	} else if root.Left == nil && root.Right != nil {
-		return fmt.Sprintf("%d()(%s)", root.Val, right)
 	}
 	return fmt.Sprintf("%d(%s)(%s)", root.Val, left, right)
 }
@@ -399,8 +397,8 @@ func minTime(n int, edges [][]int, hasApple []bool) int {
 // 输出：2
 // 解释：一枚硬币从根结点移动到左子结点，一枚硬币从根结点移动到右子结点。
 func distributeCoins(root *TreeNode) int {
-	result := 0
-	var getRest func(root *TreeNode) int
+	res := 0
+	var getRest func(root *TreeNode) int // 定义：只允许子向父移动，返回以root为根的二叉树中多出（需要移出）的硬币数
 
 	getRest = func(root *TreeNode) int {
 		if root == nil {
@@ -408,11 +406,12 @@ func distributeCoins(root *TreeNode) int {
 		}
 		left := getRest(root.Left)
 		right := getRest(root.Right)
-		result += int(math.Abs(float64(left)) + math.Abs(float64(right)))
+		// 后序位置顺便计算 root 节点需要移动的次数
+		res += int(math.Abs(float64(left)) + math.Abs(float64(right)))
 		return left + right + (root.Val - 1)
 	}
 	getRest(root)
-	return result
+	return res
 }
 
 // 1080. 根到叶路径上的不足节点
@@ -475,7 +474,7 @@ func countHighestScoreNodes(parents []int) int {
 		n := len(parents)
 		graph := make([][]int, n)
 		for i := range graph {
-			graph[i] = []int{-1, -1}
+			graph[i] = []int{-1, -1} // 左右孩子初始化为空
 		}
 		// 根据 parents 数组构建二叉树（跳过 parents[0] 根节点）
 		for i := 1; i < n; i++ {
