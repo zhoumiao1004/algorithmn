@@ -446,25 +446,21 @@ func sufficientSubset(root *TreeNode, limit int) *TreeNode {
 // 请你返回有 最高得分 节点的 数目 。
 func countHighestScoreNodes(parents []int) int {
 	scoreToCount := make(map[int]int)
+	maxScore := 0
 	var countNode func(tree [][]int, root int) int
 	var buildTree func(parents []int) [][]int
 
-	// 计算二叉树中的节点个数
 	countNode = func(tree [][]int, root int) int {
 		if root == -1 {
 			return 0
 		}
-		// 二叉树中节点总数
-		n := len(tree)
 		left := countNode(tree, tree[root][0])
 		right := countNode(tree, tree[root][1])
-
-		// 后序位置，计算每个节点的「分数」
-		other := n - left - right - 1
-		// 注意，这里要把 int 转化成 long，否则会产生溢出！！！
+		// 后序位置
+		other := len(tree) - left - right - 1
 		score := max(1, left) * max(1, right) * max(1, other)
-		// 给分数 score 计数
 		scoreToCount[score]++
+		maxScore = max(maxScore, score)
 
 		return left + right + 1
 	}
@@ -476,7 +472,6 @@ func countHighestScoreNodes(parents []int) int {
 		for i := range graph {
 			graph[i] = []int{-1, -1} // 左右孩子初始化为空
 		}
-		// 根据 parents 数组构建二叉树（跳过 parents[0] 根节点）
 		for i := 1; i < n; i++ {
 			p := parents[i]
 			if graph[p][0] == -1 {
@@ -490,11 +485,6 @@ func countHighestScoreNodes(parents []int) int {
 
 	graph := buildTree(parents)
 	countNode(graph, 0)
-	// 计算最大分数出现的次数
-	maxScore := 0
-	for score := range scoreToCount {
-		maxScore = max(maxScore, score)
-	}
 	return scoreToCount[maxScore]
 }
 
