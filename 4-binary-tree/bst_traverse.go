@@ -169,9 +169,8 @@ func isValidBST2(root *TreeNode) bool {
 // https://leetcode.cn/problems/find-mode-in-binary-search-tree/description/
 // 思路：遍历，利用中序有序累计节点值个数，不断更新结果（最大个数和有最大个数的值）
 func findMode(root *TreeNode) []int {
-	var results []int
-	maxCnt := 0
-	cnt := 0
+	var res []int
+	cnt, maxCnt := 0, 0
 	var prev *TreeNode
 	var traverse func(*TreeNode)
 
@@ -187,9 +186,9 @@ func findMode(root *TreeNode) []int {
 			cnt = 1
 		}
 		if cnt == maxCnt {
-			results = append(results, root.Val)
+			res = append(res, root.Val)
 		} else if cnt > maxCnt {
-			results = []int{root.Val}
+			res = []int{root.Val}
 			maxCnt = cnt
 		}
 		prev = root
@@ -197,7 +196,7 @@ func findMode(root *TreeNode) []int {
 	}
 
 	traverse(root)
-	return results
+	return res
 }
 
 // 530. 二叉搜索树的最小绝对差
@@ -230,8 +229,7 @@ func getMinimumDifference(root *TreeNode) int {
 // 给你二叉搜索树的根节点 root ，该树中的 恰好 两个节点的值被错误地交换。请在不改变其结构的情况下，恢复这棵树 。
 // 思路：遍历。中序遍历找不满足第一个和最后一个不满足有序的2个节点进行交换
 func recoverTree(root *TreeNode) {
-	var prev *TreeNode
-	var first, second *TreeNode
+	var prev, p, q *TreeNode
 	var traverse func(root *TreeNode)
 
 	traverse = func(root *TreeNode) {
@@ -241,17 +239,17 @@ func recoverTree(root *TreeNode) {
 		traverse(root.Left)
 		// 中序位置
 		if prev != nil && prev.Val > root.Val {
-			if first == nil {
-				first = prev // 记录第一个不满足有序的节点
+			if p == nil {
+				p = prev // 记录第一个不满足有序的节点
 			}
-			second = root // 更新最后一个不满足有序的节点
+			q = root // 更新最后一个不满足有序的节点
 		}
 		prev = root
 		traverse(root.Right)
 	}
 
 	traverse(root)
-	if first != nil && second != nil {
-		first.Val, second.Val = second.Val, first.Val
+	if p != nil && q != nil {
+		p.Val, q.Val = q.Val, p.Val
 	}
 }

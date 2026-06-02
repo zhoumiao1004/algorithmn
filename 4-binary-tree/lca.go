@@ -131,7 +131,7 @@ func findSecondMinimumValue(root *TreeNode) int {
 		return -1
 	}
 	if root.Left == nil || root.Right == nil {
-		return -1 // 叶子节点也没有第二小的节点
+		return -1 // 叶子节点也没有第二小的节点, 用&&也可以，题目说明了左右子树要么同时为空，要么同时不为空
 	}
 	left, right := root.Left.Val, root.Right.Val
 	if root.Left.Val == root.Val {

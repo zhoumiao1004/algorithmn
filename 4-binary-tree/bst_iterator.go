@@ -52,25 +52,25 @@ func (this *BSTIterator) HasNext() bool {
 // 输入：root1 = [2,1,4], root2 = [1,0,3]
 // 输出：[0,1,1,2,3,4]
 func getAllElements(root1 *TreeNode, root2 *TreeNode) []int {
-	t1 := Constructor(root1)
-	t2 := Constructor(root2)
-	var results []int
-	for t1.HasNext() && t2.HasNext() {
-		v1 := t1.Peek()
-		v2 := t2.Peek()
+	var res []int
+	it1 := Constructor(root1)
+	it2 := Constructor(root2)
+	for it1.HasNext() && it2.HasNext() {
+		v1 := it1.Peek()
+		v2 := it2.Peek()
 		if v1 < v2 {
-			results = append(results, v1)
-			t1.Next()
+			res = append(res, v1)
+			it1.Next()
 		} else {
-			results = append(results, v2)
-			t2.Next()
+			res = append(res, v2)
+			it2.Next()
 		}
 	}
-	for t1.HasNext() {
-		results = append(results, t1.Next())
+	for it1.HasNext() {
+		res = append(res, it1.Next())
 	}
-	for t2.HasNext() {
-		results = append(results, t2.Next())
+	for it2.HasNext() {
+		res = append(res, it2.Next())
 	}
-	return results
+	return res
 }

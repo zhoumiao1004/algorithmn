@@ -22,9 +22,10 @@ func findTarget(root *TreeNode, k int) bool {
 	traverse(root) // 中序遍历bst，输出到有序数组中
 	left, right := 0, len(nums)-1
 	for left < right {
-		if nums[left]+nums[right] == k {
+		s := nums[left] + nums[right]
+		if s == k {
 			return true
-		} else if nums[left]+nums[right] < k {
+		} else if s < k {
 			left++
 		} else {
 			right--

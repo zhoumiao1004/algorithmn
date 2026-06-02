@@ -113,7 +113,7 @@ func bstFromPreorder(preorder []int) *TreeNode {
 func balanceBST(root *TreeNode) *TreeNode {
 	var nums []int
 	var traverse func(root *TreeNode)
-	var buildTree func(nums []int) *TreeNode
+	var build func(nums []int) *TreeNode
 
 	traverse = func(root *TreeNode) {
 		if root == nil {
@@ -124,21 +124,19 @@ func balanceBST(root *TreeNode) *TreeNode {
 		traverse(root.Right)
 	}
 
-	buildTree = func(nums []int) *TreeNode {
+	build = func(nums []int) *TreeNode {
 		n := len(nums)
 		if n == 0 {
 			return nil
-		} else if n == 1 {
-			return &TreeNode{Val: nums[0]}
 		}
 		root := &TreeNode{Val: nums[n/2]}
-		root.Left = buildTree(nums[:n/2])
-		root.Right = buildTree(nums[n/2+1:])
+		root.Left = build(nums[:n/2])
+		root.Right = build(nums[n/2+1:])
 		return root
 	}
 
 	traverse(root)
-	return buildTree(nums)
+	return build(nums)
 }
 
 // 96.不同的二叉搜索树
