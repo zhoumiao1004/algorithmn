@@ -53,9 +53,9 @@ func levelOrder3(root *TreeNode) [][]int {
 // 输入：root = [3,9,20,null,null,15,7]
 // 输出：[[3],[9,20],[15,7]]
 func levelOrder(root *TreeNode) [][]int {
-	var results [][]int
+	var res [][]int
 	if root == nil {
-		return results
+		return res
 	}
 	q := []*TreeNode{root}
 	for len(q) > 0 {
@@ -72,22 +72,22 @@ func levelOrder(root *TreeNode) [][]int {
 				q = append(q, node.Right)
 			}
 		}
-		results = append(results, tmp)
+		res = append(res, tmp)
 	}
-	return results
+	return res
 }
 
 // 107.二叉树的层次遍历 II
 // https://leetcode.cn/problems/binary-tree-level-order-traversal-ii/
 func levelOrderBottom(root *TreeNode) [][]int {
-	results := levelOrder(root)
-	left, right := 0, len(results)-1
+	res := levelOrder(root)
+	left, right := 0, len(res)-1
 	for left < right {
-		results[left], results[right] = results[right], results[left]
+		res[left], res[right] = res[right], res[left]
 		left++
 		right--
 	}
-	return results
+	return res
 }
 
 // 429. N 叉树的层序遍历
