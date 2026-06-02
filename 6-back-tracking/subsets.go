@@ -58,16 +58,16 @@ func subset(nums []int) [][]int {
 // 输入：nums = [1,2,2]
 // 输出：[[],[1],[1,2],[1,2,2],[2],[2,2]]
 func subsetsWithDup(nums []int) [][]int {
+	sort.Ints(nums)
 	var res [][]int
 	var path []int
-	sort.Ints(nums)
 	var backtrack func(start int)
 
 	backtrack = func(start int) {
 		res = append(res, append([]int{}, path...))
 		for i := start; i < len(nums); i++ {
 			if i > start && nums[i-1] == nums[i] {
-				continue // 树层去重
+				continue // 剪枝逻辑，值相同的相邻树枝，只遍历第一条
 			}
 			path = append(path, nums[i])
 			backtrack(i + 1)

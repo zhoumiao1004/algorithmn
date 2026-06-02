@@ -166,9 +166,9 @@ func zigzagLevelOrder(root *TreeNode) [][]int {
 // 输入: root = [1,3,2,5,3,null,9]
 // 输出: [1,3,9]
 func largestValues(root *TreeNode) []int {
-	var result []int
+	var res []int
 	if root == nil {
-		return result
+		return res
 	}
 	q := []*TreeNode{root}
 	for len(q) > 0 {
@@ -185,9 +185,9 @@ func largestValues(root *TreeNode) []int {
 				q = append(q, node.Right)
 			}
 		}
-		result = append(result, maxVal)
+		res = append(res, maxVal)
 	}
-	return result
+	return res
 }
 
 // 637. 二叉树的层平均值
@@ -197,18 +197,18 @@ func largestValues(root *TreeNode) []int {
 // 输出：[3.00000,14.50000,11.00000]
 // 解释：第 0 层的平均值为 3,第 1 层的平均值为 14.5,第 2 层的平均值为 11 。
 func averageOfLevels(root *TreeNode) []float64 {
-	var result []float64
+	var res []float64
 	if root == nil {
-		return result
+		return res
 	}
 	q := []*TreeNode{root}
 	for len(q) > 0 {
 		sz := len(q)
-		s := 0
+		var sum float64
 		for i := 0; i < sz; i++ {
 			node := q[0]
+			sum += float64(node.Val)
 			q = q[1:]
-			s += node.Val
 			if node.Left != nil {
 				q = append(q, node.Left)
 			}
@@ -216,9 +216,9 @@ func averageOfLevels(root *TreeNode) []float64 {
 				q = append(q, node.Right)
 			}
 		}
-		result = append(result, float64(s)/float64(len(q)))
+		res = append(res, sum/float64(sz))
 	}
-	return result
+	return res
 }
 
 // 958. 二叉树的完全性检验
@@ -232,7 +232,7 @@ func isCompleteTree(root *TreeNode) bool {
 	if root == nil {
 		return false
 	}
-	end := false
+	hasNil := false
 	q := []*TreeNode{root}
 	for len(q) > 0 {
 		sz := len(q)
@@ -240,14 +240,14 @@ func isCompleteTree(root *TreeNode) bool {
 			node := q[0]
 			q = q[1:]
 			if node == nil {
-				end = true
-			} else {
-				if end {
-					return false
-				}
-				q = append(q, node.Left)
-				q = append(q, node.Right)
+				hasNil = true
+				continue
 			}
+			if hasNil {
+				return false
+			}
+			q = append(q, node.Left)
+			q = append(q, node.Right)
 		}
 	}
 	return true
@@ -268,13 +268,11 @@ func maxLevelSum(root *TreeNode) int {
 	if root == nil {
 		return 0
 	}
-	maxSum := math.MinInt
-	maxSumLevel := 0
-	level := 0
+	res, depth, maxSum := 0, 0, math.MinInt
 	q := []*TreeNode{root}
 	for len(q) > 0 {
 		n := len(q)
-		level++
+		depth++
 		s := 0
 		for i := 0; i < n; i++ {
 			node := q[0]
@@ -289,10 +287,10 @@ func maxLevelSum(root *TreeNode) int {
 		}
 		if s > maxSum {
 			maxSum = s
-			maxSumLevel = level
+			res = depth
 		}
 	}
-	return maxSumLevel
+	return res
 }
 
 // 1302. 层数最深叶子节点的和
@@ -338,6 +336,43 @@ func deepestLeavesSum(root *TreeNode) int {
 // 3 层：[12,8,6,2]
 // 由于 0 层和 2 层上的节点值都是奇数且严格递增，而 1 层和 3 层上的节点值都是偶数且严格递减，因此这是一棵奇偶树。
 func isEvenOddTree(root *TreeNode) bool {
+	if root == nil {
+		return false
+	}
+	flag := true
+	q := []*TreeNode{root}
+	for len(q) > 0 {
+		sz := len(q)
+		for i := 0; i < sz; i++ {
+			node := q[0]
+			q = q[1:]
+			if flag && node.Val%2 == 0 {
+				return false
+			}
+			if !flag && node.Val%2 == 1 {
+				return false
+			}
+			if i < sz-1 {
+				if flag && node.Val >= q[0].Val {
+					return false
+				}
+				if !flag && node.Val <= q[0].Val {
+					return false
+				}
+			}
+			if node.Left != nil {
+				q = append(q, node.Left)
+			}
+			if node.Right != nil {
+				q = append(q, node.Right)
+			}
+		}
+		flag = !flag
+	}
+	return true
+}
+
+func isEvenOddTree2(root *TreeNode) bool {
 	if root == nil {
 		return false
 	}
@@ -429,8 +464,7 @@ func leafSimilar2(root1 *TreeNode, root2 *TreeNode) bool {
 			return res
 		}
 		if node.Left == nil && node.Right == nil {
-			res = append(res, node.Val)
-			return res
+			return []int{node.Val}
 		}
 		left := getLeafVal(node.Left)
 		right := getLeafVal(node.Right)
@@ -452,11 +486,100 @@ func leafSimilar2(root1 *TreeNode, root2 *TreeNode) bool {
 	return true
 }
 
+func leafSimilar3(root1 *TreeNode, root2 *TreeNode) bool {
+	var nums1, nums2 []int
+	var traverse1, traverse2 func(root *TreeNode)
+
+	traverse1 = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+		if root.Left == nil && root.Right == nil {
+			nums1 = append(nums1, root.Val)
+		}
+		traverse1(root.Left)
+		traverse1(root.Right)
+	}
+	traverse2 = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+		if root.Left == nil && root.Right == nil {
+			nums2 = append(nums2, root.Val)
+		}
+		traverse2(root.Left)
+		traverse2(root.Right)
+	}
+
+	traverse1(root1)
+	traverse2(root2)
+	if len(nums1) != len(nums2) {
+		return false
+	}
+	i, j := 0, 0
+	for i < len(nums1) && j < len(nums2) {
+		if nums1[i] != nums2[j] {
+			return false
+		}
+		i++
+		j++
+	}
+	return true
+}
+
 // 863. 二叉树中所有距离为 K 的结点
 // https://leetcode.cn/problems/all-nodes-distance-k-in-binary-tree/description/
 // 给定一个二叉树（具有根结点 root）， 一个目标结点 target ，和一个整数值 k ，返回到目标结点 target 距离为 k 的所有结点的值的数组。
 // 答案可以以 任何顺序 返回。
 func distanceK(root *TreeNode, target *TreeNode, k int) []int {
+	var res []int
+	if root == nil {
+		return res
+	}
+	nodeToParent := make(map[int]*TreeNode)
+	visited := make(map[int]bool)
+	var traverse func(root *TreeNode, parent *TreeNode)
+	traverse = func(root *TreeNode, parent *TreeNode) {
+		if root == nil {
+			return
+		}
+		nodeToParent[root.Val] = parent
+		traverse(root.Left, root)
+		traverse(root.Right, root)
+	}
+
+	traverse(root, nil)
+	q := []*TreeNode{target}
+	for k >= 0 && len(q) > 0 {
+		sz := len(q)
+		res = []int{}
+		for i := 0; i < sz; i++ {
+			node := q[0]
+			q = q[1:]
+			if visited[node.Val] {
+				continue
+			}
+			visited[node.Val] = true
+			res = append(res, node.Val)
+			if nodeToParent[node.Val] != nil {
+				q = append(q, nodeToParent[node.Val])
+			}
+			if node.Left != nil {
+				q = append(q, node.Left)
+			}
+			if node.Right != nil {
+				q = append(q, node.Right)
+			}
+		}
+		k--
+	}
+	if k >= 0 {
+		return []int{}
+	}
+	return res
+}
+
+func distanceK2(root *TreeNode, target *TreeNode, k int) []int {
 	nodeToParent := make(map[int]*TreeNode) // 记录值到父节点的映射
 	var traverse func(root *TreeNode, parent *TreeNode)
 
@@ -514,24 +637,17 @@ func widthOfBinaryTree(root *TreeNode) int {
 	q := []*Pair{{Node: root, Id: 1}}
 	for len(q) > 0 {
 		sz := len(q)
-		start, end := 0, 0
+		res = max(res, q[len(q)-1].Id-q[0].Id+1)
 		for i := 0; i < sz; i++ {
-			pair := q[0]
+			obj := q[0]
 			q = q[1:]
-			node := pair.Node
-			id := pair.Id
-			if start == 0 {
-				start = id
+			if obj.Node.Left != nil {
+				q = append(q, &Pair{Node: obj.Node.Left, Id: obj.Id * 2})
 			}
-			end = id
-			if node.Left != nil {
-				q = append(q, &Pair{Node: node.Left, Id: 2 * id})
-			}
-			if node.Right != nil {
-				q = append(q, &Pair{Node: node.Right, Id: 2*id + 1})
+			if obj.Node.Right != nil {
+				q = append(q, &Pair{Node: obj.Node.Right, Id: obj.Id*2 + 1})
 			}
 		}
-		res = max(res, end-start+1)
 	}
 
 	return res

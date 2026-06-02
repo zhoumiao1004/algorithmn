@@ -175,31 +175,27 @@ func combinationSum(candidates []int, target int) [][]int {
 // 输出:[[1,1,6],[1,2,5],[1,7],[2,6]]
 // 说明：所有数字（包括目标数）都是正整数。解集不能包含重复的组合。
 // 注意：1.选过的不能再选 2.组合不能重复
-func combinationSum2(candidates []int, target int) [][]int {
+func combinationSumII(candidates []int, target int) [][]int {
 	sort.Ints(candidates) // 让相同元素靠在一起
 	var res [][]int
 	var path []int
-	used := make([]bool, len(candidates))
-	s := 0
 	var backtrack func(start int)
+	s := 0
 
 	backtrack = func(start int) {
 		if s > target {
 			return
-		}
-		if s == target {
+		} else if s == target {
 			res = append(res, append([]int{}, path...))
 		}
 		// 因为题目说所有元素是正整数所以可以剪枝
-		for i := start; i < len(candidates); i++ {
-			if i > 0 && candidates[i-1] == candidates[i] && !used[i-1] {
-				continue // 树层去重，上个数没用过说明重复，处于同一层相同的两个数
+		for i := start; i < len(candidates) && s+candidates[i] <= target; i++ {
+			if i > start && candidates[i-1] == candidates[i] {
+				continue
 			}
 			path = append(path, candidates[i])
 			s += candidates[i]
-			used[i] = true   // 标记上一个数用过了
-			backtrack(i + 1) // 只能用一次
-			used[i] = false
+			backtrack(i + 1)
 			s -= candidates[i]
 			path = path[:len(path)-1]
 		}

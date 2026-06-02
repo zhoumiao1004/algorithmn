@@ -72,31 +72,6 @@ func connectII(root *Node) *Node {
 	q := []*Node{root}
 	for len(q) > 0 {
 		sz := len(q)
-
-		for i := 0; i < sz; i++ {
-			node := q[0]
-			q = q[1:]
-			if node.Left != nil {
-				q = append(q, node.Left)
-			}
-			if node.Right != nil {
-				q = append(q, node.Right)
-			}
-			if i != len(q)-1 {
-				node.Next = q[i+1]
-			}
-		}
-	}
-	return root
-}
-
-func connectII2(root *Node) *Node {
-	if root == nil {
-		return nil
-	}
-	q := []*Node{root}
-	for len(q) > 0 {
-		sz := len(q)
 		for i := 0; i < sz; i++ {
 			node := q[0]
 			q = q[1:]

@@ -18,22 +18,26 @@ package main
 // 2. (0,0),(1,0),(2,0),(2,1),(1,1),(0,1),(0,2),(0,3),(1,3),(1,2),(2,2)
 func uniquePathsIII(grid [][]int) int {
 	m, n := len(grid), len(grid[0])
-	dirs := [][2]int{{0, -1}, {0, 1}, {-1, -0}, {1, 0}}
-	result := 0
-	cnt, target := 0, 0
+	total := 0
 	startx, starty := 0, 0
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
+			if grid[i][j] == -1 {
+				continue
+			}
+			total++
 			if grid[i][j] == 1 {
 				startx, starty = i, j
 			}
-			if grid[i][j] == 1 || grid[i][j] == 0 {
-				target++
-			}
 		}
 	}
-	var dfs func(grid [][]int, i, j int)
-	dfs = func(grid [][]int, i, j int) {
+
+	res := 0
+	cnt := 0
+	dirs := [][2]int{{0, -1}, {0, 1}, {-1, -0}, {1, 0}}
+	var dfs func(i, j int)
+
+	dfs = func(i, j int) {
 		if i < 0 || i >= m || j < 0 || j >= n {
 			return
 		}
@@ -41,8 +45,8 @@ func uniquePathsIII(grid [][]int) int {
 			return
 		}
 		if grid[i][j] == 2 {
-			if cnt == target {
-				result++
+			if cnt == total-1 {
+				res++
 			}
 			return
 		}
@@ -50,14 +54,14 @@ func uniquePathsIII(grid [][]int) int {
 		grid[i][j] = -1
 		cnt++
 		for _, dir := range dirs {
-			dfs(grid, i+dir[0], j+dir[1])
+			dfs(i+dir[0], j+dir[1])
 		}
 		grid[i][j] = tmp
 		cnt--
 	}
 
-	dfs(grid, startx, starty)
-	return result
+	dfs(startx, starty)
+	return res
 }
 
 // 79. 单词搜索
@@ -73,8 +77,8 @@ func exist(board [][]byte, word string) bool {
 	k := 0
 	found := false
 
-	var dfs func(board [][]byte, i, j int)
-	dfs = func(board [][]byte, i, j int) {
+	var dfs func(i, j int)
+	dfs = func(i, j int) {
 		if found {
 			return
 		}
@@ -92,7 +96,7 @@ func exist(board [][]byte, word string) bool {
 		tmp := board[i][j]
 		board[i][j] = '-'
 		for _, dir := range dirs {
-			dfs(board, i+dir[0], j+dir[1])
+			dfs(i+dir[0], j+dir[1])
 		}
 		board[i][j] = tmp
 		k--
@@ -101,7 +105,7 @@ func exist(board [][]byte, word string) bool {
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
 			found = false
-			dfs(board, i, j)
+			dfs(i, j)
 			if found {
 				return true
 			}
