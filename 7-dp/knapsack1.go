@@ -5,23 +5,20 @@ import (
 	"sort"
 )
 
-// 0-1背包
-// 明确状态：背包容量和可选择的物品；选择：装进背包 or 不装进背包
+// 0-1背包, 明确状态：背包容量和可选择的物品, 选择:装进背包 or 不装进背包. 由于数组索引从 0 开始，而我们定义中的 i 是从 1 开始计数的，所以 val[i-1] 和 wt[i-1] 表示第 i 个物品的价值和重量。
 func knapsack(wt, val []int, W int) int {
-	// 定义dp[i][j]: 对于前 i 个物品，当前背包的容量为 j，这种情况下可以装的最大价值是 dp[i][j]。
 	N := len(wt)
-	dp := make([][]int, N+1)
+	dp := make([][]int, N+1) // 定义dp[i][j]: 对于前 i 个物品，当前背包的容量为 j，这种情况下可以装的最大价值是 dp[i][j]。
 	for i := 0; i <= N; i++ {
 		dp[i] = make([]int, W+1)
 	}
 
-	// 由于数组索引从 0 开始，而我们定义中的 i 是从 1 开始计数的，所以 val[i-1] 和 wt[i-1] 表示第 i 个物品的价值和重量。
 	for i := 1; i <= N; i++ {
 		for j := 1; j <= W; j++ {
 			if j < wt[i-1] {
 				dp[i][j] = dp[i-1][j]
 			} else {
-				dp[i][j] = max(dp[i-1][j], dp[i-1][j-wt[i-1]]+val[i-1]) // 0-1和完全背包的区别，0-1背包：dp[i-1][j-weight[i-1]]；完全背包dp[i][j-weight[i-1]]
+				dp[i][j] = max(dp[i-1][j], dp[i-1][j-wt[i-1]]+val[i-1])
 			}
 		}
 	}

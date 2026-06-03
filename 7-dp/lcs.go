@@ -1,16 +1,14 @@
 package main
 
-import "fmt"
-
 // 1143.最长公共子序列(Longest Common Subsequence，简称 LCS)
 // https://leetcode.cn/problems/longest-common-subsequence/description/
 // 给定两个字符串 text1 和 text2，返回这两个字符串的最长公共子序列的长度
 // 输入：text1 = "abcde", text2 = "ace"
 // 输出：3
 // 解释：最长公共子序列是 "ace" ，它的长度为 3 。
+// 思路1: 自底向上迭代解法
 func longestCommonSubsequence(text1, text2 string) int {
 	m, n := len(text1), len(text2)
-	// dp[i][j]含义：[0,i-1]的text1和[0,j-1]的text2的最长公共子序列长度
 	dp := make([][]int, m+1)
 	for i := 0; i <= m; i++ {
 		dp[i] = make([]int, n+1)
@@ -24,11 +22,10 @@ func longestCommonSubsequence(text1, text2 string) int {
 			}
 		}
 	}
-	// fmt.Println(dp)
 	return dp[m][n]
 }
 
-// 自顶向下的递归，通过memo保存子问题结果
+// 思路2: 自顶向下带memo的递归
 func longestCommonSubsequence2(text1 string, text2 string) int {
 	m, n := len(text1), len(text2)
 	memo := make([][]int, m)
@@ -38,23 +35,23 @@ func longestCommonSubsequence2(text1 string, text2 string) int {
 			memo[i][j] = -1
 		}
 	}
-	// 定义：dp函数返回 s1[i...] 和 s2[j...] 的公共子序列长度
-	var dp func(s1, s2 string, i, j int) int
-	dp = func(s1, s2 string, i, j int) int {
-		if i == len(s1) || j == len(s2) {
+
+	var dp func(i, j int) int // 定义：dp函数返回 s1[i...] 和 s2[j...] 的公共子序列长度
+	dp = func(i, j int) int {
+		if i == len(text1) || j == len(text2) {
 			return 0
 		}
 		if memo[i][j] != -1 {
 			return memo[i][j]
 		}
-		if s1[i] == s2[j] {
-			memo[i][j] = 1 + dp(s1, s2, i+1, j+1)
+		if text1[i] == text2[j] {
+			memo[i][j] = 1 + dp(i+1, j+1)
 		} else {
-			memo[i][j] = max(dp(s1, s2, i+1, j), dp(s1, s2, i, j+1))
+			memo[i][j] = max(dp(i+1, j), dp(i, j+1))
 		}
 		return memo[i][j]
 	}
-	return dp(text1, text2, 0, 0)
+	return dp(0, 0)
 }
 
 // 1035.不相交的线
@@ -67,11 +64,10 @@ func longestCommonSubsequence2(text1 string, text2 string) int {
 // 输入：nums1 = [1,4,2], nums2 = [1,2,4] 输出：2
 // 解释：可以画出两条不交叉的线
 // 但无法画出第三条不相交的直线，因为从 nums1[1]=4 到 nums2[2]=4 的直线将与从 nums1[2]=2 到 nums2[1]=2 的直线相交。
+// 思路1: 就是求lcs
 func maxUncrossedLines(nums1 []int, nums2 []int) int {
-	m := len(nums1)
-	n := len(nums2)
-	// dp[i][j]含义：以下标i-1结尾的nums1和下标j-1结尾的nums2最长公共子序列长度
-	dp := make([][]int, m+1)
+	m, n := len(nums1), len(nums2)
+	dp := make([][]int, m+1) // dp[i][j]含义：以下标i-1结尾的nums1和下标j-1结尾的nums2最长公共子序列长度
 	for i := 0; i <= m; i++ {
 		dp[i] = make([]int, n+1)
 	}
@@ -93,17 +89,9 @@ func maxUncrossedLines(nums1 []int, nums2 []int) int {
 // 每步 可以删除任意一个字符串中的一个字符。
 // 输入: word1 = "sea", word2 = "eat" 输出: 2
 // 解释: 第一步将 "sea" 变为 "ea" ，第二步将 "eat "变为 "ea"
-// [0, 1, 2, 3]
-// [1, 2, 3, 4]
-// [2, 1, 2, 3]
-// [3, 2, 2, 2]
 func minDistance(word1 string, word2 string) int {
-	// dp[i][j]含义：下标为i-1的word1和下标为j-1的word2需要删除的最小次数
-	// 递推公式
-	// 1.相同 dp[i][j] = dp[i-1][j-1]
-	// 2.不同 dp[i][j] = min(dp[i-1][j] + 1, dp[i][j-1] + 1)
 	m, n := len(word1), len(word2)
-	dp := make([][]int, m+1)
+	dp := make([][]int, m+1) // dp[i][j]含义：下标为i-1的word1和下标为j-1的word2需要删除的最小次数
 	for i := 0; i <= m; i++ {
 		dp[i] = make([]int, n+1)
 		dp[i][0] = i
@@ -123,9 +111,7 @@ func minDistance(word1 string, word2 string) int {
 	return dp[m][n]
 }
 
-// 方法2:
-// 1.求最长公共子序列长度
-// 2.len(word1) + len(word2) - 2*dp[m][n]
+// 思路2: lcs
 func minDistance1(word1 string, word2 string) int {
 	m, n := len(word1), len(word2)
 	dp := make([][]int, m+1)
@@ -141,7 +127,6 @@ func minDistance1(word1 string, word2 string) int {
 			}
 		}
 	}
-	fmt.Println(dp)
 	return len(word1) + len(word2) - 2*dp[m][n]
 }
 

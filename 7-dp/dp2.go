@@ -63,22 +63,21 @@ func isInterleave(s1 string, s2 string, s3 string) bool {
 // 输出: 6
 // 解释: 子数组 [2,3] 有最大乘积 6。
 func maxProduct(nums []int) int {
-	// dp[i]含义：以i结尾的nums子数组的最大乘积
 	n := len(nums)
 	if n == 0 {
 		return 0
 	}
-	dp := make([][2]int, n)
-	dp[0][0] = nums[0] // 最小乘积
-	dp[0][1] = nums[0] // 最大乘积
-	result := nums[0]
+	dp := make([][2]int, n) // dp[i]含义：以i结尾的nums子数组的最大乘积
+	dp[0][0] = nums[0]      // 最小乘积
+	dp[0][1] = nums[0]      // 最大乘积
+	res := nums[0]
 	for i := 1; i < n; i++ {
 		a, b := dp[i-1][0]*nums[i], dp[i-1][1]*nums[i]
 		dp[i][0] = min(min(a, b), nums[i])
 		dp[i][1] = max(max(a, b), nums[i])
-		result = max(result, dp[i][1])
+		res = max(res, dp[i][1])
 	}
-	return result
+	return res
 }
 
 // 方法2:贪心

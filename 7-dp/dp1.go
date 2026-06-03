@@ -127,12 +127,10 @@ func integerBreak(n int) int {
 // 求恰由 n 个节点组成且节点值从 1 到 n 互不相同的 二叉搜索树 有多少种？返回满足题意的二叉搜索树的种数。
 // 输入：n = 3 输出：5
 func numTrees(n int) int {
-	// 总共n个节点，左右子树加起来n-1个节点
-	// dp[i]含义：i个节点的二叉搜索树个数
 	if n < 3 {
 		return n
 	}
-	dp := make([]int, n+1)
+	dp := make([]int, n+1) // dp[i]含义：i个节点的二叉搜索树个数
 	dp[0] = 1
 	dp[1] = 1
 	dp[2] = 2
@@ -141,7 +139,6 @@ func numTrees(n int) int {
 			dp[i] += dp[j] * dp[i-1-j]
 		}
 	}
-	// fmt.Println(dp)
 	return dp[n]
 }
 
@@ -155,10 +152,8 @@ func numTrees(n int) int {
 // 输入：grid = [[1,2,3],[4,5,6]]
 // 输出：12
 func minPathSum(grid [][]int) int {
-	// dp[i][j]含义：以下标i结尾和j结尾的grid的最小路径和
-	m := len(grid)
-	n := len(grid[0])
-	dp := make([][]int, m)
+	m, n := len(grid), len(grid[0])
+	dp := make([][]int, m) // dp[i][j]含义：以下标i结尾和j结尾的grid的最小路径和
 	s := 0
 	for i := 0; i < m; i++ {
 		dp[i] = make([]int, n)
@@ -175,7 +170,6 @@ func minPathSum(grid [][]int) int {
 			dp[i][j] = min(dp[i-1][j], dp[i][j-1]) + grid[i][j]
 		}
 	}
-	fmt.Println(dp)
 	return dp[m-1][n-1]
 }
 
@@ -192,11 +186,11 @@ func maxSumDivThree(nums []int) int {
 	dp[0][1] = math.MinInt
 	dp[0][2] = math.MinInt
 	for i := 1; i <= n; i++ {
-		if nums[i-1]%3 == 0 { // nums[i]能被3整除，必然选
+		if nums[i-1]%3 == 0 {
 			dp[i][0] = dp[i-1][0] + nums[i-1]
 			dp[i][1] = dp[i-1][1] + nums[i-1]
 			dp[i][2] = dp[i-1][2] + nums[i-1]
-		} else if nums[i-1]%3 == 1 { // nums[i]被3整除余数为1，nums[i]有选和不选2种情况
+		} else if nums[i-1]%3 == 1 {
 			dp[i][0] = max(dp[i-1][0], dp[i-1][2]+nums[i-1])
 			dp[i][1] = max(dp[i-1][1], dp[i-1][0]+nums[i-1])
 			dp[i][2] = max(dp[i-1][2], dp[i-1][1]+nums[i-1])
@@ -215,19 +209,10 @@ func maxSumDivThree(nums []int) int {
 // 每一步只能移动到下一行中相邻的结点上。相邻的结点 在这里指的是 下标 与 上一层结点下标 相同或者等于 上一层结点下标 + 1 的两个结点。也就是说，如果正位于当前行的下标 i ，那么下一步可以移动到下一行的下标 i 或 i + 1 。
 // 输入：triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]
 // 输出：11
-// 解释：如下面简图所示：
-//
-//	  2
-//	 3 4
-//	6 5 7
-//
-// 4 1 8 3
-// 自顶向下的最小路径和为 11（即，2 + 3 + 5 + 1 = 11）。
+// 解释：自顶向下的最小路径和为 11（即，2 + 3 + 5 + 1 = 11）。
 func minimumTotal(triangle [][]int) int {
-	// dp[i][j]为第i行j列的最小路径和
-	// 递推公式：dp[i] = triangle[i][j] + min(dp[i-1][i-1], dp[i-1][j])
 	n := len(triangle)
-	dp := make([][]int, n)
+	dp := make([][]int, n) // 定义dp[i][j]为第i行j列的最小路径和
 	for i := 0; i < n; i++ {
 		dp[i] = make([]int, n)
 		for j := 0; j < n; j++ {
@@ -244,11 +229,11 @@ func minimumTotal(triangle [][]int) int {
 			}
 		}
 	}
-	result := math.MaxInt
+	res := math.MaxInt
 	for j := 0; j < n; j++ {
-		result = min(result, dp[n-1][j])
+		res = min(res, dp[n-1][j])
 	}
-	return result
+	return res
 }
 
 // 368. 最大整除子集
@@ -306,16 +291,16 @@ func findLength(nums1 []int, nums2 []int) int {
 	for i := 0; i <= m; i++ {
 		dp[i] = make([]int, n+1)
 	}
-	result := 0
+	res := 0
 	for i := 1; i <= m; i++ {
 		for j := 1; j <= n; j++ {
 			if nums1[i-1] == nums2[j-1] {
 				dp[i][j] = dp[i-1][j-1] + 1
-				result = max(result, dp[i][j])
+				res = max(res, dp[i][j])
 			}
 		}
 	}
-	return result
+	return res
 }
 
 func main() {

@@ -10,13 +10,13 @@ import (
 这个问题需要将这些会议（区间）按结束时间（右端点）排序，然后进行处理。435. 无重叠区间(https://leetcode.cn/problems/non-overlapping-intervals/description/)
 
 场景2: 给你若干较短的视频片段，和一个较长的视频片段，请你从较短的片段中尽可能少地挑出一些片段，拼接出较长的这个片段。
-这个问题需要将这些视频片段（区间）按开始时间（左端点）排序，然后进行处理。1024. 视频拼接()
+这个问题需要将这些视频片段（区间）按开始时间（左端点）排序，然后进行处理。1024. 视频拼接(https://leetcode.cn/problems/video-stitching/)
 
 场景3: 给你若干区间，其中可能有些区间比较短，被其他区间完全覆盖住了，请你删除这些被覆盖的区间。
-这个问题需要将这些区间按左端点排序，然后就能找到并删除那些被完全覆盖的区间了。1288. 删除被覆盖区间
+这个问题需要将这些区间按左端点排序，然后就能找到并删除那些被完全覆盖的区间了。1288. 删除被覆盖区间(https://leetcode.cn/problems/remove-covered-intervals/description/)
 
 场景4: 给你若干区间，请你将所有有重叠部分的区间进行合并。
-这个问题需要将这些区间按左端点排序，方便找出存在重叠的区间，56. 合并区间
+这个问题需要将这些区间按左端点排序，方便找出存在重叠的区间，56. 合并区间(https://leetcode.cn/problems/merge-intervals/submissions/)
 
 场景5: 有两个部门同时预约了同一个会议室的若干时间段，请你计算会议室的冲突时段。
 这个问题就是给你两组区间列表，请你找出这两组区间的交集，这需要你将这些区间按左端点排序，986. 区间列表的交集
@@ -57,26 +57,12 @@ func intervalSchedule(intervals [][]int) int {
 // 解释: 移除 [1,3] 后，剩下的区间没有重叠。
 // 输入: intervals = [ [1,2], [1,2], [1,2] ] 输出: 2
 // 解释: 你需要移除两个 [1,2] 来使剩下的区间没有重叠。
-// 思路：
-// 1.从区间集合 intvs 中选择一个区间x, 这个x是当前所有区间中结束最早的
-// 2.把所有与x区间相交的区间从区间集合 intvs 中删除
-// 3.重复1和2，直到 intvs 为空为止。之前选出的那些就是最大不相交子集
+// 思路1: 不相交的区间
 func eraseOverlapIntervals(intervals [][]int) int {
-	n := len(intervals)
-	sort.Slice(intervals, func(i, j int) bool {
-		return intervals[i][1] < intervals[j][1]
-	})
-	res := 0
-	for i := 1; i < n; i++ {
-		if intervals[i][0] < intervals[i-1][1] {
-			res++
-			intervals[i][1] = intervals[i-1][1]
-		}
-	}
-	return res
+	return len(intervals) - intervalSchedule(intervals)
 }
 
-// 按左边界排序
+// 思路2: 按左边界排序(not recommend)
 func eraseOverlapIntervals2(intervals [][]int) int {
 	sort.Slice(intervals, func(i, j int) bool {
 		if intervals[i][0] == intervals[j][0] {
@@ -94,11 +80,6 @@ func eraseOverlapIntervals2(intervals [][]int) int {
 	return res
 }
 
-// 思路2: 区间调度
-func eraseOverlapIntervals3(intervals [][]int) int {
-	return len(intervals) - intervalSchedule(intervals)
-}
-
 // 452. 用最少数量的箭引爆气球
 // https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/description/
 // 输入：points = [[10,16],[2,8],[1,6],[7,12]] 输出：2
@@ -106,7 +87,27 @@ func eraseOverlapIntervals3(intervals [][]int) int {
 // -在x = 6处射出箭，击破气球[2,8]和[1,6]。
 // -在x = 11处发射箭，击破气球[10,16]和[7,12]。
 // 一支弓箭可以沿着 x 轴从不同点 完全垂直 地射出。
-// 贪心思路：1.先按左边界排序 2.尽量重叠，能用最少的箭。重叠后合并需要更新右边界，不重叠需要增加一枝箭
+// 思路1: 不相交的区间，按右边界排序（recommend）
+func findMinArrowShots1(points [][]int) int {
+	if len(points) == 0 {
+		return 0
+	}
+	sort.Slice(points, func(i, j int) bool {
+		return points[i][1] < points[j][1]
+	})
+	res := 1 // 至少需要一支箭
+	xEnd := points[0][1]
+	for i := 1; i < len(points); i++ {
+		start := points[i][0] // 由于已经按右边界排序了，所以只用比较points[i]的左边界和xEnd的大小
+		if start > xEnd {
+			res++ // 不相交，需要增加一支箭
+			xEnd = points[i][1]
+		}
+	}
+	return res
+}
+
+// 思路2: 贪心思路：1.先按左边界排序 2.尽量重叠，能用最少的箭。重叠后合并需要更新右边界，不重叠需要增加一枝箭
 func findMinArrowShots(points [][]int) int {
 	sort.Slice(points, func(i, j int) bool {
 		if points[i][0] == points[j][0] {
@@ -114,36 +115,15 @@ func findMinArrowShots(points [][]int) int {
 		}
 		return points[i][0] < points[j][0]
 	})
-	result := 1
+	res := 1
 	for i := 1; i < len(points); i++ {
 		if points[i][0] > points[i-1][1] {
-			// 不重叠，一定需要增加一枝箭
-			result++
+			res++ // 不重叠，一定需要增加一枝箭
 		} else {
-			// 重叠，更新右边界，箭往重叠的区域射能一箭双雕，所以这支箭的覆盖范围取min
-			points[i][1] = min(points[i][1], points[i-1][1])
+			points[i][1] = min(points[i][1], points[i-1][1]) // 重叠，更新右边界，箭往重叠的区域射能一箭双雕，所以这支箭的覆盖范围取min
 		}
 	}
-	return result
-}
-
-func findMinArrowShots2(points [][]int) int {
-	if len(points) == 0 {
-		return 0
-	}
-	sort.Slice(points, func(i, j int) bool {
-		return points[i][1] < points[j][1]
-	})
-	count := 1
-	xEnd := points[0][1]
-	for _, interval := range points {
-		start := interval[0]
-		if start > xEnd {
-			count++
-			xEnd = interval[1]
-		}
-	}
-	return count
+	return res
 }
 
 // 406. 根据身高重建队列
@@ -194,17 +174,16 @@ func partitionLabels(s string) []int {
 	for i := 0; i < len(s); i++ {
 		hash[s[i]-'a'] = i
 	}
-	// fmt.Println(hash)
-	var result []int
+	var res []int
 	left, right := 0, 0
 	for i := 0; i < len(s); i++ {
 		right = max(right, hash[s[i]-'a'])
 		if i == right {
-			result = append(result, right-left+1)
+			res = append(res, right-left+1)
 			left = right + 1
 		}
 	}
-	return result
+	return res
 }
 
 // 1288. 删除被覆盖区间

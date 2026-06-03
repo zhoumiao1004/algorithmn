@@ -12,34 +12,43 @@ import (
 // 输入: s = "leetcode", wordDict = ["leet", "code"] 输出: true
 // 解释: 返回 true 因为 "leetcode" 可以被拆分成 "leet code"。
 // 注意：单词放入是有顺序的，所以是排列问题，不能求组合
-// 1.遍历的思路，就是用回溯算法解决，回溯最经典的应用就是排列组合问题。时间复杂度2的N次方，无法通过所有测试用例
+// 思路1: 遍历(回溯)，通过memo记录重复子问题
 func wordBreak1(s string, wordDict []string) bool {
-	found := false
+	flag := false
+	memo := make(map[string]bool)
 	var path []string
 	var backtrack func(start int)
-	backtrack = func(start int) {
-		if found {
-			return
-		}
-		if start == len(wordDict) {
-			found = true
-			return
-		}
 
-		for i := 0; i < len(wordDict); i++ {
-			word := wordDict[i]
+	backtrack = func(start int) {
+		if flag {
+			return
+		}
+		if start == len(s) {
+			flag = true
+			return
+		}
+		suffix := s[start:]
+		if memo[suffix] {
+			return // 不能被切分
+		}
+		for _, word := range wordDict {
 			if start+len(word) <= len(s) && s[start:start+len(word)] == word {
-				path = append(path, word) // 做选择
-				backtrack(i + len(word))  // 进入下一层回溯树
-				path = path[:len(path)-1] // 撤销选择
+				path = append(path, word)
+				backtrack(start + len(word))
+				path = path[:len(path)-1]
 			}
 		}
+		// 后序位置
+		if !flag {
+			memo[suffix] = true
+		}
 	}
+
 	backtrack(0)
-	return found
+	return flag
 }
 
-// 2.分解的思路
+// 思路2: 分解(dp) 带memo的自顶向下递归
 func wordBreak2(s string, wordDict []string) bool {
 	wordSet := make(map[string]bool)
 	for _, word := range wordDict {
@@ -70,37 +79,7 @@ func wordBreak2(s string, wordDict []string) bool {
 	return dp(0)
 }
 
-func wordBreak3(s string, wordDict []string) bool {
-	wordSet := make(map[string]bool)
-	for _, word := range wordDict {
-		wordSet[word] = true
-	}
-	n := len(s)
-	memo := make([]int, n+1) // s[i]能否被单词拼出, -1 代表未计算，0 代表无法凑出，1 代表可以凑出
-	for i := 0; i <= n; i++ {
-		memo[i] = -1
-	}
-	var dp func(j int) bool // 定义：返回s[start...] 子串是否能被单词拼出
-	dp = func(j int) bool {
-		if j == 0 {
-			return true
-		}
-		if memo[j] != -1 {
-			return memo[j] == 1
-		}
-		for i := j; i >= 0; i-- {
-			if wordSet[s[i:j]] && dp(i) {
-				memo[j] = 1
-				return true
-			}
-		}
-		memo[j] = 0
-		return false
-	}
-	return dp(n)
-}
-
-// 自底向上，也可以转换成完全背包思路：把 wordDict 中的单词放进s这个背包，有顺序要求
+// 思路3: dp自底向上，也可以转换成完全背包思路：把 wordDict 中的单词放进s这个背包，有顺序要求
 func wordBreak(s string, wordDict []string) bool {
 	wordSet := make(map[string]bool)
 	for _, w := range wordDict {
@@ -120,24 +99,6 @@ func wordBreak(s string, wordDict []string) bool {
 	return dp[n]
 }
 
-func wordBreak4(s string, wordDict []string) bool {
-	wordSet := make(map[string]bool)
-	for _, w := range wordDict {
-		wordSet[w] = true
-	}
-	n := len(s)
-	dp := make([]bool, n+1) // dp[j]定义：s的前i个字符能否被wordDict中的单词组成。我们要求的就是dp[n]
-	dp[0] = true
-	for j := 1; j <= n; j++ {
-		for _, w := range wordDict {
-			if j-len(w) >= 0 && dp[j-len(w)] && wordSet[s[j-len(w):j]] {
-				dp[j] = true
-			}
-		}
-	}
-	return dp[n]
-}
-
 // 140. 单词拆分 II
 // https://leetcode.cn/problems/word-break-ii/
 // 给定一个字符串 s 和一个字符串字典 wordDict ，在字符串 s 中增加空格来构建一个句子，使得句子中所有的单词都在词典中。以任意顺序 返回所有这些可能的句子。
@@ -148,8 +109,8 @@ func wordBreak4(s string, wordDict []string) bool {
 func wordBreakII(s string, wordDict []string) []string {
 	var res []string
 	var path []string
-
 	var backtrack func(start int)
+
 	backtrack = func(start int) {
 		if start == len(s) {
 			res = append(res, strings.Join(path, " "))
@@ -163,6 +124,7 @@ func wordBreakII(s string, wordDict []string) []string {
 			}
 		}
 	}
+
 	backtrack(0)
 	return res
 }
