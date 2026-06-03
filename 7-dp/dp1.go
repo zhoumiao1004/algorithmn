@@ -71,25 +71,22 @@ func uniquePaths(m int, n int) int {
 
 // 63. 不同路径 II
 // https://leetcode.cn/problems/unique-paths-ii/description/
+// 输入：obstacleGrid = [[0,0,0],[0,1,0],[0,0,0]]
+// 输出：2
 func uniquePathsWithObstacles(obstacleGrid [][]int) int {
-	m := len(obstacleGrid)
-	n := len(obstacleGrid[0])
-
+	m, n := len(obstacleGrid), len(obstacleGrid[0])
 	dp := make([][]int, m)
 	for i := 0; i < m; i++ {
 		dp[i] = make([]int, n)
 	}
-	// 初始化第一列
 	for i := 0; i < m && obstacleGrid[i][0] == 0; i++ {
 		dp[i][0] = 1
 	}
-	// 初始化第一行
 	for j := 0; j < n && obstacleGrid[0][j] == 0; j++ {
 		dp[0][j] = 1
 	}
 	for i := 1; i < m; i++ {
 		for j := 1; j < n; j++ {
-			// 递推公式
 			if obstacleGrid[i][j] == 0 {
 				dp[i][j] = dp[i-1][j] + dp[i][j-1]
 			}
@@ -103,22 +100,42 @@ func uniquePathsWithObstacles(obstacleGrid [][]int) int {
 // 给定一个正整数 n，将其拆分为至少两个正整数的和，并使这些整数的乘积最大化。 返回你可以获得的最大乘积。
 // 输入: 10 输出: 36
 // 解释: 10 = 3 + 3 + 4, 3 × 3 × 4 = 36。
+// 思路1: 自顶向下递归解法, 明确状态：整数，选择：拆 or 不拆
 func integerBreak(n int) int {
-	// dp[i]含义：整数i拆分成2个数后的乘积最大值
+	memo := make([]int, n+1)
+	var dp func(amount int) int
+
+	dp = func(amount int) int {
+		if amount < 2 {
+			return 0
+		}
+		if memo[amount] > 0 {
+			return memo[amount]
+		}
+		res := 0
+		for i := 1; i < amount; i++ {
+			res = max(res, i*(amount-i), i*dp(amount-i))
+		}
+		memo[amount] = res
+		return memo[amount]
+	}
+
+	return dp(n)
+}
+
+// 思路2: 自底向上迭代解法
+func integerBreak2(n int) int {
 	if n < 2 {
 		return 0
 	}
-	dp := make([]int, n+1)
-	// dp[0] = 0
+	dp := make([]int, n+1) // dp[i]含义：整数i拆分成2个数后的乘积最大值
 	dp[1] = 0
 	dp[2] = 1
 	for i := 3; i <= n; i++ {
 		for j := 1; j < i; j++ {
-			// dp[i] = max(dp[i], j*max(i-j, dp[i-j]))
 			dp[i] = max(dp[i], max(j*(i-j), dp[j]*(i-j)))
 		}
 	}
-	// fmt.Println(dp)
 	return dp[n]
 }
 
@@ -151,7 +168,37 @@ func numTrees(n int) int {
 // 解释：因为路径 1→3→1→1→1 的总和最小。
 // 输入：grid = [[1,2,3],[4,5,6]]
 // 输出：12
+// 思路1: 自顶向下递归解法
 func minPathSum(grid [][]int) int {
+	m, n := len(grid), len(grid[0])
+	memo := make([][]int, m)
+	for i := 0; i < m; i++ {
+		memo[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			memo[i][j] = -1
+		}
+	}
+	var dp func(i, j int) int
+
+	dp = func(i, j int) int {
+		if i < 0 || j < 0 {
+			return math.MaxInt
+		}
+		if i == 0 && j == 0 {
+			return grid[0][0]
+		}
+		if memo[i][j] != -1 {
+			return memo[i][j]
+		}
+		memo[i][j] = grid[i][j] + min(dp(i-1, j), dp(i, j-1))
+		return memo[i][j]
+	}
+
+	return dp(m-1, n-1)
+}
+
+// 思路2: 自底向上迭代解法
+func minPathSum2(grid [][]int) int {
 	m, n := len(grid), len(grid[0])
 	dp := make([][]int, m) // dp[i][j]含义：以下标i结尾和j结尾的grid的最小路径和
 	s := 0
