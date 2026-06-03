@@ -48,9 +48,6 @@ func isSubsequence2(s string, t string) bool {
 // https://leetcode.cn/problems/palindromic-substrings/description/
 // 输入：s = "abc" 输出：3
 // 解释：三个回文子串: "a", "b", "c"
-// [true false false]
-// [false true false]
-// [false false true]
 // 输入：s = "aaa" 输出：6
 // 解释：6个回文子串: "a", "a", "a", "aa", "aa", "aaa"
 func countSubstrings(s string) int {
