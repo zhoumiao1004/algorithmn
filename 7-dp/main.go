@@ -49,9 +49,9 @@ func coinChange(coins []int, amount int) int {
 	for i := range memo {
 		memo[i] = -2 // 初始化一个不会取到的值，代表还未计算。-1代表凑不出
 	}
-	var dp func(coins []int, amount int) int // dp定义：凑出总金额 amount 至少需要的硬币数
+	var dp func(amount int) int // dp定义：凑出总金额 amount 至少需要的硬币数
 
-	dp = func(coins []int, amount int) int {
+	dp = func(amount int) int {
 		if amount == 0 {
 			return 0
 		}
@@ -63,7 +63,7 @@ func coinChange(coins []int, amount int) int {
 		}
 		res := math.MaxInt
 		for _, coin := range coins {
-			subProblem := dp(coins, amount-coin) // 计算子问题的结果
+			subProblem := dp(amount - coin) // 计算子问题的结果
 			if subProblem == -1 {
 				continue // 子问题无解则跳过
 			}
@@ -77,30 +77,11 @@ func coinChange(coins []int, amount int) int {
 		return memo[amount]
 	}
 
-	return dp(coins, amount)
+	return dp(amount)
 }
 
 // 思路2：自底向上迭代解法，初始化为amount+1, 处理起来最简单，没有MaxInt溢出的问题，还能直接min运算
 func coinChange2(coins []int, amount int) int {
-	dp := make([]int, amount+1)
-	for i := 1; i <= amount; i++ {
-		dp[i] = amount + 1
-	}
-	dp[0] = 0 // base case
-
-	for i := 0; i < len(coins); i++ {
-		for j := coins[i]; j <= amount; j++ {
-			dp[j] = min(dp[j], dp[j-coins[i]]+1)
-		}
-	}
-	if dp[amount] == amount+1 {
-		return -1
-	}
-	return dp[amount]
-}
-
-// 变换状态遍历顺序也可以：外层遍历背包，内层遍历物品
-func coinChange3(coins []int, amount int) int {
 	dp := make([]int, amount+1)
 	for i := 1; i <= amount; i++ {
 		dp[i] = amount + 1
@@ -138,9 +119,9 @@ func combinationSum4(nums []int, target int) int {
 	for i := range memo {
 		memo[i] = -2 // 初始化一个不会取到的值，代表还未计算。-1代表凑不出
 	}
-	var dp func(coins []int, amount int) int // dp定义：凑出总金额 amount 的排列数
+	var dp func(amount int) int // dp定义：凑出总金额 amount 的排列数
 
-	dp = func(coins []int, amount int) int {
+	dp = func(amount int) int {
 		if amount == 0 {
 			return 1
 		}
@@ -151,8 +132,8 @@ func combinationSum4(nums []int, target int) int {
 			return memo[amount] // 已经计算过
 		}
 		res := 0
-		for _, coin := range coins {
-			subProblem := dp(coins, amount-coin) // 计算子问题的结果
+		for _, val := range nums {
+			subProblem := dp(amount - val) // 计算子问题的结果
 			if subProblem == -1 {
 				continue // 子问题无解则跳过
 			}
@@ -162,7 +143,7 @@ func combinationSum4(nums []int, target int) int {
 		return memo[amount]
 	}
 
-	return dp(nums, target)
+	return dp(target)
 }
 
 // 思路2：自底向上的迭代解法，明确状态：目标和, 选择：nums中的数

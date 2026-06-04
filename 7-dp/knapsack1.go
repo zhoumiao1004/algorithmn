@@ -6,6 +6,7 @@ import (
 )
 
 // 0-1背包, 明确状态：背包容量和可选择的物品, 选择:装进背包 or 不装进背包. 由于数组索引从 0 开始，而我们定义中的 i 是从 1 开始计数的，所以 val[i-1] 和 wt[i-1] 表示第 i 个物品的价值和重量。
+// https://labuladong.online/zh/problem/core/knapsack-01/description/
 func knapsack(wt, val []int, W int) int {
 	N := len(wt)
 	dp := make([][]int, N+1) // 定义dp[i][j]: 对于前 i 个物品，当前背包的容量为 j，这种情况下可以装的最大价值是 dp[i][j]。
@@ -60,6 +61,49 @@ func knapsackN(weight, value []int, n int) int {
 	return dp[n]
 }
 
+// 0-1背包-求恰好装满背包的组合数
+// https://labuladong.online/zh/problem/core/knapsack-01-count/description/
+func knapsack01Count(W int, wt []int) int {
+	N := len(wt)
+	dp := make([][]int, N+1) // 状态：背包容量 和 可选的物品；选择：装入背包 or 不装入背包。dp[i][j]定义使用前i个物品，装满容量j的背包的组合数
+	for i := 0; i <= N; i++ {
+		dp[i] = make([]int, W+1)
+		dp[i][0] = 1
+	}
+
+	for i := 1; i <= N; i++ {
+		for j := 1; j <= W; j++ {
+			if j < wt[i-1] {
+				dp[i][j] = dp[i-1][j]
+			} else {
+				dp[i][j] = (dp[i-1][j] + dp[i-1][j-wt[i-1]]) % (1e9 + 7) // 选择：不装 or 装
+			}
+		}
+	}
+	return dp[N][W]
+}
+
+// 0-1 背包问题：能否装满
+// https://labuladong.online/zh/problem/core/knapsack-01-exist/description/
+func knapsack01Exist(W int, wt []int) bool {
+	N := len(wt)
+	dp := make([][]int, N+1) // 定义dp[i][j]: 对于前 i 个物品，当前背包的容量为 j，这种情况下可以装的最大价值是 dp[i][j]。
+	for i := 0; i <= N; i++ {
+		dp[i] = make([]int, W+1)
+	}
+
+	for i := 1; i <= N; i++ {
+		for j := 1; j <= W; j++ {
+			if j < wt[i-1] {
+				dp[i][j] = dp[i-1][j]
+			} else {
+				dp[i][j] = max(dp[i-1][j], dp[i-1][j-wt[i-1]]+wt[i-1])
+			}
+		}
+	}
+	return dp[N][W] == W
+}
+
 // 416. 分割等和子集
 // https://leetcode.cn/problems/partition-equal-subset-sum/description/
 // 给你一个 只包含正整数 的 非空 数组 nums 。请你判断是否可以将这个数组分割成两个子集，使得两个子集的元素和相等。
@@ -76,13 +120,22 @@ func canPartition(nums []int) bool {
 	}
 	target := s / 2
 
-	dp := make([]int, target+1)      // dp[j]含义：大小为j的背包，能装的最大价值
-	for i := 0; i < len(nums); i++ { // 物品
-		for j := target; j >= nums[i]; j-- { // 背包逆序
-			dp[j] = max(dp[j], dp[j-nums[i]]+nums[i])
+	n := len(nums)
+	dp := make([][]int, n+1)
+	for i := 0; i <= n; i++ {
+		dp[i] = make([]int, target+1)
+	}
+
+	for i := 1; i <= n; i++ {
+		for j := 1; j <= target; j++ {
+			if j < nums[i-1] {
+				dp[i][j] = dp[i-1][j]
+			} else {
+				dp[i][j] = max(dp[i-1][j], dp[i-1][j-nums[i-1]]+nums[i-1])
+			}
 		}
 	}
-	return dp[target] == target
+	return dp[n][target] == target
 }
 
 func canPartition2(nums []int) bool {
@@ -144,6 +197,33 @@ func canPartition3(nums []int) bool {
 // 组合 1 和 1，得到 0，所以数组转化为 [1]，这就是最优值。
 // 01背包的应用：分成两部分，尽量分成近似相等的两块。转换为背包问题：大小为s/2的背包，最多能装的物品重量
 func lastStoneWeightII(stones []int) int {
+	s := 0
+	for i := 0; i < len(stones); i++ {
+		s += stones[i]
+	}
+	target := s / 2
+
+	n := len(stones)
+	dp := make([][]int, n+1)
+	for i := 0; i <= n; i++ {
+		dp[i] = make([]int, target+1)
+	}
+
+	for i := 1; i <= n; i++ {
+		for j := 1; j <= target; j++ {
+			if j < stones[i-1] {
+				dp[i][j] = dp[i-1][j]
+			} else {
+				dp[i][j] = max(dp[i-1][j], dp[i-1][j-stones[i-1]]+stones[i-1])
+			}
+		}
+	}
+	// 2 * dp[target] + x = s
+	return s - 2*dp[n][target]
+}
+
+// 空间压缩
+func lastStoneWeightII2(stones []int) int {
 	s := 0
 	for i := 0; i < len(stones); i++ {
 		s += stones[i]
