@@ -287,7 +287,44 @@ func maxSumDivThree(nums []int) int {
 // 输入：triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]
 // 输出：11
 // 解释：自顶向下的最小路径和为 11（即，2 + 3 + 5 + 1 = 11）。
+// 思路1: 自顶向下的递归解法
 func minimumTotal(triangle [][]int) int {
+	n := len(triangle)
+	memo := make([][]int, n)
+	for i := 0; i < n; i++ {
+		memo[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			memo[i][j] = math.MaxInt
+		}
+	}
+	var dp func(i, j int) int
+
+	dp = func(i, j int) int {
+		if i == 0 && j == 0 {
+			return triangle[0][0]
+		}
+		if memo[i][j] != math.MaxInt {
+			return memo[i][j]
+		}
+		if j == 0 {
+			memo[i][j] = dp(i-1, j) + triangle[i][j]
+		} else if j == i {
+			memo[i][j] = dp(i-1, j-1) + triangle[i][j]
+		} else {
+			memo[i][j] = min(dp(i-1, j-1), dp(i-1, j)) + triangle[i][j]
+		}
+		return memo[i][j]
+	}
+
+	res := math.MaxInt
+	for j := 0; j < n; j++ {
+		res = min(res, dp(n-1, j))
+	}
+	return res
+}
+
+// 思路2: 自底向上的迭代解法
+func minimumTotal2(triangle [][]int) int {
 	n := len(triangle)
 	dp := make([][]int, n) // 定义dp[i][j]为第i行j列的最小路径和
 	for i := 0; i < n; i++ {
