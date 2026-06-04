@@ -73,7 +73,37 @@ func uniquePaths(m int, n int) int {
 // https://leetcode.cn/problems/unique-paths-ii/description/
 // 输入：obstacleGrid = [[0,0,0],[0,1,0],[0,0,0]]
 // 输出：2
+// 思路1: 自顶向下的递归解法
 func uniquePathsWithObstacles(obstacleGrid [][]int) int {
+	m, n := len(obstacleGrid), len(obstacleGrid[0])
+	memo := make([][]int, m)
+	for i := 0; i < m; i++ {
+		memo[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			memo[i][j] = -1
+		}
+	}
+	var dp func(i, j int) int
+
+	dp = func(i, j int) int {
+		if i < 0 || j < 0 || obstacleGrid[i][j] == 1 {
+			return 0
+		}
+		if i == 0 && j == 0 {
+			return 1
+		}
+		if memo[i][j] != -1 {
+			return memo[i][j]
+		}
+		memo[i][j] = dp(i-1, j) + dp(i, j-1)
+		return memo[i][j]
+	}
+
+	return dp(m-1, n-1)
+}
+
+// 思路2: 自底向上的迭代解法
+func uniquePathsWithObstacles2(obstacleGrid [][]int) int {
 	m, n := len(obstacleGrid), len(obstacleGrid[0])
 	dp := make([][]int, m)
 	for i := 0; i < m; i++ {
