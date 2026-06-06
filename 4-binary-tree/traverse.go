@@ -420,6 +420,7 @@ func addOneRow2(root *TreeNode, val int, depth int) *TreeNode {
 }
 
 // 971. 翻转二叉树以匹配先序遍历
+// https://leetcode.cn/problems/flip-binary-tree-to-match-preorder-traversal/
 // 给你一棵二叉树的根节点 root ，树中有 n 个节点，每个节点都有一个不同于其他节点且处于 1 到 n 之间的值。
 // 另给你一个由 n 个值组成的行程序列 voyage ，表示 预期 的二叉树 先序遍历 结果。
 // 通过交换节点的左右子树，可以 翻转 该二叉树中的任意节点。例，翻转节点 1 的效果如下：
