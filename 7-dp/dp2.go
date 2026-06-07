@@ -16,6 +16,7 @@ import (
 // 注意：a + b 意味着字符串 a 和 b 连接。
 // 输入：s1 = "aabcc", s2 = "dbbca", s3 = "aadbbcbcac"
 // 输出：true
+// 思路1: 自顶向下递归解法。状态：i, j, dp(i, j)定义：s1[i...] 和 s2[j...] 能否凑出 s3[i+j...]
 func isInterleave(s1 string, s2 string, s3 string) bool {
 	m, n := len(s1), len(s2)
 	if m+n != len(s3) {
@@ -55,6 +56,81 @@ func isInterleave(s1 string, s2 string, s3 string) bool {
 	}
 
 	return dp(0, 0)
+}
+
+// 从后往前推
+func isInterleave2(s1 string, s2 string, s3 string) bool {
+	m, n := len(s1), len(s2)
+	if m+n != len(s3) {
+		return false
+	}
+	memo := make([][]int, m+1)
+	for i := 0; i <= m; i++ {
+		memo[i] = make([]int, n+1)
+		for j := 0; j <= n; j++ {
+			memo[i][j] = -1
+		}
+	}
+	var dp func(i, j int) bool
+	dp = func(i, j int) bool {
+		if i < 0 || j < 0 {
+			return false
+		}
+		k := i + j
+		if k == 0 {
+			return true
+		}
+		if memo[i][j] != -1 {
+			return memo[i][j] == 1
+		}
+		res := false
+		if i > 0 && s1[i-1] == s3[k-1] {
+			res = res || dp(i-1, j)
+		}
+		if j > 0 && s2[j-1] == s3[k-1] {
+			res = res || dp(i, j-1)
+		}
+		if res {
+			memo[i][j] = 1
+		} else {
+			memo[i][j] = 0
+		}
+		return res
+	}
+
+	return dp(m, n)
+}
+
+// 思路2: 自底向上迭代解法。状态：i, j, dp[i][j]定义：s1[...i] 和 s2[...j] 能否凑出 s3[...i+j]
+func isInterleave3(s1 string, s2 string, s3 string) bool {
+	m, n := len(s1), len(s2)
+	if m+n != len(s3) {
+		return false
+	}
+	dp := make([][]bool, m+1)
+	for i := 0; i <= m; i++ {
+		dp[i] = make([]bool, n+1)
+	}
+	dp[0][0] = true
+	for i := 1; i <= m; i++ {
+		dp[i][0] = dp[i-1][0] && s1[i-1] == s3[i-1]
+	}
+	for j := 1; j <= n; j++ {
+		dp[0][j] = dp[0][j-1] && s2[j-1] == s3[j-1]
+	}
+
+	for i := 1; i <= m; i++ {
+		for j := 1; j <= n; j++ {
+			k := i + j
+			if s1[i-1] == s3[k-1] {
+				dp[i][j] = dp[i][j] || dp[i-1][j]
+			}
+			if s2[j-1] == s3[k-1] {
+				dp[i][j] = dp[i][j] || dp[i][j-1]
+			}
+		}
+	}
+	return dp[m][n]
 }
 
 // 152.乘积最大子数组
