@@ -13,34 +13,26 @@ import (
 // 解释：连续子数组 [4,-1,2,1] 的和最大，为 6 。
 // 思路1: dp
 func maxSubArray(nums []int) int {
-	// dp函数定义：一般思路是返回nums[0...i]的最大子数组和，但没办法从dp[i-1]推出dp[i]
-	// 重新定义dp[i]：返回以nums[i]结尾的最大子数组和
-	// 递推公式：dp[i] = max(dp[i-1] + nums[i], nums[i])
 	n := len(nums)
-	result := nums[0]
-	dp := make([]int, n)
+	res := nums[0]
+	dp := make([]int, n) // dp[i]定义：以nums[i]结尾的最大子数组和
 	dp[0] = nums[0]
 	for i := 1; i < n; i++ {
 		dp[i] = max(dp[i-1]+nums[i], nums[i])
-		result = max(result, dp[i])
+		res = max(res, dp[i])
 	}
-	// fmt.Println(dp)
-	return result
+	return res
 }
 
 // 思路2: 贪心，和为负数就放弃
 func maxSubArrayGreedy(nums []int) int {
-	n := len(nums)
-	if n == 0 {
-		return 0
-	}
-	result := math.MinInt
+	res := math.MinInt
 	s := 0
-	for i := 0; i < n; i++ {
+	for i := 0; i < len(nums); i++ {
 		s = max(s+nums[i], nums[i])
-		result = max(result, s)
+		res = max(res, s)
 	}
-	return result
+	return res
 }
 
 // 思路3: 滑动窗口
@@ -71,13 +63,13 @@ func maxSubArrayPreSum(nums []int) int {
 	}
 
 	minVal := math.MaxInt
-	result := math.MinInt
+	res := math.MinInt
 
 	for i := 0; i < n; i++ {
-		result = max(result, preSum[i]-minVal)
+		res = max(res, preSum[i]-minVal)
 		minVal = min(minVal, preSum[i])
 	}
-	return result
+	return res
 }
 
 func main() {

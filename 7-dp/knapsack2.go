@@ -4,11 +4,11 @@ import (
 	"fmt"
 )
 
-// 完全背包，求背包容量为 W 能装的最大价值。明确状态：背包容量，选择：可选择的物品
+// 完全背包，求背包容量为 W 能装的最大价值。明确状态：背包容量和选择的物品；选择：装进背包 or 不装进背包
 // https://labuladong.online/zh/problem/core/knapsack-unbounded/description/
 func unboundedKnapsack(W int, wt []int, val []int) int {
 	N := len(wt)
-	dp := make([][]int, N+1) // 状态：背包容量和选择的物品；选择：装进背包 or 不装进背包
+	dp := make([][]int, N+1)
 	for i := 0; i <= N; i++ {
 		dp[i] = make([]int, W+1)
 	}
