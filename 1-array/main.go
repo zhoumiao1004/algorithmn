@@ -28,7 +28,7 @@ func splitArray(nums []int, k int) int {
 // 输出：[4,0,1,1,3]
 func smallerNumbersThanCurrent(nums []int) []int {
 	n := len(nums)
-	result := make([]int, n)
+	res := make([]int, n)
 	tmp := append([]int{}, nums...)
 	sort.Ints(tmp)
 	m := make(map[int]int)
@@ -38,9 +38,9 @@ func smallerNumbersThanCurrent(nums []int) []int {
 		}
 	}
 	for i, val := range nums {
-		result[i] = m[val]
+		res[i] = m[val]
 	}
-	return result
+	return res
 }
 
 // 941. 有效的山脉数组

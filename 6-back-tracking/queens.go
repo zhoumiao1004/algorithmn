@@ -7,7 +7,7 @@ package main
 // 给你一个整数 n ，返回所有不同的 n 皇后问题 的解决方案。
 // 每一种解法包含一个不同的 n 皇后问题 的棋子放置方案，该方案中 'Q' 和 '.' 分别代表了皇后和空位。
 func solveNQueens(n int) [][]string {
-	var results [][]string
+	var res [][]string
 	chessboard := make([][]byte, n)
 	for i := 0; i < n; i++ {
 		chessboard[i] = make([]byte, n)
@@ -25,7 +25,7 @@ func solveNQueens(n int) [][]string {
 			for i := 0; i < n; i++ {
 				tmp[i] = string(chessboard[i])
 			}
-			results = append(results, tmp)
+			res = append(res, tmp)
 			return
 		}
 		for i := 0; i < n; i++ {
@@ -38,7 +38,7 @@ func solveNQueens(n int) [][]string {
 	}
 
 	backtrack(chessboard, n, 0)
-	return results
+	return res
 }
 
 func isValid(n, row, col int, chessboard [][]byte) bool {

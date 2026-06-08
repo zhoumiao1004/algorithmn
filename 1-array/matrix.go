@@ -134,38 +134,38 @@ func rotateRight(head *ListNode, k int) *ListNode {
 // https://leetcode.cn/problems/shun-shi-zhen-da-yin-ju-zhen-lcof/description/
 // 给你一个 m 行 n 列的矩阵 matrix ，请按照 顺时针螺旋顺序 ，返回矩阵中的所有元素。
 func spiralOrder(matrix [][]int) []int {
-	var result []int
+	var res []int
 	m := len(matrix)
 	n := len(matrix[0])
 	upper_bound, lower_bound := 0, m-1
 	left_bound, right_bound := 0, n-1
-	for len(result) < m*n {
+	for len(res) < m*n {
 		if upper_bound <= lower_bound {
 			for j := left_bound; j <= right_bound; j++ {
-				result = append(result, matrix[upper_bound][j])
+				res = append(res)
 			}
 			upper_bound++
 		}
 		if left_bound <= right_bound {
 			for i := upper_bound; i <= lower_bound; i++ {
-				result = append(result, matrix[i][right_bound])
+				res = append(res, matrix[i][right_bound])
 			}
 			right_bound--
 		}
 		if upper_bound <= lower_bound {
 			for j := right_bound; j >= left_bound; j-- {
-				result = append(result, matrix[lower_bound][j])
+				res = append(res, matrix[lower_bound][j])
 			}
 			lower_bound--
 		}
 		if left_bound <= right_bound {
 			for i := lower_bound; i >= upper_bound; i-- {
-				result = append(result, matrix[i][left_bound])
+				res = append(res, matrix[i][left_bound])
 			}
 			left_bound++
 		}
 	}
-	return result
+	return res
 }
 
 // 59. 螺旋矩阵 II
@@ -174,9 +174,9 @@ func spiralOrder(matrix [][]int) []int {
 // 输入：n = 3
 // 输出：[[1,2,3],[8,9,4],[7,6,5]]
 func generateMatrix(n int) [][]int {
-	result := make([][]int, n)
+	res := make([][]int, n)
 	for i := 0; i < n; i++ {
-		result[i] = make([]int, n)
+		res[i] = make([]int, n)
 	}
 	cnt := 1
 	upper_bound, lower_bound := 0, n-1
@@ -185,7 +185,7 @@ func generateMatrix(n int) [][]int {
 		// 左到右
 		if upper_bound <= lower_bound {
 			for j := left_bound; j <= right_bound; j++ {
-				result[upper_bound][j] = cnt
+				res[upper_bound][j] = cnt
 				cnt++
 			}
 			upper_bound++
@@ -193,7 +193,7 @@ func generateMatrix(n int) [][]int {
 		// 上到下
 		if left_bound <= right_bound {
 			for i := upper_bound; i <= lower_bound; i++ {
-				result[i][right_bound] = cnt
+				res[i][right_bound] = cnt
 				cnt++
 			}
 			right_bound--
@@ -201,7 +201,7 @@ func generateMatrix(n int) [][]int {
 		// 右到左
 		if upper_bound <= lower_bound {
 			for j := right_bound; j >= left_bound; j-- {
-				result[lower_bound][j] = cnt
+				res[lower_bound][j] = cnt
 				cnt++
 			}
 			lower_bound--
@@ -209,21 +209,21 @@ func generateMatrix(n int) [][]int {
 		// 下到上
 		if left_bound <= right_bound {
 			for i := lower_bound; i >= upper_bound; i-- {
-				result[i][left_bound] = cnt
+				res[i][left_bound] = cnt
 				cnt++
 			}
 			left_bound++
 		}
 	}
 
-	return result
+	return res
 }
 
 // 思路2:
 func generateMatrix2(n int) [][]int {
-	result := make([][]int, n)
+	res := make([][]int, n)
 	for i := 0; i < n; i++ {
-		result[i] = make([]int, n)
+		res[i] = make([]int, n)
 	}
 	startx, starty := 0, 0
 	offset := 0
@@ -232,19 +232,19 @@ func generateMatrix2(n int) [][]int {
 	for loop > 0 {
 		i, j := startx, starty
 		for ; j < n-1-offset; j++ {
-			result[i][j] = cnt
+			res[i][j] = cnt
 			cnt++
 		}
 		for ; i < n-1-offset; i++ {
-			result[i][j] = cnt
+			res[i][j] = cnt
 			cnt++
 		}
 		for ; j > offset; j-- {
-			result[i][j] = cnt
+			res[i][j] = cnt
 			cnt++
 		}
 		for ; i > offset; i-- {
-			result[i][j] = cnt
+			res[i][j] = cnt
 			cnt++
 		}
 		startx++
@@ -253,9 +253,9 @@ func generateMatrix2(n int) [][]int {
 		loop--
 	}
 	if n%2 == 1 {
-		result[n/2][n/2] = cnt
+		res[n/2][n/2] = cnt
 	}
-	return result
+	return res
 }
 
 // 74.搜索二维矩阵

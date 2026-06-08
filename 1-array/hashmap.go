@@ -42,7 +42,7 @@ func isAnagram2(s, t string) bool {
 // 输入：nums1 = [1,2,2,1], nums2 = [2,2]
 // 输出：[2]
 func intersection(nums1, nums2 []int) []int {
-	var results []int
+	var res []int
 	m1 := make(map[int]bool)
 	m2 := make(map[int]bool)
 	for _, n := range nums1 {
@@ -50,11 +50,11 @@ func intersection(nums1, nums2 []int) []int {
 	}
 	for _, n := range nums2 {
 		if m1[n] && !m2[n] {
-			results = append(results, n)
+			res = append(res, n)
 			m2[n] = true
 		}
 	}
-	return results
+	return res
 }
 
 // 202. 快乐数
@@ -92,7 +92,7 @@ func isHappy(n int) bool {
 // 输入：nums1 = [1,2], nums2 = [-2,-1], nums3 = [-1,2], nums4 = [0,2]
 // 输出：2
 func fourSumCount(nums1 []int, nums2 []int, nums3 []int, nums4 []int) int {
-	result := 0
+	res := 0
 	m := make(map[int]int)
 	for _, v1 := range nums1 {
 		for _, v2 := range nums2 {
@@ -103,11 +103,11 @@ func fourSumCount(nums1 []int, nums2 []int, nums3 []int, nums4 []int) int {
 		for _, v2 := range nums4 {
 			cnt, ok := m[-v1-v2]
 			if ok {
-				result += cnt
+				res += cnt
 			}
 		}
 	}
-	return result
+	return res
 }
 
 // 383. 赎金信
@@ -177,14 +177,14 @@ func commonChars(words []string) []string {
 			hash[i] = min(hash[i], hash2[i])
 		}
 	}
-	var result []string
+	var res []string
 	for i := 0; i < 26; i++ {
 		for k := hash[i]; k > 0; k-- {
-			result = append(result, string([]byte{byte('a' + i)}))
+			res = append(res, string([]byte{byte('a' + i)}))
 		}
 	}
 
-	return result
+	return res
 }
 
 func commonChars2(words []string) []string {
@@ -204,16 +204,16 @@ func commonChars2(words []string) []string {
 			hash[i] = min(hash[i], hash2[i])
 		}
 	}
-	var result []string
+	var res []string
 	for i := 0; i < 26; i++ {
 		if hash[i] == math.MaxInt {
 			continue
 		}
 		for k := hash[i]; k > 0; k-- {
-			result = append(result, fmt.Sprint('a'+i))
+			res = append(res, fmt.Sprint('a'+i))
 		}
 	}
-	return result
+	return res
 }
 
 // 128.最长连续序列
@@ -228,7 +228,7 @@ func longestConsecutive(nums []int) int {
 	for _, val := range nums {
 		m[val] = true
 	}
-	result := 1
+	res := 1
 	for val := range m {
 		// 1.val+1存在：说明val不是连续序列的最大值
 		// 2.val+1不存在：val是连续序列的最大值，不断尝试val-1是否存在
@@ -237,12 +237,12 @@ func longestConsecutive(nums []int) int {
 			i := val - 1
 			for m[i] {
 				cnt++
-				result = max(result, cnt)
+				res = max(res, cnt)
 				i--
 			}
 		}
 	}
-	return result
+	return res
 }
 
 // 217.存在重复元素
@@ -272,17 +272,17 @@ func containsDuplicate(nums []int) bool {
 // 输出：[2,3]
 // 注：1 <= nums[i] <= n
 func findDuplicates(nums []int) []int {
-	var result []int
+	var res []int
 	n := len(nums)
 	hash := make([]bool, n+1)
 	for _, val := range nums {
 		if hash[val] {
-			result = append(result, val)
+			res = append(res, val)
 			continue
 		}
 		hash[val] = true
 	}
-	return result
+	return res
 }
 
 func main() {

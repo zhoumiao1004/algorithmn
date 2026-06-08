@@ -13,18 +13,18 @@ import (
 // 输入: g = [1,2], s = [1,2,3] 输出: 2
 // 贪心，双指针。局部最优：用大饼干满足最大胃口
 func findContentChildren(g []int, s []int) int {
-	result := 0
+	res := 0
 	sort.Ints(g)
 	sort.Ints(s)
 	j := len(s) - 1
 	for i := len(g) - 1; i >= 0; i-- {
 		// 最大小孩的胃口是g[i]
 		if j >= 0 && s[j] >= g[i] {
-			result++ // 能满足当前最大胃口
+			res++ // 能满足当前最大胃口
 			j--
 		}
 	}
-	return result
+	return res
 }
 
 // 376. 摆动序列
@@ -40,17 +40,17 @@ func wiggleMaxLength(nums []int) int {
 	if n < 2 {
 		return n
 	}
-	result := 1
+	res := 1
 	prediff := 0 // 向左延伸一个
 	curdiff := 0
 	for i := 0; i < len(nums)-1; i++ {
 		curdiff = nums[i+1] - nums[i]
 		if (prediff <= 0 && curdiff > 0) || (prediff >= 0 && curdiff < 0) {
-			result++
+			res++
 			prediff = curdiff // 遇到摆动才换
 		}
 	}
-	return result
+	return res
 }
 
 // 122. 买卖股票的最佳时机 II
@@ -59,11 +59,11 @@ func wiggleMaxLength(nums []int) int {
 // 返回 你能获得的 最大 利润 。
 // 贪心思路：可以多次买卖，所以累加所有增量
 func maxProfit(prices []int) int {
-	result := 0
+	res := 0
 	for i := 1; i < len(prices); i++ {
-		result += max(0, prices[i]-prices[i-1])
+		res += max(0, prices[i]-prices[i-1])
 	}
-	return result
+	return res
 }
 
 // 55. 跳跃游戏
@@ -240,7 +240,7 @@ func largestSumAfterKNegations(nums []int, k int) int {
 // 输入数组中的元素均为非负数。
 // 示例 1: 输入: gas = [1,2,3,4,5] cost = [3,4,5,1,2] 输出：3
 func canCompleteCircuit(gas []int, cost []int) int {
-	result := 0
+	res := 0
 	n := len(gas)
 	s := 0
 	for i := 0; i < n; i++ {
@@ -253,11 +253,11 @@ func canCompleteCircuit(gas []int, cost []int) int {
 	for i := 0; i < len(gas); i++ {
 		s += gas[i] - cost[i]
 		if s < 0 {
-			result = i + 1
+			res = i + 1
 			s = 0
 		}
 	}
-	return result
+	return res
 }
 
 // 135. 分发糖果
@@ -354,8 +354,8 @@ func monotoneIncreasingDigits(n int) int {
 		b[k] = '9'
 		k++
 	}
-	result, _ := strconv.Atoi(string(b))
-	return result
+	res, _ := strconv.Atoi(string(b))
+	return res
 }
 
 func monotoneIncreasingDigits2(n int) int {
@@ -371,8 +371,8 @@ func monotoneIncreasingDigits2(n int) int {
 	for i := flag; i < len(b); i++ {
 		b[i] = '9'
 	}
-	result, _ := strconv.Atoi(string(b))
-	return result
+	res, _ := strconv.Atoi(string(b))
+	return res
 }
 
 func monotoneIncreasingDigits3(n int) int {
@@ -389,8 +389,8 @@ func monotoneIncreasingDigits3(n int) int {
 	for ; k < len(bs); k++ {
 		bs[k] = '9'
 	}
-	result, _ := strconv.Atoi(string(bs))
-	return result
+	res, _ := strconv.Atoi(string(bs))
+	return res
 }
 
 type TreeNode struct {
@@ -504,13 +504,13 @@ func rearrangeArray(arr []int) []int {
 
 	// 创建结果数组并按顺序填充
 	n := len(arr)
-	result := make([]int, n)
+	res := make([]int, n)
 
 	// 使用贪心算法，将数字按最大频率的顺序放置，并确保相邻不相同
 	idx := 0
 	for _, f := range freqs {
 		for i := 0; i < f.count; i++ {
-			result[idx] = f.num
+			res[idx] = f.num
 			idx += 2
 			if idx >= n {
 				idx = 1
@@ -518,7 +518,7 @@ func rearrangeArray(arr []int) []int {
 		}
 	}
 
-	return result
+	return res
 }
 
 // 1221. 分割平衡字符串
@@ -531,7 +531,7 @@ func rearrangeArray(arr []int) []int {
 // 输出：4
 // 解释：s 可以分割为 "RL"、"RRLL"、"RL"、"RL" ，每个子字符串中都包含相同数量的 'L' 和 'R' 。
 func balancedStringSplit(s string) int {
-	result := 0
+	res := 0
 	diff := 0
 	for i := 0; i < len(s); i++ {
 		if s[i] == 'L' {
@@ -540,17 +540,17 @@ func balancedStringSplit(s string) int {
 			diff--
 		}
 		if diff == 0 {
-			result++
+			res++
 		}
 	}
-	return result
+	return res
 }
 
 func main() {
 	// 给出一个数组，返回相邻不相同的一个数组，例如 [1,1,2,2,2,3] 返回 [2,1,2,1,2,3]
 	arr := []int{1, 1, 2, 2, 2, 3}
-	result := rearrangeArray(arr)
-	fmt.Println(result)                                           // 输出例如 [2, 1, 2, 1, 2, 3]
+	res := rearrangeArray(arr)
+	fmt.Println(res)                                           // 输出例如 [2, 1, 2, 1, 2, 3]
 	fmt.Println(findContentChildren([]int{1, 2, 3}, []int{1, 1})) // 输出例如 [2, 1, 2, 1, 2, 3]
 	fmt.Println(canJump([]int{3, 2, 1, 0, 4}))
 	fmt.Println(jump([]int{2, 3, 1, 1, 4}))  // 2

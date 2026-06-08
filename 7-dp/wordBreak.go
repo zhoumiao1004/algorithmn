@@ -167,7 +167,7 @@ func wordBreakII3(s string, wordDict []string) []string {
 	// dp[start...]能由单词拼成的句子
 	var dp func(s string, start int) []string
 	dp = func(s string, start int) []string {
-		var result []string
+		var res []string
 		if start == len(s) {
 			return []string{""}
 		}
@@ -180,14 +180,14 @@ func wordBreakII3(s string, wordDict []string) []string {
 			if wordSet[prefix] {
 				for _, sentence := range dp(s, start+i) {
 					if sentence == "" {
-						result = append(result, prefix)
+						res = append(res, prefix)
 					} else {
-						result = append(result, prefix+" "+sentence)
+						res = append(res, prefix+" "+sentence)
 					}
 				}
 			}
 		}
-		return result
+		return res
 	}
 	return dp(s, 0)
 }

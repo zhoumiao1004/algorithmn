@@ -18,7 +18,7 @@ type TreeNode struct {
 // 输入：root = [1,2,3,null,5]
 // 输出：["1->2->5","1->3"]
 func binaryTreePaths(root *TreeNode) []string {
-	var results []string
+	var res []string
 	var path []string
 	var traverse func(*TreeNode)
 
@@ -29,7 +29,7 @@ func binaryTreePaths(root *TreeNode) []string {
 		// 前序位置
 		path = append(path, fmt.Sprintf("%d", root.Val))
 		if root.Left == nil && root.Right == nil {
-			results = append(results, strings.Join(path, "->")) // 注意不能return，因为还要回溯
+			res = append(res, strings.Join(path, "->")) // 注意不能return，因为还要回溯
 		}
 		traverse(root.Left)  // 左
 		traverse(root.Right) // 右
@@ -37,7 +37,7 @@ func binaryTreePaths(root *TreeNode) []string {
 	}
 
 	traverse(root)
-	return results
+	return res
 }
 
 // 129. 求根节点到叶节点数字之和
@@ -51,7 +51,7 @@ func binaryTreePaths(root *TreeNode) []string {
 // 从根到叶子节点路径 1->3 代表数字 13
 // 因此，数字总和 = 12 + 13 = 25
 func sumNumbers(root *TreeNode) int {
-	result := 0
+	res := 0
 	var path []int
 	var traverse func(root *TreeNode)
 
@@ -66,7 +66,7 @@ func sumNumbers(root *TreeNode) int {
 			for i := 0; i < len(path); i++ {
 				s = 10*s + path[i]
 			}
-			result += s
+			res += s
 		}
 		traverse(root.Left)  // 左
 		traverse(root.Right) // 右
@@ -74,7 +74,7 @@ func sumNumbers(root *TreeNode) int {
 	}
 
 	traverse(root)
-	return result
+	return res
 }
 
 // 199. 二叉树的右视图
@@ -84,7 +84,7 @@ func sumNumbers(root *TreeNode) int {
 // 思路1: 遍历
 func rightSideView(root *TreeNode) []int {
 	maxDepth := math.MinInt
-	var result []int
+	var res []int
 	var traverse func(node *TreeNode, depth int)
 
 	traverse = func(node *TreeNode, depth int) {
@@ -92,14 +92,14 @@ func rightSideView(root *TreeNode) []int {
 			return
 		}
 		if depth > maxDepth {
-			result = append(result, node.Val)
+			res = append(res, node.Val)
 			maxDepth = depth
 		}
 		traverse(node.Right, depth+1) // 右
 		traverse(node.Left, depth+1)  // 左
 	}
 	traverse(root, 0)
-	return result
+	return res
 }
 
 func rightSideView0(root *TreeNode) []int {
@@ -121,7 +121,7 @@ func rightSideView0(root *TreeNode) []int {
 }
 
 func rightSideView1(root *TreeNode) []int {
-	var result []int
+	var res []int
 	maxDepth := math.MinInt
 	depth := 0
 	var traverse func(root *TreeNode)
@@ -131,7 +131,7 @@ func rightSideView1(root *TreeNode) []int {
 		}
 		depth++
 		if depth > maxDepth {
-			result = append(result, root.Val)
+			res = append(res, root.Val)
 			maxDepth = depth
 		}
 		traverse(root.Right)
@@ -140,21 +140,21 @@ func rightSideView1(root *TreeNode) []int {
 	}
 
 	traverse(root)
-	return result
+	return res
 }
 
 // 思路2: BFS层序遍历
 func rightSideView2(root *TreeNode) []int {
-	var results []int
+	var res []int
 	if root == nil {
-		return results
+		return res
 	}
 	q := []*TreeNode{root}
 	for len(q) > 0 {
 		sz := len(q)
 		node := q[0]
 		q = q[1:]
-		results = append(results, q[len(q)-1].Val) // 每一行最后一个元素
+		res = append(res, q[len(q)-1].Val) // 每一行最后一个元素
 		for i := 0; i < sz; i++ {
 			if node.Left != nil {
 				q = append(q, node.Left)
@@ -164,7 +164,7 @@ func rightSideView2(root *TreeNode) []int {
 			}
 		}
 	}
-	return results
+	return res
 }
 
 // 988. 从叶结点开始的最小字符串
@@ -174,7 +174,7 @@ func rightSideView2(root *TreeNode) []int {
 // 输出："dba"
 func smallestFromLeaf(root *TreeNode) string {
 	var path []byte
-	result := ""
+	res := ""
 	var reverse func(s []byte)
 	var traverse func(node *TreeNode)
 
@@ -195,8 +195,8 @@ func smallestFromLeaf(root *TreeNode) string {
 		if node.Left == nil && node.Right == nil {
 			tmp := append([]byte{}, path...)
 			reverse(tmp)
-			if result == "" || string(tmp) < result {
-				result = string(tmp)
+			if res == "" || string(tmp) < res {
+				res = string(tmp)
 			}
 		}
 		traverse(node.Left)
@@ -205,7 +205,7 @@ func smallestFromLeaf(root *TreeNode) string {
 	}
 
 	traverse(root)
-	return result
+	return res
 }
 
 // 1022. 从根到叶的二进制数之和
@@ -219,7 +219,7 @@ func smallestFromLeaf(root *TreeNode) string {
 // 解释：(100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
 func sumRootToLeaf(root *TreeNode) int {
 	var path []int
-	result := 0
+	res := 0
 	var traverse func(node *TreeNode)
 
 	traverse = func(node *TreeNode) {
@@ -232,7 +232,7 @@ func sumRootToLeaf(root *TreeNode) int {
 			for _, val := range path {
 				s = 2*s + val
 			}
-			result += s
+			res += s
 		}
 		traverse(node.Left)
 		traverse(node.Right)
@@ -240,7 +240,7 @@ func sumRootToLeaf(root *TreeNode) int {
 	}
 
 	traverse(root)
-	return result
+	return res
 }
 
 // 1457. 二叉树中的伪回文路径
@@ -251,7 +251,7 @@ func sumRootToLeaf(root *TreeNode) int {
 // 输出：2
 func pseudoPalindromicPaths(root *TreeNode) int {
 	var path []int
-	result := 0
+	res := 0
 	var hash [10]int
 	var traverse func(node *TreeNode)
 
@@ -269,7 +269,7 @@ func pseudoPalindromicPaths(root *TreeNode) int {
 				}
 			}
 			if cnt <= 1 {
-				result++
+				res++
 			}
 		}
 		traverse(node.Left)
@@ -279,11 +279,11 @@ func pseudoPalindromicPaths(root *TreeNode) int {
 	}
 
 	traverse(root)
-	return result
+	return res
 }
 
 func pseudoPalindromicPaths2(root *TreeNode) int {
-	result := 0
+	res := 0
 	valToCnt := make(map[int]int)
 	var traverse func(root *TreeNode)
 	traverse = func(root *TreeNode) {
@@ -299,7 +299,7 @@ func pseudoPalindromicPaths2(root *TreeNode) int {
 				}
 			}
 			if oddCnt <= 1 {
-				result++
+				res++
 			}
 		}
 		traverse(root.Left)
@@ -308,7 +308,7 @@ func pseudoPalindromicPaths2(root *TreeNode) int {
 	}
 
 	traverse(root)
-	return result
+	return res
 }
 
 // 404.左叶子之和
@@ -528,15 +528,15 @@ func verticalTraversal(root *TreeNode) [][]int {
 		return nodes[i].col < nodes[j].col
 	})
 	// 分组
-	results := [][]int{[]int{nodes[0].node.Val}}
+	res := [][]int{[]int{nodes[0].node.Val}}
 	for i := 1; i < len(nodes); i++ {
 		if nodes[i].col == nodes[i-1].col {
-			results[len(results)-1] = append(results[len(results)-1], nodes[i].node.Val)
+			res[len(res)-1] = append(res[len(res)-1], nodes[i].node.Val)
 		} else {
-			results = append(results, []int{nodes[i].node.Val})
+			res = append(res, []int{nodes[i].node.Val})
 		}
 	}
-	return results
+	return res
 }
 
 // 993. 二叉树的堂兄弟节点
@@ -580,7 +580,7 @@ func isCousins(root *TreeNode, x int, y int) bool {
 // 输入：root = [6,7,8,2,7,1,3,9,null,1,4,null,null,null,5]
 // 输出：18
 func sumEvenGrandparent(root *TreeNode) int {
-	result := 0
+	res := 0
 	var traverse func(root *TreeNode)
 	traverse = func(root *TreeNode) {
 		if root == nil {
@@ -589,18 +589,18 @@ func sumEvenGrandparent(root *TreeNode) int {
 		if root.Val%2 == 0 {
 			if root.Left != nil {
 				if root.Left.Left != nil {
-					result += root.Left.Left.Val
+					res += root.Left.Left.Val
 				}
 				if root.Left.Right != nil {
-					result += root.Left.Right.Val
+					res += root.Left.Right.Val
 				}
 			}
 			if root.Right != nil {
 				if root.Right.Left != nil {
-					result += root.Right.Left.Val
+					res += root.Right.Left.Val
 				}
 				if root.Right.Right != nil {
-					result += root.Right.Right.Val
+					res += root.Right.Right.Val
 				}
 			}
 		}
@@ -609,7 +609,7 @@ func sumEvenGrandparent(root *TreeNode) int {
 	}
 
 	traverse(root)
-	return result
+	return res
 }
 
 // 1448. 统计二叉树中好节点的数目
@@ -648,13 +648,13 @@ func goodNodes(root *TreeNode) int {
 // 输出: 7
 // 思路1:层序遍历BFS
 func findBottomLeftValue(root *TreeNode) int {
-	result := 0
+	res := 0
 	q := []*TreeNode{root}
 	for len(q) > 0 {
 		sz := len(q)
 		node := q[0]
 		q = q[1:]
-		result = q[0].Val
+		res = q[0].Val
 		for i := 0; i < sz; i++ {
 			if node.Left != nil {
 				q = append(q, node.Left)
@@ -664,7 +664,7 @@ func findBottomLeftValue(root *TreeNode) int {
 			}
 		}
 	}
-	return result
+	return res
 }
 
 // 思路2:遍历整棵二叉树，用变量记录深度
@@ -881,9 +881,6 @@ func isSubPath(head *ListNode, root *TreeNode) bool {
 		return false
 	}
 
-	if root == nil {
-		return false
-	}
 	if check(head, root) {
 		return true
 	}

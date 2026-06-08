@@ -19,9 +19,9 @@ func levelOrder3(root *TreeNode) [][]int {
 		node  *TreeNode
 		depth int
 	}
-	var result [][]int
+	var res [][]int
 	if root == nil {
-		return result
+		return res
 	}
 	q := []State{{root, 1}}
 
@@ -43,9 +43,9 @@ func levelOrder3(root *TreeNode) [][]int {
 				q = append(q, State{cur.node.Right, cur.depth + 1})
 			}
 		}
-		result = append(result, tmp)
+		res = append(res, tmp)
 	}
-	return result
+	return res
 }
 
 // 102. 二叉树的层序遍历
@@ -100,9 +100,9 @@ type NTreeNode struct {
 }
 
 func levelOrderNTree(root *NTreeNode) [][]int {
-	var result [][]int
+	var res [][]int
 	if root == nil {
-		return result
+		return res
 	}
 	q := []*NTreeNode{root}
 	for len(q) > 0 {
@@ -116,9 +116,9 @@ func levelOrderNTree(root *NTreeNode) [][]int {
 				q = append(q, c) // 注：无需判断c != nil, 因为Children里不可能有nil
 			}
 		}
-		result = append(result, tmp)
+		res = append(res, tmp)
 	}
-	return result
+	return res
 }
 
 // 103. 二叉树的锯齿形层序遍历
@@ -127,9 +127,9 @@ func levelOrderNTree(root *NTreeNode) [][]int {
 // 输入：root = [3,9,20,null,null,15,7]
 // 输出：[[3],[20,9],[15,7]]
 func zigzagLevelOrder(root *TreeNode) [][]int {
-	var results [][]int
+	var res [][]int
 	if root == nil {
-		return results
+		return res
 	}
 	flag := true
 	q := []*TreeNode{root}
@@ -156,9 +156,9 @@ func zigzagLevelOrder(root *TreeNode) [][]int {
 			}
 		}
 		flag = !flag
-		results = append(results, tmp)
+		res = append(res, tmp)
 	}
-	return results
+	return res
 }
 
 // 515. 在每个树行中找最大值
@@ -299,7 +299,7 @@ func maxLevelSum(root *TreeNode) int {
 // 输入：root = [1,2,3,4,5,null,6,7,null,null,null,null,8]
 // 输出：15
 func deepestLeavesSum(root *TreeNode) int {
-	result := 0
+	res := 0
 	q := []*TreeNode{root}
 	for len(q) > 0 {
 		n := len(q)
@@ -315,9 +315,9 @@ func deepestLeavesSum(root *TreeNode) int {
 				q = append(q, node.Right)
 			}
 		}
-		result = s
+		res = s
 	}
-	return result
+	return res
 }
 
 // 1609. 奇偶树

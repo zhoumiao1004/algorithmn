@@ -27,9 +27,6 @@ func invertTree2(root *TreeNode) *TreeNode {
 		node.Left, node.Right = node.Right, node.Left // 前/后序都可以
 	}
 
-	if root == nil {
-		return nil
-	}
 	traverse(root)
 	return root
 }
@@ -42,12 +39,13 @@ func invertTree2(root *TreeNode) *TreeNode {
 // 输入：root = [1,2,3,4,5,6,7], to_delete = [3,5]
 // 输出：[[1,2,null,4],[6],[7]]
 func delNodes(root *TreeNode, to_delete []int) []*TreeNode {
-	var results []*TreeNode
+	var res []*TreeNode
+	var doDelete func(node *TreeNode, hasParent bool) *TreeNode // 明确函数定义：对以node为根的二叉树，删除集合中的节点，hasParent用来传递父节点有没有被删除
+
 	delSet := make(map[int]bool)
 	for _, val := range to_delete {
 		delSet[val] = true
 	}
-	var doDelete func(node *TreeNode, hasParent bool) *TreeNode // 明确函数定义：对以node为根的二叉树，删除集合中的节点，hasParent用来传递父节点有没有被删除
 
 	doDelete = func(node *TreeNode, hasParent bool) *TreeNode {
 		if node == nil {
@@ -55,7 +53,7 @@ func delNodes(root *TreeNode, to_delete []int) []*TreeNode {
 		}
 		deleted := delSet[node.Val] // 标记node的值在不在删除集合中
 		if !deleted && !hasParent {
-			results = append(results, node) // node不删除，父节点被删除了node就成了一颗新树
+			res = append(res, node) // node不删除，父节点被删除了node就成了一颗新树
 		}
 		node.Left = doDelete(node.Left, !deleted)
 		node.Right = doDelete(node.Right, !deleted)
@@ -66,7 +64,7 @@ func delNodes(root *TreeNode, to_delete []int) []*TreeNode {
 	}
 
 	doDelete(root, false) // root初始化为父节点被删除是为了把root加入结果列表
-	return results
+	return res
 }
 
 // 技巧1:类似于判断镜像二叉树、翻转二叉树的问题，一般也可以用分解问题的思路，无非就是把整棵树的问题（原问题）分解成子树之间的问题（子问题）。
@@ -89,8 +87,7 @@ func isSameTree(p *TreeNode, q *TreeNode) bool {
 // 输入：root = [1,2,2,3,4,4,3]
 // 输出：true
 func isSymmetric(root *TreeNode) bool {
-	// 定义check：返回两个子树是否对称
-	var check func(p, q *TreeNode) bool
+	var check func(p, q *TreeNode) bool // 定义check：返回两个子树是否对称
 
 	check = func(p, q *TreeNode) bool {
 		if p == nil || q == nil {

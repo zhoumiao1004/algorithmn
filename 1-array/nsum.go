@@ -209,7 +209,7 @@ func fourSum(nums []int, target int) [][]int {
 // 思路2
 func fourSum2(nums []int, target int) [][]int {
 	sort.Ints(nums)
-	var results [][]int
+	var res [][]int
 	for i := 0; i < len(nums)-3; i++ {
 		a := nums[i]
 		// if a > 0 {
@@ -227,7 +227,7 @@ func fourSum2(nums []int, target int) [][]int {
 			for l < r {
 				c, d := nums[l], nums[r]
 				if a+b+c+d == target {
-					results = append(results, []int{a, b, c, d})
+					res = append(res, []int{a, b, c, d})
 					for l < r && nums[l] == c {
 						l++
 					}
@@ -242,7 +242,7 @@ func fourSum2(nums []int, target int) [][]int {
 			}
 		}
 	}
-	return results
+	return res
 }
 
 func main() {

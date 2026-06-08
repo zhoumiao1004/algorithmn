@@ -56,40 +56,40 @@ func countSubstrings(s string) int {
 	for i := 0; i < n; i++ {
 		dp[i] = make([]bool, n)
 	}
-	result := 0
+	res := 0
 	for i := n - 1; i >= 0; i-- {
 		for j := i; j < n; j++ {
 			if s[i] == s[j] {
 				if j-i <= 1 || dp[i+1][j-1] {
 					dp[i][j] = true
-					result++
+					res++
 				}
 			}
 		}
 	}
-	return result
+	return res
 }
 
 func countSubstrings2(s string) int {
 	n := len(s)
 	dp := make([][]bool, n)
-	result := 0
+	res := 0
 	for i := 0; i < n; i++ {
 		dp[i] = make([]bool, n)
 		dp[i][i] = true
-		result++
+		res++
 	}
 	for i := n - 1; i >= 0; i-- {
 		for j := i + 1; j < n; j++ {
 			if s[i] == s[j] {
 				if j == i+1 || dp[i+1][j-1] {
 					dp[i][j] = true
-					result++
+					res++
 				}
 			}
 		}
 	}
-	return result
+	return res
 }
 
 // 516.最长回文子序列
@@ -231,13 +231,13 @@ func findNumberOfLIS(nums []int) int {
 			maxCount = max(maxCount, dp[i])
 		}
 	}
-	result := 0
+	res := 0
 	for i := 0; i < n; i++ {
 		if dp[i] == maxCount {
-			result += count[i]
+			res += count[i]
 		}
 	}
-	return result
+	return res
 }
 
 func findNumberOfLIS2(nums []int) int {

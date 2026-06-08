@@ -45,7 +45,7 @@ func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
 
 // 思路2: 遍历
 func findDuplicateSubtrees3(root *TreeNode) []*TreeNode {
-	var result []*TreeNode
+	var res []*TreeNode
 	subMap := make(map[string]int)
 	var serialize func(node *TreeNode) string
 	var traverse func(node *TreeNode)
@@ -68,13 +68,13 @@ func findDuplicateSubtrees3(root *TreeNode) []*TreeNode {
 		// 后序位置
 		s := serialize(node)
 		if subMap[s] == 1 {
-			result = append(result, node)
+			res = append(res, node)
 		}
 		subMap[s]++
 	}
 
 	traverse(root)
-	return result
+	return res
 }
 
 // 110. 平衡二叉树
@@ -144,7 +144,7 @@ func findFrequentTreeSum(root *TreeNode) []int {
 // 一个树的 节点的坡度 定义即为，该节点左子树的节点之和和右子树节点之和的 差的绝对值 。如果没有左子树的话，左子树的节点之和为 0 ；没有右子树的话也是一样。空结点的坡度是 0 。
 // 整个树 的坡度就是其所有节点的坡度之和。
 func findTilt(root *TreeNode) int {
-	result := 0
+	res := 0
 	var getSum func(node *TreeNode) int
 
 	getSum = func(node *TreeNode) int {
@@ -154,12 +154,12 @@ func findTilt(root *TreeNode) int {
 		left := getSum(node.Left)
 		right := getSum(node.Right)
 		// 后序位置顺便累加坡度和
-		result += int(math.Abs(float64(left) - float64(right)))
+		res += int(math.Abs(float64(left) - float64(right)))
 		return left + right + node.Val
 	}
 
 	getSum(root)
-	return result
+	return res
 }
 
 // 814. 二叉树剪枝

@@ -176,7 +176,7 @@ func exist2(board [][]byte, word string) bool {
 func getMaximumGold(grid [][]int) int {
 	dirs := [][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
 	m, n := len(grid), len(grid[0])
-	result := 0
+	res := 0
 	s := 0
 	var dfs func(grid [][]int, i, j int)
 
@@ -190,7 +190,7 @@ func getMaximumGold(grid [][]int) int {
 		s += grid[i][j]
 		tmp := grid[i][j]
 		grid[i][j] = 0
-		result = max(result, s)
+		res = max(res, s)
 		for _, dir := range dirs {
 			dfs(grid, i+dir[0], j+dir[1])
 		}
@@ -204,5 +204,5 @@ func getMaximumGold(grid [][]int) int {
 			dfs(grid, i, j)
 		}
 	}
-	return result
+	return res
 }

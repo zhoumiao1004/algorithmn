@@ -24,7 +24,7 @@ func rangeSumBST2(root *TreeNode, low int, high int) int {
 
 // 思路2: 遍历，利用bst的特性
 func rangeSumBST(root *TreeNode, low int, high int) int {
-	result := 0
+	res := 0
 	var traverse func(node *TreeNode, low, high int)
 
 	traverse = func(node *TreeNode, low, high int) {
@@ -36,20 +36,20 @@ func rangeSumBST(root *TreeNode, low int, high int) int {
 		} else if node.Val > high {
 			traverse(node.Left, low, high)
 		} else {
-			result += node.Val
+			res += node.Val
 			traverse(node.Left, low, node.Val-1)
 			traverse(node.Right, node.Val+1, high)
 		}
 	}
 
 	traverse(root, low, high)
-	return result
+	return res
 }
 
 // 普通二叉树的范围和
 // 思路1：遍历
 func rangeSum(root *TreeNode, low int, high int) int {
-	result := 0
+	res := 0
 	var traverse func(root *TreeNode)
 
 	traverse = func(root *TreeNode) {
@@ -57,17 +57,14 @@ func rangeSum(root *TreeNode, low int, high int) int {
 			return
 		}
 		if root.Val >= low && root.Val <= high {
-			result += root.Val
+			res += root.Val
 		}
 		traverse(root.Left)
 		traverse(root.Right)
 	}
 
-	if root == nil {
-		return 0
-	}
 	traverse(root)
-	return result
+	return res
 }
 
 // 思路2: 分解问题的思路，明确函数定义：返回以 root 节点为根的二叉树在[low...high]区间内的节点

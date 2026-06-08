@@ -84,12 +84,12 @@ func splitString(s string) bool {
 // 视角1: 子串（盒）视角，切出来的子串长度可以是1,2,3..len(s)
 func maxUniqueSplit(s string) int {
 	set := make(map[string]bool)
-	result := 0
+	res := 0
 	cnt := 0
 	var backtrack func(s string, start int)
 	backtrack = func(s string, start int) {
 		if start == len(s) {
-			result = max(result, cnt)
+			res = max(res, cnt)
 			return
 		}
 		for i := start; i < len(s); i++ {
@@ -106,17 +106,17 @@ func maxUniqueSplit(s string) int {
 	}
 
 	backtrack(s, 0)
-	return result
+	return res
 }
 
 // 视角2: 站在索引空隙之间选择切or不切，脑海中出现一颗二叉树
 func maxUniqueSplit2(s string) int {
-	result := 0
+	res := 0
 	set := make(map[string]bool)
 	var backtrack func(s string, index int)
 	backtrack = func(s string, index int) {
 		if index == len(s) {
-			result = max(result, len(set))
+			res = max(res, len(set))
 			return
 		}
 		// 不切
@@ -131,7 +131,7 @@ func maxUniqueSplit2(s string) int {
 	}
 
 	backtrack(s, 0)
-	return result
+	return res
 }
 
 // 1079. 活字印刷
@@ -148,10 +148,10 @@ func numTilePossibilities(tiles string) int {
 		return bs[i] < bs[j]
 	})
 	used := make([]bool, len(bs))
-	result := 0
+	res := 0
 	var backtrack func(bs []byte)
 	backtrack = func(bs []byte) {
-		result++
+		res++
 		for i := 0; i < len(bs); i++ {
 			if used[i] {
 				continue
@@ -165,7 +165,7 @@ func numTilePossibilities(tiles string) int {
 		}
 	}
 	backtrack(bs)
-	return result - 1
+	return res - 1
 }
 
 // 996. 平方数组的数目
@@ -179,7 +179,7 @@ func numTilePossibilities(tiles string) int {
 // 元素可重不可复选的排列
 func numSquarefulPerms(nums []int) int {
 	sort.Ints(nums)
-	result := 0
+	res := 0
 	used := make([]bool, len(nums))
 	var path []int
 	var isSqrt func(n int) bool
@@ -191,7 +191,7 @@ func numSquarefulPerms(nums []int) int {
 	var backtrack func(nums []int)
 	backtrack = func(nums []int) {
 		if len(nums) == len(path) {
-			result++
+			res++
 			return
 		}
 		for i := 0; i < len(nums); i++ {
@@ -213,7 +213,7 @@ func numSquarefulPerms(nums []int) int {
 	}
 
 	backtrack(nums)
-	return result
+	return res
 }
 
 // 784. 字母大小写全排列
@@ -223,13 +223,13 @@ func numSquarefulPerms(nums []int) int {
 // 输入：s = "a1b2"
 // 输出：["a1b2", "a1B2", "A1b2", "A1B2"]
 func letterCasePermutation(s string) []string {
-	var result []string
+	var res []string
 	var path string
 	var backtrack func(i int)
 
 	backtrack = func(i int) {
 		if i == len(s) {
-			result = append(result, path)
+			res = append(res, path)
 			return
 		}
 		if s[i] >= '0' && s[i] <= '9' {
@@ -249,7 +249,7 @@ func letterCasePermutation(s string) []string {
 	}
 
 	backtrack(0)
-	return result
+	return res
 }
 
 // 638. 大礼包

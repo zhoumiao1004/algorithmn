@@ -18,13 +18,13 @@ import (
 // 输入：n = 4, k = 2 输出：[[2,4],[3,4],[2,3],[1,2],[1,3],[1,4]]
 // 求组合，每个数只能取一次。
 func combine(n int, k int) [][]int {
-	var results [][]int
+	var res [][]int
 	var path []int
 	var backtrack func(start int)
 
 	backtrack = func(start int) {
 		if len(path) == k {
-			results = append(results, append([]int{}, path...))
+			res = append(res, append([]int{}, path...))
 			return
 		}
 		for i := start; i <= n; i++ {
@@ -38,7 +38,7 @@ func combine(n int, k int) [][]int {
 	}
 
 	backtrack(1)
-	return results
+	return res
 }
 
 // 216.组合总和III

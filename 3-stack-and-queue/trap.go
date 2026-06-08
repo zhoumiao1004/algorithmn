@@ -13,7 +13,7 @@ func trap(height []int) int {
 	if n < 3 {
 		return 0
 	}
-	result := 0
+	res := 0
 	var st []int
 	for i := 0; i < n; i++ {
 		for len(st) > 0 && height[i] > height[st[len(st)-1]] {
@@ -24,12 +24,12 @@ func trap(height []int) int {
 				right := i
 				w := right - left - 1
 				h := min(height[left], height[right]) - height[mid]
-				result += w * h
+				res += w * h
 			}
 		}
 		st = append(st, i) // 入栈
 	}
-	return result
+	return res
 }
 
 // 思路2: 双指针解法
@@ -72,7 +72,7 @@ func trap2pointer(nums []int) int {
 // 输出：49
 // 思路: 双指针
 func maxArea(height []int) int {
-	result := 0
+	res := 0
 	left, right := 0, len(height)-1
 	for left < right {
 		w := right - left
@@ -84,9 +84,9 @@ func maxArea(height []int) int {
 			h = height[right]
 			right--
 		}
-		result = max(result, w*h)
+		res = max(res, w*h)
 	}
-	return result
+	return res
 }
 
 // 84. 柱状图中最大的矩形
@@ -95,7 +95,7 @@ func maxArea(height []int) int {
 // 输入：heights = [2,1,5,6,2,3] 输出：10
 // 解释：最大的矩形为图中红色区域，面积为 10
 func largestRectangleArea(heights []int) int {
-	result := 0
+	res := 0
 	// 首尾补零
 	tmp := make([]int, len(heights)+2)
 	for i := 0; i < len(heights); i++ {
@@ -112,13 +112,13 @@ func largestRectangleArea(heights []int) int {
 				right := i
 				h := heights[mid]
 				w := right - left - 1
-				result = max(result, h*w)
+				res = max(res, h*w)
 			}
 		}
 		st = append(st, i)
 	}
 
-	return result
+	return res
 }
 
 func main() {

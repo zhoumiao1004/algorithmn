@@ -4,13 +4,13 @@ package main
 // https://leetcode.cn/problems/maximum-depth-of-binary-tree/
 // 思路1:遍历整棵树，外部变量记录递归深度
 func maxDepth(root *TreeNode) int {
-	result := 0
+	res := 0
 	depth := 0
 	var traverse func(node *TreeNode)
 
 	traverse = func(node *TreeNode) {
 		if node == nil {
-			result = max(result, depth)
+			res = max(res, depth)
 			return
 		}
 		depth++
@@ -20,7 +20,7 @@ func maxDepth(root *TreeNode) int {
 	}
 
 	traverse(root)
-	return result
+	return res
 }
 
 // 思路2:分解问题+后序
@@ -107,7 +107,7 @@ func maxDepthNTree(root *Node) int {
 
 // 思路2: 遍历
 func maxDepthNTree2(root *Node) int {
-	result := 0
+	res := 0
 	depth := 0
 	var traverse func(root *Node)
 
@@ -116,7 +116,7 @@ func maxDepthNTree2(root *Node) int {
 			return
 		}
 		depth++
-		result = max(result, depth)
+		res = max(res, depth)
 		for _, c := range root.Children {
 			traverse(c)
 		}
@@ -124,5 +124,5 @@ func maxDepthNTree2(root *Node) int {
 	}
 
 	traverse(root)
-	return result
+	return res
 }

@@ -34,15 +34,15 @@ func maxProfitGreedy(prices []int) int {
 	if len(prices) == 0 {
 		return 0
 	}
-	result := 0
+	res := 0
 	low := prices[0]
 	for i := 1; i < len(prices); i++ {
-		result = max(result, prices[i]-low)
+		res = max(res, prices[i]-low)
 		if prices[i] < low {
 			low = prices[i]
 		}
 	}
-	return result
+	return res
 }
 
 // 122.买卖股票的最佳时机II

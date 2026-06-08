@@ -8,8 +8,8 @@ import (
 // 332. 重新安排行程
 // https://leetcode.cn/problems/reconstruct-itinerary/
 func findItinerary(tickets [][]string) []string {
-	var results []string
-	return results
+	var res []string
+	return res
 }
 
 // 22. 括号生成
@@ -18,9 +18,9 @@ func findItinerary(tickets [][]string) []string {
 // 输入：n = 3
 // 输出：["((()))","(()())","(())()","()(())","()()()"]
 func generateParenthesis(n int) []string {
-	var results []string
+	var res []string
 	if n == 0 {
-		return results
+		return res
 	}
 	var path []byte
 	var backtrack func(i, j int)
@@ -32,7 +32,7 @@ func generateParenthesis(n int) []string {
 			return
 		}
 		if i == 0 && j == 0 {
-			results = append(results, string(path))
+			res = append(res, string(path))
 			return
 		}
 
@@ -47,7 +47,7 @@ func generateParenthesis(n int) []string {
 		}
 	}
 	backtrack(n, n)
-	return results
+	return res
 }
 
 // 698. 划分为k个相等的子集
@@ -132,13 +132,13 @@ func makesquare(matchsticks []int) bool {
 //
 // 思路1: 索引视角, 站在索引视角选元素
 func countArrangement(n int) int {
-	result := 0
+	res := 0
 	used := make([]bool, n+1)
 	var path []int
 	var backtrack func(n, index int)
 	backtrack = func(n, index int) {
 		if index > n {
-			result++
+			res++
 			return
 		}
 
@@ -159,19 +159,19 @@ func countArrangement(n int) int {
 	}
 
 	backtrack(n, 1)
-	return result
+	return res
 }
 
 // 思路2: 元素视角, 站在元素视角选索引
 func countArrangement2(n int) int {
-	result := 0
+	res := 0
 	var backtrack func(n, start int)
 	backtrack = func(n, start int) {
 
 	}
 
 	backtrack(n, 1)
-	return result
+	return res
 }
 
 // 89. 格雷编码
@@ -186,7 +186,7 @@ func countArrangement2(n int) int {
 func grayCode(n int) []int {
 	used := make(map[int]bool)
 	var path []int
-	var result []int
+	var res []int
 
 	var flipBit func(x, i int) int // 把第 i 位取反（0 变 1，1 变 0）
 	flipBit = func(x, i int) int {
@@ -195,11 +195,11 @@ func grayCode(n int) []int {
 
 	var traverse func(root, n int)
 	traverse = func(root, n int) {
-		if result != nil {
+		if res != nil {
 			return
 		}
 		if len(path) == (1 << n) {
-			result = append([]int{}, path...)
+			res = append([]int{}, path...)
 			return
 		}
 
@@ -223,7 +223,7 @@ func grayCode(n int) []int {
 	}
 
 	traverse(0, n)
-	return result
+	return res
 }
 
 func main() {

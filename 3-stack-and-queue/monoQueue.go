@@ -60,18 +60,18 @@ func maxSlidingWindow(nums []int, k int) []int {
 
 func maxSlidingWindow2(nums []int, k int) []int {
 	n := len(nums) - k + 1
-	result := make([]int, n)
+	res := make([]int, n)
 	q := MonoQueue{}
 	for i := 0; i < k; i++ {
 		q.Push(nums[i])
 	}
-	result[0] = q.Front()
+	res[0] = q.Front()
 	for i := k; i < len(nums); i++ {
 		q.Pop(nums[i-k]) // 移除最前面的元素
 		q.Push(nums[i])  // 添加最后面的元素
-		result[i-k+1] = q.Front()
+		res[i-k+1] = q.Front()
 	}
-	return result
+	return res
 }
 
 // 代码模拟单调队列过程，不易理解
@@ -81,7 +81,7 @@ func maxSlidingWindow3(nums []int, k int) []int {
 	if n == 0 || n < k {
 		return []int{}
 	}
-	result := make([]int, n-k+1)
+	res := make([]int, n-k+1)
 	for i := 0; i < n; i++ {
 		// 遗弃的是最大值
 		if i >= k && nums[i-k] == q[0] {
@@ -92,10 +92,10 @@ func maxSlidingWindow3(nums []int, k int) []int {
 		}
 		q = append(q, nums[i])
 		if i >= k {
-			result[i-k] = q[0]
+			res[i-k] = q[0]
 		}
 	}
-	return result
+	return res
 }
 
 // 1438. 绝对差不超过限制的最长连续子数组
@@ -184,7 +184,7 @@ func longestSubarray(nums []int, limit int) int {
 // 输入：nums = [1], k = 1
 // 输出：1
 func shortestSubarray(nums []int, k int) int {
-	result := math.MaxInt
+	res := math.MaxInt
 	n := len(nums)
 	preSum := make([]int, n+1)
 	for i := 1; i <= n; i++ {
@@ -196,15 +196,15 @@ func shortestSubarray(nums []int, k int) int {
 		window.Push(preSum[right])
 		right++
 		for right <= n && !window.IsEmpty() && preSum[right]-window.Min() >= k {
-			result = min(result, right-left)
+			res = min(res, right-left)
 			window.Pop()
 			left++
 		}
 	}
-	if result == math.MaxInt {
+	if res == math.MaxInt {
 		return -1
 	}
-	return result
+	return res
 }
 
 // 918. 环形子数组的最大和

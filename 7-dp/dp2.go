@@ -73,9 +73,9 @@ func isInterleave2(s1 string, s2 string, s3 string) bool {
 	}
 	var dp func(i, j int) bool
 	dp = func(i, j int) bool {
-		if i < 0 || j < 0 {
-			return false
-		}
+		// if i < 0 || j < 0 {
+		// 	return false
+		// }
 		k := i + j
 		if k == 0 {
 			return true
@@ -135,6 +135,9 @@ func isInterleave3(s1 string, s2 string, s3 string) bool {
 
 // 152.乘积最大子数组
 // https://leetcode.cn/problems/maximum-product-subarray/solutions/
+// 给你一个整数数组 nums ，请你找出数组中乘积最大的非空连续 子数组（该子数组中至少包含一个数字），并返回该子数组所对应的乘积。
+// 测试用例的答案是一个 32-位 整数。
+// 请注意，一个只包含一个元素的数组的乘积是这个元素的值。
 // 输入: nums = [2,3,-2,4]
 // 输出: 6
 // 解释: 子数组 [2,3] 有最大乘积 6。
@@ -162,16 +165,29 @@ func maxProduct2(nums []int) int {
 	if n == 0 {
 		return 0
 	}
-	result := nums[0]
+	res := nums[0]
 	preMin, preMax := nums[0], nums[0]
 	for i := 1; i < n; i++ {
 		a := preMin * nums[i]
 		b := preMax * nums[i]
 		preMin = min(nums[i], min(a, b))
 		preMax = max(nums[i], max(a, b))
-		result = max(result, preMax)
+		res = max(res, preMax)
 	}
-	return result
+	return res
+}
+
+func maxProduct22(nums []int) int {
+	n := len(nums)
+	res := math.MinInt
+	preMin, preMax := 1, 1
+	for i := 0; i < n; i++ {
+		a, b := preMin*nums[i], preMax*nums[i]
+		preMin = min(nums[i], min(a, b))
+		preMax = max(nums[i], max(a, b))
+		res = max(res, preMax)
+	}
+	return res
 }
 
 // 思路3: 前缀积prefix, 但不推荐，0处理起来很麻烦

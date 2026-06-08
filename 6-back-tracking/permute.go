@@ -41,12 +41,12 @@ func permute(nums []int) [][]int {
 // 思路2: swap，start含义：是nums数组中每个索引位置，选择不同的元素放入这个索引位置。
 // start之前的元素已经心有所属，被其他位置挑走了。所以stat位置只能从nums[start...]中选择元素
 func permute2(nums []int) [][]int {
-	var results [][]int
+	var res [][]int
 	var backtrack func(start int)
 
 	backtrack = func(start int) {
 		if start == len(nums) {
-			results = append(results, append([]int{}, nums...))
+			res = append(res, append([]int{}, nums...))
 			return
 		}
 		for i := start; i < len(nums); i++ {
@@ -57,19 +57,19 @@ func permute2(nums []int) [][]int {
 	}
 
 	backtrack(0)
-	return results
+	return res
 }
 
 // 思路2: 球视角，元素选索引
 func permute3(nums []int) [][]int {
-	var result [][]int
+	var res [][]int
 	used := make([]bool, len(nums))
 	count := 0
 	var backtrack func(nums []int)
 
 	backtrack = func(nums []int) {
 		if count == len(nums) {
-			result = append(result, append([]int{}, nums...))
+			res = append(res, append([]int{}, nums...))
 			return
 		}
 		originalIndex := -1
@@ -95,7 +95,7 @@ func permute3(nums []int) [][]int {
 	}
 
 	backtrack(nums)
-	return result
+	return res
 }
 
 // 47. 全排列 II

@@ -11,24 +11,24 @@ import (
 // 输入: temperatures = [73,74,75,71,69,72,76,73]
 // 输出: [1,1,4,2,1,1,0,0]
 func dailyTemperatures(temperatures []int) []int {
-	result := make([]int, len(temperatures))
+	res := make([]int, len(temperatures))
 	var st []int
 	for i := 0; i < len(temperatures); i++ {
 		// 比较temperature[i]和栈顶元素大小，如果大于栈顶元素，说明是右边第一个大于栈顶元素的地方
 		for len(st) > 0 && temperatures[i] > temperatures[st[len(st)-1]] {
 			idx := st[len(st)-1]
-			result[idx] = i - idx
+			res[idx] = i - idx
 			st = st[:len(st)-1] // 弹出栈顶元素
 		}
 		st = append(st, i)
 	}
 
-	return result
+	return res
 }
 
 func dailyTemperatures2(temperatures []int) []int {
 	n := len(temperatures)
-	res := make([]int, n))
+	res := make([]int, n)
 	var st []int
 	for i := n - 1; i >= 0; i-- {
 		for len(st) > 0 && temperatures[st[len(st)-1]] <= temperatures[i] {
@@ -54,10 +54,10 @@ func dailyTemperatures2(temperatures []int) []int {
 // 1: 下一个更大元素是 3 。
 // 2: 不存在下一个更大元素，所以答案是 -1 。
 func nextGreaterElement(nums1 []int, nums2 []int) []int {
-	result := make([]int, len(nums1))
+	res := make([]int, len(nums1))
 	idxMap := make(map[int]int)
 	for i := 0; i < len(nums1); i++ {
-		result[i] = -1
+		res[i] = -1
 		idxMap[nums1[i]] = i
 	}
 
@@ -66,20 +66,20 @@ func nextGreaterElement(nums1 []int, nums2 []int) []int {
 		for len(st) > 0 && nums2[i] > st[len(st)-1] {
 			idx, ok := idxMap[st[len(st)-1]]
 			if ok {
-				result[idx] = nums2[i]
+				res[idx] = nums2[i]
 			}
 			st = st[:len(st)-1]
 		}
 		st = append(st, nums2[i])
 	}
-	return result
+	return res
 }
 
 func nextGreaterElement2(nums1 []int, nums2 []int) []int {
-	result := make([]int, len(nums1))
+	res := make([]int, len(nums1))
 	idxMap := make(map[int]int)
 	for i := 0; i < len(nums1); i++ {
-		result[i] = -1
+		res[i] = -1
 		idxMap[nums1[i]] = i
 	}
 
@@ -92,12 +92,12 @@ func nextGreaterElement2(nums1 []int, nums2 []int) []int {
 		if len(st) > 0 {
 			idx, ok := idxMap[nums2[i]]
 			if ok {
-				result[idx] = st[len(st)-1]
+				res[idx] = st[len(st)-1]
 			}
 		}
 		st = append(st, nums2[i])
 	}
-	return result
+	return res
 }
 
 func nextGreaterElement3(nums1 []int, nums2 []int) []int {
@@ -134,19 +134,19 @@ func nextGreaterElement3(nums1 []int, nums2 []int) []int {
 // 第二个 1 的下一个最大的数需要循环搜索，结果也是 2。
 func nextGreaterElements(nums []int) []int {
 	n := len(nums)
-	result := make([]int, n)
+	res := make([]int, n)
 	for i := 0; i < n; i++ {
-		result[i] = -1
+		res[i] = -1
 	}
 	var st []int
 	for i := 0; i < 2*n; i++ {
 		for len(st) > 0 && nums[i%n] > nums[st[len(st)-1]] {
-			result[st[len(st)-1]] = nums[i%n]
+			res[st[len(st)-1]] = nums[i%n]
 			st = st[:len(st)-1]
 		}
 		st = append(st, i%n)
 	}
-	return result
+	return res
 }
 
 func nextGreaterElements2(nums []int) []int {
@@ -183,19 +183,20 @@ func nextLargerNodes(head *ListNode) []int {
 	for cur := head; cur != nil; cur = cur.Next {
 		nums = append(nums, cur.Val)
 	}
+
 	n := len(nums)
 	var st []int
-	result := make([]int, n)
+	res := make([]int, n)
 	for i := n - 1; i >= 0; i-- {
 		for len(st) > 0 && nums[st[len(st)-1]] <= nums[i] {
 			st = st[:len(st)-1]
 		}
 		if len(st) > 0 {
-			result[i] = nums[st[len(st)-1]]
+			res[i] = nums[st[len(st)-1]]
 		}
 		st = append(st, i)
 	}
-	return result
+	return res
 }
 
 // 1944. 队列中可以看到的人数
@@ -208,18 +209,18 @@ func nextLargerNodes(head *ListNode) []int {
 func canSeePersonsCount(heights []int) []int {
 	n := len(heights)
 	var st []int
-	result := make([]int, n)
+	res := make([]int, n)
 	for i := n - 1; i >= 0; i-- {
 		for len(st) > 0 && st[len(st)-1] < heights[i] {
 			st = st[:len(st)-1]
-			result[i]++
+			res[i]++
 		}
 		if len(st) > 0 {
-			result[i]++
+			res[i]++
 		}
 		st = append(st, heights[i])
 	}
-	return result
+	return res
 }
 
 // 1475. 商品折扣后的最终价格
@@ -231,9 +232,9 @@ func canSeePersonsCount(heights []int) []int {
 // 输出：[4,2,4,2,3]
 func finalPrices(prices []int) []int {
 	n := len(prices)
-	result := make([]int, n)
+	res := make([]int, n)
 	for i := 0; i < n; i++ {
-		result[i] = prices[i]
+		res[i] = prices[i]
 	}
 	var st []int
 	for i := n - 1; i >= 0; i-- {
@@ -241,11 +242,11 @@ func finalPrices(prices []int) []int {
 			st = st[:len(st)-1]
 		}
 		if len(st) > 0 {
-			result[i] = prices[i] - st[len(st)-1]
+			res[i] = prices[i] - st[len(st)-1]
 		}
 		st = append(st, prices[i])
 	}
-	return result
+	return res
 }
 
 // 901. 股票价格跨度

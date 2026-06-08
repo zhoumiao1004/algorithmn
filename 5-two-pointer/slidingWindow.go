@@ -158,7 +158,7 @@ func findAnagrams(s string, p string) []int {
 	window := make(map[byte]int)
 	left, right := 0, 0
 	valid := 0
-	var results []int
+	var res []int
 	for right < len(s) {
 		c := s[right]
 		right++
@@ -183,10 +183,10 @@ func findAnagrams(s string, p string) []int {
 		}
 		// 更新结果
 		if valid == len(need) {
-			results = append(results, left)
+			res = append(res, left)
 		}
 	}
-	return results
+	return res
 }
 
 // 3. 无重复字符的最长子串
@@ -196,7 +196,7 @@ func findAnagrams(s string, p string) []int {
 // 输出: 3
 // 解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。注意 "bca" 和 "cab" 也是正确答案。
 func lengthOfLongestSubstring(s string) int {
-	result := 0
+	res := 0
 	window := make(map[byte]int)
 	left, right := 0, 0
 	for right < len(s) {
@@ -211,13 +211,13 @@ func lengthOfLongestSubstring(s string) int {
 			window[d]--
 		}
 		// 更新结果
-		result = max(result, right-left) // [left..right) 左闭右开区间，长度为right-left
+		res = max(res, right-left) // [left..right) 左闭右开区间，长度为right-left
 	}
-	return result
+	return res
 }
 
 func lengthOfLongestSubstring2(s string) int {
-	result := 0
+	res := 0
 	m := make(map[byte]int)
 	l := 0
 	for r := 0; r < len(s); r++ {
@@ -226,9 +226,9 @@ func lengthOfLongestSubstring2(s string) int {
 			m[s[l]]--
 			l++
 		}
-		result = max(result, r-l+1)
+		res = max(res, r-l+1)
 	}
-	return result
+	return res
 }
 
 // 1658. 将 x 减到 0 的最小操作数
@@ -407,7 +407,7 @@ func characterReplacement(s string, k int) int {
 	var window [26]int
 	left, right := 0, 0
 	maxCnt := 0
-	result := 0
+	res := 0
 	for right < len(s) {
 		c := s[right]
 		right++
@@ -421,9 +421,9 @@ func characterReplacement(s string, k int) int {
 			// 窗口内数据更新
 			window[d-'A']--
 		}
-		result = max(result, right-left)
+		res = max(res, right-left)
 	}
-	return result
+	return res
 }
 
 // 219. 存在重复元素 II

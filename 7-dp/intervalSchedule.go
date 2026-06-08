@@ -283,7 +283,7 @@ func minMeetingRooms(meetings [][]int) int {
 		return end[i] < end[j]
 	})
 	count := 0
-	result := 0
+	res := 0
 	i, j := 0, 0
 	for i < n && j < n {
 		if begin[i] < end[j] {
@@ -293,9 +293,9 @@ func minMeetingRooms(meetings [][]int) int {
 			count--
 			j++
 		}
-		result = max(result, count)
+		res = max(res, count)
 	}
-	return result
+	return res
 }
 
 // 1024. 视频拼接

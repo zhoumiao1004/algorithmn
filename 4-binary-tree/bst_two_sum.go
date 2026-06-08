@@ -60,7 +60,7 @@ func findTarget2(root *TreeNode, k int) bool {
 
 // 思路3: 遍历 + hashmap（一般二叉树解法）
 func findTarget3(root *TreeNode, k int) bool {
-	result := false
+	res := false
 	m := make(map[int]bool)
 	var traverse func(node *TreeNode)
 
@@ -71,12 +71,12 @@ func findTarget3(root *TreeNode, k int) bool {
 		traverse(node.Left)
 		// 中序位置
 		if m[k-node.Val] {
-			result = true
+			res = true
 		}
 		m[node.Val] = true
 		traverse(node.Right)
 	}
 
 	traverse(root)
-	return result
+	return res
 }

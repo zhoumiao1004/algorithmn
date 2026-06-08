@@ -18,19 +18,19 @@ type ListNode struct {
 // 输出：[1,2]
 // 思路1: hashmap统计元素频率，再按频率排序，时间复杂度O(nlogn)
 func topKFrequent(nums []int, k int) []int {
-	var results []int
+	var res []int
 	cntMap := make(map[int]int)
 	for i := 0; i < len(nums); i++ {
 		cntMap[nums[i]]++
 	}
 	for key := range cntMap {
-		results = append(results, key)
+		res = append(res, key)
 	}
 
-	sort.Slice(results, func(i, j int) bool {
-		return cntMap[results[i]] > cntMap[results[j]]
+	sort.Slice(res, func(i, j int) bool {
+		return cntMap[res[i]] > cntMap[res[j]]
 	})
-	return results[:k]
+	return res[:k]
 }
 
 // 思路2: 小顶堆，时间复杂度: O(nlogk) 空间复杂度: O(n)
@@ -62,11 +62,11 @@ func topKFrequent2(nums []int, k int) []int {
 			heap.Pop(h) // 二叉堆中超过k个元素就pop最小元素
 		}
 	}
-	result := make([]int, k) // 按频率高到低返回
+	res := make([]int, k) // 按频率高到低返回
 	for i := k - 1; i >= 0; i-- {
-		result[i] = heap.Pop(h).([2]int)[0]
+		res[i] = heap.Pop(h).([2]int)[0]
 	}
-	return result
+	return res
 }
 
 // 378. 有序矩阵中第 K 小的元素
@@ -235,7 +235,7 @@ func kSmallestPairs(nums1 []int, nums2 []int, k int) [][]int {
 		// i 记录 nums2 元素的索引位置，用于生成下一个节点
 		heap.Push(pq, []int{nums1[i], nums2[0], 0})
 	}
-	var result [][]int
+	var res [][]int
 	// 执行合并多个有序链表的逻辑
 	for pq.Len() > 0 && k > 0 {
 		cur := heap.Pop(pq).([]int)
@@ -245,9 +245,9 @@ func kSmallestPairs(nums1 []int, nums2 []int, k int) [][]int {
 		if nextIndex < len(nums2) {
 			heap.Push(pq, []int{cur[0], nums2[nextIndex], nextIndex})
 		}
-		result = append(result, []int{cur[0], cur[1]})
+		res = append(res, []int{cur[0], cur[1]})
 	}
-	return result
+	return res
 }
 
 type IntHeap []int

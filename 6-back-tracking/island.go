@@ -16,7 +16,7 @@ package main
 // 输出：3
 func numIslands(grid [][]byte) int {
 	dirs := [][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
-	result := 0
+	res := 0
 	m, n := len(grid), len(grid[0])
 	var dfs func(i, j int)
 	dfs = func(i, j int) {
@@ -34,12 +34,12 @@ func numIslands(grid [][]byte) int {
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
 			if grid[i][j] == '1' {
-				result++
+				res++
 				dfs(i, j)
 			}
 		}
 	}
-	return result
+	return res
 }
 
 // 1254. 统计封闭岛屿的数目
@@ -50,7 +50,7 @@ func numIslands(grid [][]byte) int {
 // 输出：2
 // 解释：灰色区域的岛屿是封闭岛屿，因为这座岛屿完全被水域包围（即被 1 区域包围）。
 func closedIsland(grid [][]int) int {
-	result := 0
+	res := 0
 	m, n := len(grid), len(grid[0])
 	dirs := [][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
 	var dfs func(i, j int)
@@ -79,12 +79,12 @@ func closedIsland(grid [][]int) int {
 	for i := 1; i < m; i++ {
 		for j := 1; j < n; j++ {
 			if grid[i][j] == 0 {
-				result++
+				res++
 				dfs(i, j)
 			}
 		}
 	}
-	return result
+	return res
 }
 
 // 1020. 飞地的数量
@@ -93,7 +93,7 @@ func closedIsland(grid [][]int) int {
 // 一次 移动 是指从一个陆地单元格走到另一个相邻（上、下、左、右）的陆地单元格或跨过 grid 的边界。
 // 返回网格中 无法 在任意次数的移动中离开网格边界的陆地单元格的数量
 func numEnclaves(grid [][]int) int {
-	result := 0
+	res := 0
 	m, n := len(grid), len(grid[0])
 	dirs := [][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
 	cnt := 0
@@ -126,11 +126,11 @@ func numEnclaves(grid [][]int) int {
 			if grid[i][j] == 1 {
 				cnt = 0
 				dfs(i, j)
-				result += cnt
+				res += cnt
 			}
 		}
 	}
-	return result
+	return res
 }
 
 // 695. 岛屿的最大面积
@@ -140,7 +140,7 @@ func numEnclaves(grid [][]int) int {
 // 岛屿的面积是岛上值为 1 的单元格的数目。
 // 计算并返回 grid 中最大的岛屿面积。如果没有岛屿，则返回面积为 0 。
 func maxAreaOfIsland(grid [][]int) int {
-	result := 0
+	res := 0
 	dirs := [][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
 	m, n := len(grid), len(grid[0])
 	cnt := 0
@@ -163,10 +163,10 @@ func maxAreaOfIsland(grid [][]int) int {
 		for j := 0; j < n; j++ {
 			cnt = 0
 			dfs(i, j)
-			result = max(result, cnt)
+			res = max(res, cnt)
 		}
 	}
-	return result
+	return res
 }
 
 // 1905. 统计子岛屿
@@ -175,7 +175,7 @@ func maxAreaOfIsland(grid [][]int) int {
 // 如果 grid2 的一个岛屿，被 grid1 的一个岛屿 完全 包含，也就是说 grid2 中该岛屿的每一个格子都被 grid1 中同一个岛屿完全包含，那么我们称 grid2 中的这个岛屿为 子岛屿 。
 // 请你返回 grid2 中 子岛屿 的 数目 。
 func countSubIslands(grid1 [][]int, grid2 [][]int) int {
-	result := 0
+	res := 0
 	dirs := [][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
 	m, n := len(grid2), len(grid2[0])
 	flag := false
@@ -206,16 +206,16 @@ func countSubIslands(grid1 [][]int, grid2 [][]int) int {
 				flag = false
 				dfs(i, j)
 				if flag {
-					result++
+					res++
 				}
 			}
 		}
 	}
-	return result
+	return res
 }
 
 func countSubIslands2(grid1 [][]int, grid2 [][]int) int {
-	result := 0
+	res := 0
 	dirs := [][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
 	m, n := len(grid2), len(grid2[0])
 	var dfs func(grid [][]int, i, j int)
@@ -242,10 +242,10 @@ func countSubIslands2(grid1 [][]int, grid2 [][]int) int {
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
 			if grid2[i][j] == 1 {
-				result++
+				res++
 				dfs(grid2, i, j)
 			}
 		}
 	}
-	return result
+	return res
 }

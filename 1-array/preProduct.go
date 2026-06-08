@@ -42,13 +42,13 @@ func productExceptSelf2(nums []int) []int {
 		suffix[i] = suffix[i+1] * nums[i]
 	}
 
-	result := make([]int, n)
-	result[0] = suffix[1]
-	result[n-1] = prefix[n-2]
+	res := make([]int, n)
+	res[0] = suffix[1]
+	res[n-1] = prefix[n-2]
 	for i := 1; i < n-1; i++ {
-		result[i] = prefix[i-1] * suffix[i+1]
+		res[i] = prefix[i-1] * suffix[i+1]
 	}
-	return result
+	return res
 }
 
 // 1352. 最后 K 个数的乘积

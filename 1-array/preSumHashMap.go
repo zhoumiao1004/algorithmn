@@ -289,7 +289,7 @@ func subarraysDivByK(nums []int, k int) int {
 }
 
 func subarraysDivByK2(nums []int, k int) int {
-	result := 0
+	res := 0
 	n := len(nums)
 	cntMap := make(map[int]int)
 	cntMap[0] = 1 // 对0特殊处理
@@ -302,12 +302,12 @@ func subarraysDivByK2(nums []int, k int) int {
 		}
 		cnt, ok := cntMap[r]
 		if ok {
-			result += cnt
+			res += cnt
 		}
 		cntMap[r]++
 	}
 
-	return result
+	return res
 }
 
 func main() {

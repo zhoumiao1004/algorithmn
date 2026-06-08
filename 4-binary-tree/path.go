@@ -15,7 +15,7 @@ import (
 // 解释：3 ，取路径 [4,2,1,3] 或 [5,2,1,3] 的长度。
 // 最优思路: 分解问题+后序
 func diameterOfBinaryTree2(root *TreeNode) int {
-	result := 0
+	res := 0
 	var maxDepth func(node *TreeNode) int
 
 	maxDepth = func(node *TreeNode) int {
@@ -26,7 +26,7 @@ func diameterOfBinaryTree2(root *TreeNode) int {
 		right := maxDepth(node.Right)
 
 		// 后序位置，顺便计算最大值
-		result = max(result, left+right)
+		res = max(res, left+right)
 
 		return 1 + max(left, right)
 	}
@@ -35,7 +35,7 @@ func diameterOfBinaryTree2(root *TreeNode) int {
 		return 0
 	}
 	maxDepth(root)
-	return result
+	return res
 }
 
 // 687. 最长同值路径
@@ -121,7 +121,7 @@ func hasPathSum2(root *TreeNode, targetSum int) bool {
 // 输出：[[5,4,11,2],[5,8,4,5]]
 // 思路1: 遍历
 func pathSumII2(root *TreeNode, targetSum int) [][]int {
-	var results [][]int
+	var res [][]int
 	var path []int
 	s := 0
 	var traverse func(root *TreeNode)
@@ -133,7 +133,7 @@ func pathSumII2(root *TreeNode, targetSum int) [][]int {
 		path = append(path, root.Val)
 		s += root.Val
 		if s == targetSum && root.Left == nil && root.Right == nil {
-			results = append(results, append([]int{}, path...))
+			res = append(res, append([]int{}, path...))
 		}
 		traverse(root.Left)
 		traverse(root.Right)
@@ -142,7 +142,7 @@ func pathSumII2(root *TreeNode, targetSum int) [][]int {
 	}
 
 	traverse(root)
-	return results
+	return res
 }
 
 // 思路2: 分解
@@ -204,7 +204,7 @@ func maxPathSum(root *TreeNode) int {
 // 输出：3
 // 解释：和等于 8 的路径有 3 条，如图所示。
 func pathSum(root *TreeNode, targetSum int) int {
-	result := 0
+	res := 0
 	if root == nil {
 		return 0
 	}
@@ -219,7 +219,7 @@ func pathSum(root *TreeNode, targetSum int) int {
 		}
 		// 前序遍历位置
 		pathSum += root.Val // 从根开始的前缀和
-		result += preSumCount[pathSum-targetSum]
+		res += preSumCount[pathSum-targetSum]
 		preSumCount[pathSum]++
 
 		traverse(root.Left)
@@ -231,7 +231,7 @@ func pathSum(root *TreeNode, targetSum int) int {
 	}
 
 	traverse(root)
-	return result
+	return res
 }
 
 func main() {

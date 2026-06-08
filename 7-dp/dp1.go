@@ -383,13 +383,13 @@ func largestDivisibleSubset(nums []int) []int {
 		}
 		dp[i] = append(dp[i], nums[i])
 	}
-	result := dp[0]
+	res := dp[0]
 	for i := 1; i < n; i++ {
-		if len(result) < len(dp[i]) {
-			result = dp[i]
+		if len(res) < len(dp[i]) {
+			res = dp[i]
 		}
 	}
-	return result
+	return res
 }
 
 // 718. 最长重复子数组

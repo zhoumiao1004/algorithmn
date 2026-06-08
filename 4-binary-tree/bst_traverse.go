@@ -6,7 +6,7 @@ import "math"
 // https://leetcode.cn/problems/kth-smallest-element-in-a-bst/description/
 // 给定一个二叉搜索树的根节点 root ，和一个整数 k ，请你设计一个算法查找其中第 k 小的元素（k 从 1 开始计数）。
 func kthSmallest(root *TreeNode, k int) int {
-	result := 0
+	res := 0
 	var traverse func(node *TreeNode)
 
 	traverse = func(node *TreeNode) {
@@ -19,19 +19,19 @@ func kthSmallest(root *TreeNode, k int) int {
 		traverse(node.Left)
 		// 中序位置
 		// if k > 0 {
-		// 	result = node.Val
+		// 	res = node.Val
 		// 	k--
 		// }
 		k--
 		if k == 0 {
-			result = node.Val
+			res = node.Val
 			return
 		}
 		traverse(node.Right)
 	}
 
 	traverse(root)
-	return result
+	return res
 }
 
 func kthSmallest2(root *TreeNode, k int) int {
@@ -203,7 +203,7 @@ func findMode(root *TreeNode) []int {
 // https://leetcode.cn/problems/minimum-absolute-difference-in-bst/description/
 // 思路：遍历。中序位置计算相邻节点的差，不断更新结果（最小值）
 func getMinimumDifference(root *TreeNode) int {
-	result := math.MaxInt
+	res := math.MaxInt
 	var prev *TreeNode
 	var traverse func(*TreeNode)
 
@@ -214,14 +214,14 @@ func getMinimumDifference(root *TreeNode) int {
 		traverse(root.Left)
 		// 中序位置
 		if prev != nil {
-			result = min(result, root.Val-prev.Val)
+			res = min(res, root.Val-prev.Val)
 		}
 		prev = root
 		traverse(root.Right)
 	}
 
 	traverse(root)
-	return result
+	return res
 }
 
 // 99. 恢复二叉搜索树

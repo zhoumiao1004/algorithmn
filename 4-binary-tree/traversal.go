@@ -5,18 +5,18 @@ package main
 // 给你二叉树的根节点 root ，返回它节点值的 前序 遍历。
 // 思路1：遍历
 func preorderTraversal(root *TreeNode) []int {
-	var result []int
+	var res []int
 	var traverse func(node *TreeNode)
 	traverse = func(node *TreeNode) {
 		if node == nil {
 			return
 		}
-		result = append(result, node.Val) // 中
+		res = append(res, node.Val) // 中
 		traverse(node.Left)               // 左
 		traverse(node.Right)              // 右
 	}
 	traverse(root)
-	return result
+	return res
 }
 
 // 思路2：分解问题
@@ -24,22 +24,22 @@ func preorderTraversal1(root *TreeNode) []int {
 	if root == nil {
 		return []int{}
 	}
-	result := []int{root.Val}
-	result = append(result, preorderTraversal1(root.Left)...)
-	result = append(result, preorderTraversal1(root.Right)...)
-	return result
+	res := []int{root.Val}
+	res = append(res, preorderTraversal1(root.Left)...)
+	res = append(res, preorderTraversal1(root.Right)...)
+	return res
 }
 
 // 迭代法
 func preorderTraversal2(root *TreeNode) []int {
-	var result []int
+	var res []int
 	if root == nil {
-		return result
+		return res
 	}
 	st := []*TreeNode{root}
 	for len(st) > 0 {
 		node := st[len(st)-1]
-		result = append(result, node.Val)
+		res = append(res, node.Val)
 		st = st[:len(st)-1]
 		if node.Right != nil {
 			st = append(st, node.Right)
@@ -48,14 +48,14 @@ func preorderTraversal2(root *TreeNode) []int {
 			st = append(st, node.Left)
 		}
 	}
-	return result
+	return res
 }
 
 // 145. 二叉树的后序遍历
 // https://leetcode.cn/problems/binary-tree-postorder-traversal/description/
 // 思路1: 遍历
 func postorderTraversal(root *TreeNode) []int {
-	var result []int
+	var res []int
 	var traverse func(node *TreeNode)
 	
 	traverse = func(node *TreeNode) {
@@ -64,23 +64,23 @@ func postorderTraversal(root *TreeNode) []int {
 		}
 		traverse(node.Left)
 		traverse(node.Right)
-		result = append(result, node.Val)
+		res = append(res, node.Val)
 	}
 	
 	traverse(root)
-	return result
+	return res
 }
 
 // 迭代法
 func postorderTraversal2(root *TreeNode) []int {
-	var result []int
+	var res []int
 	if root == nil {
-		return result
+		return res
 	}
 	st := []*TreeNode{root}
 	for len(st) > 0 {
 		node := st[len(st)-1] // 中
-		result = append(result, node.Val)
+		res = append(res, node.Val)
 		st = st[:len(st)-1]
 		if node.Left != nil {
 			st = append(st, node.Left) // 左
@@ -89,36 +89,36 @@ func postorderTraversal2(root *TreeNode) []int {
 			st = append(st, node.Right) // 右
 		}
 	}
-	i, j := 0, len(result)-1
+	i, j := 0, len(res)-1
 	for i < j {
-		result[i], result[j] = result[j], result[i]
+		res[i], res[j] = res[j], res[i]
 		i++
 		j--
 	}
-	return result
+	return res
 }
 
 // 94. 二叉树的中序遍历
 // https://leetcode.cn/problems/binary-tree-inorder-traversal/description/
 // 思路1: 遍历
 func inorderTraversal(root *TreeNode) []int {
-	var result []int
+	var res []int
 	var traverse func(node *TreeNode)
 	traverse = func(node *TreeNode) {
 		if node == nil {
 			return
 		}
 		traverse(node.Left)
-		result = append(result, node.Val)
+		res = append(res, node.Val)
 		traverse(node.Right)
 	}
 	traverse(root)
-	return result
+	return res
 }
 
 // 迭代法
 func inorderTraversal2(root *TreeNode) []int {
-	var result []int
+	var res []int
 	var st []*TreeNode
 	cur := root
 
@@ -128,10 +128,10 @@ func inorderTraversal2(root *TreeNode) []int {
 			cur = cur.Left
 		} else {
 			cur = st[len(st)-1]
-			result = append(result, cur.Val)
+			res = append(res, cur.Val)
 			st = st[:len(st)-1]
 			cur = cur.Right
 		}
 	}
-	return result
+	return res
 }
