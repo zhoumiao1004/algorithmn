@@ -143,7 +143,6 @@ func mergeKLists(lists []*ListNode) *ListNode {
 	}
 	dummy := &ListNode{}
 	cur := dummy
-
 	h := &ListHeap{}
 	heap.Init(h)
 	for _, head := range lists {
@@ -152,12 +151,13 @@ func mergeKLists(lists []*ListNode) *ListNode {
 		}
 	}
 	for h.Len() > 0 {
-		node := heap.Pop(h).(*ListNode)
-		cur.Next = node
-		if node.Next != nil {
-			heap.Push(h, node.Next) // 加入链表后面的元素
+		x := heap.Pop(h).(*ListNode)
+		if x.Next != nil {
+			heap.Push(h, x.Next) // 加入链表后面的元素
 		}
+		cur.Next = x
 		cur = cur.Next
+		x.Next = nil
 	}
 	return dummy.Next
 }

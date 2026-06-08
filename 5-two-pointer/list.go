@@ -24,25 +24,22 @@ https://leetcode.com/problems/merge-k-sorted-lists/
 // 输入：head = [1,4,3,2,5,2], x = 3
 // 输出：[1,2,2,4,3,5]
 func partition(head *ListNode, x int) *ListNode {
-	dummy1 := &ListNode{}
-	dummy2 := &ListNode{}
-	p1, p2 := dummy1, dummy2
+	dummy1, dummy2 := &ListNode{}, &ListNode{}
+	p, q := dummy1, dummy2
 	cur := head
 	for cur != nil {
 		next := cur.Next
-		// cur.Next = nil // 注：加入到2个列表之一前需要将当前节点的 Next 置空
 		if cur.Val < x {
-			p1.Next = cur
-			p1 = p1.Next
-			p1.Next = nil
+			p.Next = cur
+			p = p.Next
 		} else {
-			p2.Next = cur
-			p2 = p2.Next
-			p2.Next = nil
+			q.Next = cur
+			q = q.Next
 		}
+		cur.Next = nil
 		cur = next
 	}
-	p1.Next = dummy2.Next
+	p.Next = dummy2.Next
 	return dummy1.Next
 }
 
@@ -91,32 +88,28 @@ func removeNthFromEnd(head *ListNode, n int) *ListNode {
 // 思路2: 删除倒数第 n 个，要先找倒数第 n + 1 个节点（要删除节点前面一个节点）
 func removeNthFromEnd2(head *ListNode, n int) *ListNode {
 
-	var findFromLast func(head *ListNode, k int) *ListNode
+	var findFromTail func(head *ListNode, k int) *ListNode
 
-	findFromLast = func(head *ListNode, k int) *ListNode {
+	findFromTail = func(head *ListNode, k int) *ListNode {
 		if head == nil {
 			return nil
 		}
-		// fast先走k步
-		fast := head
-		for i := 0; i < k; i++ {
+		fast, slow := head, head
+		for i := 0; i < k && fast != nil; i++ {
 			fast = fast.Next
 		}
-		// slow 和 fast 同时走 n - k 步
-		slow := head
 		for fast != nil {
-			fast = fast.Next
 			slow = slow.Next
+			fast = fast.Next
 		}
 		return slow
 	}
 
-	if head == nil {
-		return nil
+	dummy := &ListNode{Next: head}
+	cur := findFromTail(dummy, n+1)
+	if cur != nil && cur.Next != nil {
+		cur.Next = cur.Next.Next
 	}
-	dummy := &ListNode{Next: head} // 前面加一个dummy节点
-	node := findFromLast(dummy, n+1)
-	node.Next = node.Next.Next
 	return dummy.Next
 }
 

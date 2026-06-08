@@ -261,8 +261,7 @@ func deleteDuplicatesII2(head *ListNode) *ListNode {
 		return nil
 	}
 	dummy := &ListNode{Next: head}
-	slow := dummy // slow始终指向和下个节点值不同的节点
-	fast := head  // fast在前面探路，和后一个节点值比较
+	slow, fast := dummy, head // slow始终指向和下个节点值不同的节点, fast在前面探路
 	for fast != nil && fast.Next != nil {
 		if fast.Val != fast.Next.Val {
 			slow = slow.Next
@@ -272,8 +271,8 @@ func deleteDuplicatesII2(head *ListNode) *ListNode {
 			for fast != nil && fast.Val == val {
 				fast = fast.Next
 			}
+			slow.Next = fast
 		}
-		slow.Next = fast
 	}
 	return dummy.Next
 }

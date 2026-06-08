@@ -187,8 +187,9 @@ func combinationSumII(candidates []int, target int) [][]int {
 			return
 		} else if s == target {
 			res = append(res, append([]int{}, path...))
+			return
 		}
-		// 因为题目说所有元素是正整数所以可以剪枝
+
 		for i := start; i < len(candidates) && s+candidates[i] <= target; i++ {
 			if i > start && candidates[i-1] == candidates[i] {
 				continue
@@ -229,8 +230,8 @@ func findSubsequences(nums []int) [][]int {
 			if len(path) > 0 && nums[i] < path[len(path)-1] {
 				continue
 			}
-			path = append(path, nums[i])
 			uset[nums[i]] = true // 标记nums[i]这个数用过了
+			path = append(path, nums[i])
 			backtrack(i + 1)
 			path = path[:len(path)-1]
 		}
