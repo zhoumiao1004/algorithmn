@@ -187,14 +187,14 @@ func grayCode(n int) []int {
 	used := make(map[int]bool)
 	var path []int
 	var res []int
-
+	var traverse func(root int)
 	var flipBit func(x, i int) int // 把第 i 位取反（0 变 1，1 变 0）
+
 	flipBit = func(x, i int) int {
 		return x ^ (1 << i)
 	}
 
-	var traverse func(root, n int)
-	traverse = func(root, n int) {
+	traverse = func(root int) {
 		if res != nil {
 			return
 		}
@@ -214,7 +214,7 @@ func grayCode(n int) []int {
 		// 对当前数字的每个二进制位进行翻转，得到子节点
 		for i := 0; i < n; i++ {
 			next := flipBit(root, i)
-			traverse(next, n)
+			traverse(next)
 		}
 
 		// 多叉树遍历的后序位置
@@ -222,7 +222,7 @@ func grayCode(n int) []int {
 		path = path[:len(path)-1]
 	}
 
-	traverse(0, n)
+	traverse(0)
 	return res
 }
 
