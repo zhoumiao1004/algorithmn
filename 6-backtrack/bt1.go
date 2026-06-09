@@ -19,11 +19,9 @@ func findItinerary(tickets [][]string) []string {
 // 输出：["((()))","(()())","(())()","()(())","()()()"]
 func generateParenthesis(n int) []string {
 	var res []string
-	if n == 0 {
-		return res
-	}
 	var path []byte
 	var backtrack func(i, j int)
+
 	backtrack = func(i, j int) {
 		if i > j {
 			return
@@ -46,6 +44,7 @@ func generateParenthesis(n int) []string {
 			path = path[:len(path)-1]
 		}
 	}
+
 	backtrack(n, n)
 	return res
 }
@@ -58,6 +57,7 @@ func generateParenthesis(n int) []string {
 // 说明： 有可能将其分成 4 个子集（5），（1,4），（2,3），（2,3）等于总和。
 // 思路：形式2: 元素有重,不可复选。桶视角选球，n个球，每个球又取或不取2种选择，k个桶，所以复杂度=k*2^n
 func canPartitionKSubsets(nums []int, k int) bool {
+	var backtrack func(k, s, start int) bool
 	sum := 0
 	for _, v := range nums {
 		sum += v
@@ -66,18 +66,17 @@ func canPartitionKSubsets(nums []int, k int) bool {
 		return false
 	}
 	target := sum / k
-
 	used := make([]bool, len(nums))
 	memo := make(map[string]bool)
-	var backtrack func(nums []int, k, s, start int) bool
-	backtrack = func(nums []int, k, s, start int) bool {
+
+	backtrack = func(k, s, start int) bool {
 		if k == 0 {
 			return true
 		}
 		data, _ := json.Marshal(used)
 		state := string(data)
 		if s == target {
-			res := backtrack(nums, k-1, 0, 0)
+			res := backtrack(k-1, 0, 0)
 			memo[state] = res
 			return res
 		}
@@ -93,7 +92,7 @@ func canPartitionKSubsets(nums []int, k int) bool {
 			}
 			used[i] = true
 			s += nums[i]
-			if backtrack(nums, k, s, i+1) {
+			if backtrack(k, s, i+1) {
 				return true
 			}
 			s -= nums[i]
@@ -102,15 +101,62 @@ func canPartitionKSubsets(nums []int, k int) bool {
 		return false
 	}
 
-	return backtrack(nums, k, 0, 0)
+	return backtrack(k, 0, 0)
 }
 
 // 473. 火柴拼正方形
 // https://leetcode.cn/problems/matchsticks-to-square/
 // 你将得到一个整数数组 matchsticks ，其中 matchsticks[i] 是第 i 个火柴棒的长度。你要用 所有的火柴棍 拼成一个正方形。你 不能折断 任何一根火柴棒，但你可以把它们连在一起，而且每根火柴棒必须 使用一次 。
 // 如果你能使这个正方形，则返回 true ，否则返回 false 。
+// 输入: matchsticks = [1,1,2,2,2]
+// 输出: true
+// 解释: 能拼成一个边长为2的正方形，每边两根火柴。
 func makesquare(matchsticks []int) bool {
 	return canPartitionKSubsets(matchsticks, 4)
+}
+
+func makesquare2(matchsticks []int) bool {
+	sum := 0
+	for i := 0; i < len(matchsticks); i++ {
+		sum += matchsticks[i]
+	}
+	if sum%4 != 0 {
+		return false
+	}
+	target := sum / 4
+	res := false
+	used := make([]bool, len(matchsticks))
+	var backtrack func(k, s, start int)
+
+	backtrack = func(k, s, start int) {
+		if res {
+			return
+		}
+		if k == 0 {
+			res = true
+			return
+		}
+		if s == target {
+			backtrack(k-1, 0, 0)
+			return
+		}
+		for i := start; i < len(matchsticks); i++ {
+			if used[i] {
+				continue
+			}
+			if s+matchsticks[i] > target {
+				continue
+			}
+			s += matchsticks[i]
+			used[i] = true
+			backtrack(k, s, i+1)
+			used[i] = false
+			s -= matchsticks[i]
+		}
+	}
+
+	backtrack(4, 0, 0)
+	return res
 }
 
 // 526. 优美的排列
@@ -134,14 +180,14 @@ func makesquare(matchsticks []int) bool {
 func countArrangement(n int) int {
 	res := 0
 	used := make([]bool, n+1)
-	var path []int
-	var backtrack func(n, index int)
-	backtrack = func(n, index int) {
+	// var path []int
+	var backtrack func(index int)
+
+	backtrack = func(index int) {
 		if index > n {
 			res++
 			return
 		}
-
 		for elem := 1; elem <= n; elem++ {
 			if used[elem] {
 				continue
@@ -149,28 +195,47 @@ func countArrangement(n int) int {
 			if !(index%elem == 0 || elem%index == 0) {
 				continue
 			}
-			// 做选择，index选elem
 			used[elem] = true
-			path = append(path, elem)
-			backtrack(n, index+1)
-			path = path[:len(path)-1]
+			// path = append(path, elem)
+			backtrack(index + 1)
+			// path = path[:len(path)-1]
 			used[elem] = false
 		}
 	}
 
-	backtrack(n, 1)
+	backtrack(1)
 	return res
 }
 
 // 思路2: 元素视角, 站在元素视角选索引
 func countArrangement2(n int) int {
 	res := 0
-	var backtrack func(n, start int)
-	backtrack = func(n, start int) {
+	used := make([]bool, n+1)
+	// var path []int
+	var backtrack func(elem int)
 
+	backtrack = func(elem int) {
+		if elem > n {
+			res++
+			return
+		}
+		for index := 1; index <= n; index++ {
+			if used[index] {
+				continue
+			}
+			if !(index%elem == 0 || elem%index == 0) {
+				continue
+			}
+			// 元素elem选index这个索引位置
+			used[index] = true
+			// path = append(path, elem)
+			backtrack(elem + 1)
+			// path = path[:len(path)-1]
+			used[index] = false
+		}
 	}
 
-	backtrack(n, 1)
+	backtrack(1)
 	return res
 }
 
@@ -183,12 +248,16 @@ func countArrangement2(n int) int {
 // 每对 相邻 整数的二进制表示 恰好一位不同 ，且
 // 第一个 和 最后一个 整数的二进制表示 恰好一位不同
 // 给你一个整数 n ，返回任一有效的 n 位格雷码序列 。
+// 输入：n = 2
+// 输出：[0,1,3,2]
+// 思路:
 func grayCode(n int) []int {
-	used := make(map[int]bool)
 	var path []int
 	var res []int
 	var traverse func(root int)
 	var flipBit func(x, i int) int // 把第 i 位取反（0 变 1，1 变 0）
+	// used := make(map[int]bool)
+	used := make([]bool, 1<<n)
 
 	flipBit = func(x, i int) int {
 		return x ^ (1 << i)
@@ -202,8 +271,7 @@ func grayCode(n int) []int {
 			res = append([]int{}, path...)
 			return
 		}
-
-		if _, ok := used[root]; ok {
+		if used[root] {
 			return
 		}
 
@@ -218,7 +286,7 @@ func grayCode(n int) []int {
 		}
 
 		// 多叉树遍历的后序位置
-		delete(used, root)
+		used[root] = false
 		path = path[:len(path)-1]
 	}
 

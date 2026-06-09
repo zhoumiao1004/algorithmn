@@ -9,7 +9,7 @@ import (
 // https://leetcode.cn/problems/subsets/description/
 // 输入：nums = [1,2,3]
 // 输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
-// 思路1:盒(桶)的视角选球
+// 思路1: 盒(桶)的视角选球
 func subsets(nums []int) [][]int {
 	var res [][]int
 	var path []int
@@ -18,7 +18,7 @@ func subsets(nums []int) [][]int {
 	backtrack = func(start int) {
 		res = append(res, append([]int{}, path...))
 		for i := start; i < len(nums); i++ {
-			path = append(path, nums[i])
+			path = append(path, nums[i]) // 把 nums[i] 这个球放进桶中
 			backtrack(i + 1)
 			path = path[:len(path)-1]
 		}
@@ -28,26 +28,26 @@ func subsets(nums []int) [][]int {
 	return res
 }
 
-// 思路2:球的视角选盒(桶)
+// 思路2: 球的视角选盒(桶)
 func subset(nums []int) [][]int {
 	var res [][]int
 	var path []int
-	var backtrack func(nums []int, i int)
+	var backtrack func(i int)
 
-	backtrack = func(nums []int, i int) {
+	backtrack = func(i int) {
 		if i == len(nums) {
 			res = append(res, append([]int{}, path...))
 			return
 		}
 		// 第一种选择：球在盒中
 		path = append(path, nums[i])
-		backtrack(nums, i+1)
+		backtrack(i + 1)
 		path = path[:len(path)-1] // 撤销选择
 		// 第二种选择：球不在盒中
-		backtrack(nums, i+1)
+		backtrack(i + 1)
 	}
 
-	backtrack(nums, 0)
+	backtrack(0)
 	return res
 }
 

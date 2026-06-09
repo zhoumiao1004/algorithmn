@@ -31,6 +31,7 @@ func removeInvalidParentheses(s string) []string {
 		}
 		return cnt == 0
 	}
+
 	backtrack = func(start int) {
 		if start == len(s) {
 			if isValid(path) {
@@ -74,9 +75,9 @@ func removeInvalidParentheses(s string) []string {
 func removeInvalidParentheses2(s string) []string {
 	var res []string
 	var path string
-	set := make(map[string]bool)
 	var isValid func(s string) bool
 	var backtrack func(start int)
+	set := make(map[string]bool)
 
 	isValid = func(s string) bool {
 		var st []byte
@@ -149,6 +150,7 @@ func removeInvalidParentheses2(s string) []string {
 // 总共需要 3 次操作让每个格子都有一个石头。
 // 让每个格子都有一个石头的最少操作次数为 3 。
 func minimumMoves(grid [][]int) int {
+	var backtrack func()
 	minMove := math.MaxInt
 	move := 0
 	emptyCnt := 0
@@ -166,7 +168,6 @@ func minimumMoves(grid [][]int) int {
 		}
 	}
 
-	var backtrack func()
 	backtrack = func() {
 		if emptyCnt == 0 {
 			minMove = min(minMove, move)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"sort"
+	"strings"
 )
 
 // 46.全排列
@@ -15,8 +16,8 @@ import (
 func permute(nums []int) [][]int {
 	var res [][]int
 	var path []int
-	used := make([]bool, len(nums))
 	var backtrack func()
+	used := make([]bool, len(nums))
 
 	backtrack = func() {
 		if len(path) == len(nums) {
@@ -34,11 +35,12 @@ func permute(nums []int) [][]int {
 			used[i] = false
 		}
 	}
+
 	backtrack()
 	return res
 }
 
-// 思路2: swap，start含义：是nums数组中每个索引位置，选择不同的元素放入这个索引位置。
+// 思路1: 盒视角，swap，start含义：是nums数组中每个索引位置，选择不同的元素放入这个索引位置。
 // start之前的元素已经心有所属，被其他位置挑走了。所以stat位置只能从nums[start...]中选择元素
 func permute2(nums []int) [][]int {
 	var res [][]int
@@ -63,11 +65,11 @@ func permute2(nums []int) [][]int {
 // 思路2: 球视角，元素选索引
 func permute3(nums []int) [][]int {
 	var res [][]int
+	var backtrack func()
 	used := make([]bool, len(nums))
 	count := 0
-	var backtrack func(nums []int)
 
-	backtrack = func(nums []int) {
+	backtrack = func() {
 		if count == len(nums) {
 			res = append(res, append([]int{}, nums...))
 			return
@@ -86,7 +88,7 @@ func permute3(nums []int) [][]int {
 			nums[originalIndex], nums[swapIndex] = nums[swapIndex], nums[originalIndex]
 			used[swapIndex] = true
 			count++
-			backtrack(nums)
+			backtrack()
 			// 撤销选择
 			count--
 			used[swapIndex] = false
@@ -94,7 +96,7 @@ func permute3(nums []int) [][]int {
 		}
 	}
 
-	backtrack(nums)
+	backtrack()
 	return res
 }
 
@@ -142,14 +144,13 @@ func permuteUnique(nums []int) [][]int {
 // 输入：n = 3, k = 7
 // 输出：[181,292,707,818,929]
 // 解释：注意，070 不是一个有效的数字，因为它有前导零。
-// 思路：元素无重可复选的排列
+// 思路：元素无重可复选的排列,n 个盒子，然后有 0~9 种球（元素）可以放进盒子，每个盒子只能放一个球，但每种球的数量无限，可以使用无数次。
 func numsSameConsecDiff(n int, k int) []int {
 	var res []int
 	var path []int
 	var backtrack func()
 
 	backtrack = func() {
-		// 满足长度n条件，收集结果
 		if len(path) == n {
 			s := 0
 			for i := 0; i < n; i++ {
@@ -172,6 +173,124 @@ func numsSameConsecDiff(n int, k int) []int {
 	}
 
 	backtrack()
+	return res
+}
+
+// 1079. 活字印刷
+// https://leetcode.cn/problems/letter-tile-possibilities/description/
+// 你有一套活字字模 tiles，其中每个字模上都刻有一个字母 tiles[i]。返回你可以印出的非空字母序列的数目。
+// 注意：本题中，每个活字字模只能使用一次。
+// 输入："AAB"
+// 输出：8
+// 解释：可能的序列为 "A", "B", "AA", "AB", "BA", "AAB", "ABA", "BAA"。
+// 思路: 元素可重不可复选的排列，普通排列，即并非每个元素都要参与到排列中。
+func numTilePossibilities(tiles string) int {
+	bs := []byte(tiles)
+	sort.Slice(bs, func(i, j int) bool { return bs[i] < bs[j] }) // 先排序，让相同的元素靠在一起
+	res := 0
+	used := make([]bool, len(bs))
+	var backtrack func()
+
+	backtrack = func() {
+		res++
+		for i := 0; i < len(bs); i++ {
+			if used[i] {
+				continue
+			}
+			if i > 0 && bs[i] == bs[i-1] && !used[i-1] {
+				continue
+			}
+			used[i] = true
+			backtrack()
+			used[i] = false
+		}
+	}
+
+	backtrack()
+	return res - 1 // 去掉空字符串
+}
+
+// 996. 平方数组的数目
+// https://leetcode.cn/problems/number-of-squareful-arrays/description/
+// 如果一个数组的任意两个相邻元素之和都是 完全平方数 ，则该数组称为 平方数组 。
+// 给定一个整数数组 nums，返回所有属于 平方数组 的 nums 的排列数量。
+// 如果存在某个索引 i 使得 perm1[i] != perm2[i]，则认为两个排列 perm1 和 perm2 不同。
+// 输入：nums = [1,17,8]
+// 输出：2
+// 解释：[1,8,17] 和 [17,8,1] 是有效的排列。
+// 思路: 元素可重不可复选的排列
+func numSquarefulPerms(nums []int) int {
+	sort.Ints(nums)
+	res := 0
+	used := make([]bool, len(nums))
+	var path []int
+	var isSqrt func(n int) bool
+	isSqrt = func(n int) bool {
+		c := int(math.Sqrt(float64(n)))
+		return c*c == n
+	}
+
+	var backtrack func(nums []int)
+	backtrack = func(nums []int) {
+		if len(nums) == len(path) {
+			res++
+			return
+		}
+		for i := 0; i < len(nums); i++ {
+			if used[i] {
+				continue
+			}
+			if i > 0 && nums[i] == nums[i-1] && !used[i-1] {
+				continue
+			}
+			if len(path) > 0 && !isSqrt(path[len(path)-1]+nums[i]) {
+				continue
+			}
+			path = append(path, nums[i])
+			used[i] = true
+			backtrack(nums)
+			used[i] = false
+			path = path[:len(path)-1]
+		}
+	}
+
+	backtrack(nums)
+	return res
+}
+
+// 784. 字母大小写全排列
+// https://leetcode.cn/problems/letter-case-permutation/description/
+// 给定一个字符串 s ，通过将字符串 s 中的每个字母转变大小写，我们可以获得一个新的字符串。
+// 返回 所有可能得到的字符串集合 。以 任意顺序 返回输出。
+// 输入：s = "a1b2"
+// 输出：["a1b2", "a1B2", "A1b2", "A1B2"]
+func letterCasePermutation(s string) []string {
+	var res []string
+	var path string
+	var backtrack func(i int)
+
+	backtrack = func(i int) {
+		if i == len(s) {
+			res = append(res, path)
+			return
+		}
+		if s[i] >= '0' && s[i] <= '9' {
+			path += string(s[i])
+			backtrack(i + 1)
+			path = path[:len(path)-1]
+		} else {
+			// 不转变大小写 or 转变大小写
+			lower := strings.ToLower(string(s[i]))
+			upper := strings.ToUpper(string(s[i]))
+			for _, str := range []string{lower, upper} {
+				path += str
+				backtrack(i + 1)
+				path = path[:len(path)-1]
+			}
+		}
+	}
+
+	backtrack(0)
 	return res
 }
 
