@@ -150,13 +150,9 @@ func removeInvalidParentheses2(s string) []string {
 // 总共需要 3 次操作让每个格子都有一个石头。
 // 让每个格子都有一个石头的最少操作次数为 3 。
 func minimumMoves(grid [][]int) int {
-	var backtrack func()
-	minMove := math.MaxInt
-	move := 0
-	emptyCnt := 0
-	redundant := make([][2]int, 0)
-	empty := make([][2]int, 0)
 	m, n := len(grid), len(grid[0])
+	emptyCnt := 0
+	var redundant, empty [][2]int // 大于1节点和0节点的坐标
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
 			if grid[i][j] > 1 {
@@ -167,6 +163,10 @@ func minimumMoves(grid [][]int) int {
 			}
 		}
 	}
+
+	minMove := math.MaxInt
+	move := 0
+	var backtrack func()
 
 	backtrack = func() {
 		if emptyCnt == 0 {
