@@ -104,6 +104,59 @@ func canPartitionKSubsets(nums []int, k int) bool {
 	return backtrack(k, 0, 0)
 }
 
+func canPartitionKSubsets2(nums []int, k int) bool {
+	var backtrack func(k, s, start int) bool
+	if k > len(nums) {
+        return false
+    }
+	sum := 0
+	for _, v := range nums {
+		sum += v
+	}
+	if sum%k != 0 {
+		return false
+	}
+	target := sum / k
+	used := 0
+	memo := make(map[int]bool)
+
+	backtrack = func(k, s, start int) bool {
+		if k == 0 {
+			return true
+		}
+		if s == target {
+			res, ok := memo[used]
+			if !ok {
+				res = backtrack(k-1, 0, 0) // 装满了当前桶，递归穷举下一个桶的选择, 让下一个桶从 nums[0] 开始选数字
+				memo[used] = res
+			}
+			return res
+		}
+		if res, ok := memo[used]; ok {
+			return res
+		}
+		for i := start; i < len(nums); i++ {
+			if (used>>1)&1 == 1 {
+				continue // nums[i] 已经被装入别的桶中
+			}
+			if s+nums[i] > target {
+				continue
+			}
+
+			used |= 1 << i
+			s += nums[i]
+			if backtrack(k, s, i+1) {
+				return true
+			}
+			used ^= 1 << i
+			s -= nums[i]
+		}
+		return false
+	}
+
+	return backtrack(k, 0, 0)
+}
+
 // 473. 火柴拼正方形
 // https://leetcode.cn/problems/matchsticks-to-square/
 // 你将得到一个整数数组 matchsticks ，其中 matchsticks[i] 是第 i 个火柴棒的长度。你要用 所有的火柴棍 拼成一个正方形。你 不能折断 任何一根火柴棒，但你可以把它们连在一起，而且每根火柴棒必须 使用一次 。
