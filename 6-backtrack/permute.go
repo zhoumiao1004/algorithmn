@@ -185,15 +185,16 @@ func numsSameConsecDiff(n int, k int) []int {
 // 解释：可能的序列为 "A", "B", "AA", "AB", "BA", "AAB", "ABA", "BAA"。
 // 思路: 元素可重不可复选的排列，普通排列，即并非每个元素都要参与到排列中。
 func numTilePossibilities(tiles string) int {
+	n := len(tiles)
 	bs := []byte(tiles)
 	sort.Slice(bs, func(i, j int) bool { return bs[i] < bs[j] }) // 先排序，让相同的元素靠在一起
 	res := 0
-	used := make([]bool, len(bs))
+	used := make([]bool, n)
 	var backtrack func()
 
 	backtrack = func() {
 		res++
-		for i := 0; i < len(bs); i++ {
+		for i := 0; i < n; i++ {
 			if used[i] {
 				continue
 			}

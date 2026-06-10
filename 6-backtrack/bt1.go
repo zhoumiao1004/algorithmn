@@ -107,8 +107,8 @@ func canPartitionKSubsets(nums []int, k int) bool {
 func canPartitionKSubsets2(nums []int, k int) bool {
 	var backtrack func(k, s, start int) bool
 	if k > len(nums) {
-        return false
-    }
+		return false
+	}
 	sum := 0
 	for _, v := range nums {
 		sum += v
@@ -136,19 +136,20 @@ func canPartitionKSubsets2(nums []int, k int) bool {
 			return res
 		}
 		for i := start; i < len(nums); i++ {
-			if (used>>1)&1 == 1 {
-				continue // nums[i] 已经被装入别的桶中
+			// if used&(1<<i) > 0 {
+			if (used>>i)&1 == 1 {
+				continue // 第i位已经被置为1了，说明nums[i] 已经被装入别的桶中
 			}
 			if s+nums[i] > target {
 				continue
 			}
 
-			used |= 1 << i
+			used |= 1 << i // 第i位值为1
 			s += nums[i]
 			if backtrack(k, s, i+1) {
 				return true
 			}
-			used ^= 1 << i
+			used ^= 1 << i // 第i位值为0
 			s -= nums[i]
 		}
 		return false
