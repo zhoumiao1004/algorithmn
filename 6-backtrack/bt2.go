@@ -28,11 +28,11 @@ func shoppingOffers(price []int, special [][]int, needs []int) int {
 		var newSpecials [][]int
 		for _, sp := range specials {
 			cost := 0
-			for j := 0; j < len(sp)-1; j++ {
+			for j := 0; j < len(price); j++ {
 				cost += sp[j] * price[j]
 			}
 			if cost > sp[len(sp)-1] {
-				newSpecials = append(newSpecials, sp)
+				newSpecials = append(newSpecials, sp) // 礼包至少要比单买划算
 			}
 		}
 		return newSpecials
@@ -41,7 +41,7 @@ func shoppingOffers(price []int, special [][]int, needs []int) int {
 	canUseSpecial = func(sp, needs []int) bool {
 		for i := 0; i < len(needs); i++ {
 			if sp[i] > needs[i] {
-				return false
+				return false // 不能买多
 			}
 		}
 		return true
@@ -50,7 +50,7 @@ func shoppingOffers(price []int, special [][]int, needs []int) int {
 	specials := filterSpecials(price, special)
 
 	backtrack = func(start int) {
-		if cost > minCost {
+		if cost >= minCost {
 			return
 		}
 		useSpecial := false
