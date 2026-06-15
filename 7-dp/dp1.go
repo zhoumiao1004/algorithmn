@@ -50,7 +50,33 @@ func minCostClimbingStairs(cost []int) int {
 // 机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为 “Finish” ）。
 // 问总共有多少条不同的路径？
 // 输入：m = 3, n = 7 输出：28
+// 思路1: 自顶向下的递归解法
 func uniquePaths(m int, n int) int {
+	var dp func(i, j int) int
+	memo := make([][]int, m)
+	for i := 0; i < m; i++ {
+		memo[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			memo[i][j] = -1
+		}
+	}
+
+	dp = func(i, j int) int {
+		if i == 0 || j == 0 {
+			return 1
+		}
+		if memo[i][j] != -1 {
+			return memo[i][j]
+		}
+		memo[i][j] = dp(i-1, j) + dp(i, j-1)
+		return memo[i][j]
+	}
+
+	return dp(m-1, n-1)
+}
+
+// 思路2: 自底向上的迭代解法
+func uniquePaths2(m int, n int) int {
 	dp := make([][]int, m)
 	// 初始化：第一行和第一列初始为1
 	for i := 0; i < m; i++ {
@@ -62,7 +88,6 @@ func uniquePaths(m int, n int) int {
 	}
 	for i := 1; i < m; i++ {
 		for j := 1; j < n; j++ {
-			// 递推公式
 			dp[i][j] = dp[i-1][j] + dp[i][j-1]
 		}
 	}
@@ -257,8 +282,7 @@ func minPathSum2(grid [][]int) int {
 // 解释：选出数字 3, 6, 1 和 8，它们的和是 18（可被 3 整除的最大和）。
 func maxSumDivThree(nums []int) int {
 	n := len(nums)
-	// dp[i][j]含义：nums[0...i]中被3整除余数为j的最大和
-	dp := make([][3]int, n+1)
+	dp := make([][3]int, n+1) // dp[i][j]含义：nums[0...i]中被3整除余数为j的最大和
 	dp[0][0] = 0
 	dp[0][1] = math.MinInt
 	dp[0][2] = math.MinInt

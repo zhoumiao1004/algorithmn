@@ -6,8 +6,65 @@ package main
 // 输入：text1 = "abcde", text2 = "ace"
 // 输出：3
 // 解释：最长公共子序列是 "ace" ，它的长度为 3 。
-// 思路1: 自底向上迭代解法
-func longestCommonSubsequence(text1, text2 string) int {
+// 思路1: 自顶向下带memo的递归
+func longestCommonSubsequence(text1 string, text2 string) int {
+	m, n := len(text1), len(text2)
+	memo := make([][]int, m)
+	for i := 0; i < m; i++ {
+		memo[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			memo[i][j] = -1
+		}
+	}
+
+	var dp func(i, j int) int // 定义：dp函数返回 s1[i...] 和 s2[j...] 的公共子序列长度
+	dp = func(i, j int) int {
+		if i == m || j == n {
+			return 0
+		}
+		if memo[i][j] != -1 {
+			return memo[i][j]
+		}
+		if text1[i] == text2[j] {
+			memo[i][j] = 1 + dp(i+1, j+1)
+		} else {
+			memo[i][j] = max(dp(i+1, j), dp(i, j+1))
+		}
+		return memo[i][j]
+	}
+	return dp(0, 0)
+}
+
+func longestCommonSubsequence2(text1 string, text2 string) int {
+	m, n := len(text1), len(text2)
+	memo := make([][]int, m)
+	for i := 0; i < m; i++ {
+		memo[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			memo[i][j] = -1
+		}
+	}
+	var dp func(i, j int) int
+
+	dp = func(i, j int) int {
+		if i == -1 || j == -1 {
+			return 0
+		}
+		if memo[i][j] != -1 {
+			return memo[i][j]
+		}
+		if text1[i] == text2[j] {
+			memo[i][j] = dp(i-1, j-1) + 1
+		} else {
+			memo[i][j] = max(dp(i-1, j), dp(i, j-1))
+		}
+		return memo[i][j]
+	}
+	return dp(m-1, n-1)
+}
+
+// 思路2: 自底向上迭代解法
+func longestCommonSubsequence3(text1, text2 string) int {
 	m, n := len(text1), len(text2)
 	dp := make([][]int, m+1)
 	for i := 0; i <= m; i++ {
@@ -23,35 +80,6 @@ func longestCommonSubsequence(text1, text2 string) int {
 		}
 	}
 	return dp[m][n]
-}
-
-// 思路2: 自顶向下带memo的递归
-func longestCommonSubsequence2(text1 string, text2 string) int {
-	m, n := len(text1), len(text2)
-	memo := make([][]int, m)
-	for i := 0; i < m; i++ {
-		memo[i] = make([]int, n)
-		for j := 0; j < n; j++ {
-			memo[i][j] = -1
-		}
-	}
-
-	var dp func(i, j int) int // 定义：dp函数返回 s1[i...] 和 s2[j...] 的公共子序列长度
-	dp = func(i, j int) int {
-		if i == len(text1) || j == len(text2) {
-			return 0
-		}
-		if memo[i][j] != -1 {
-			return memo[i][j]
-		}
-		if text1[i] == text2[j] {
-			memo[i][j] = 1 + dp(i+1, j+1)
-		} else {
-			memo[i][j] = max(dp(i+1, j), dp(i, j+1))
-		}
-		return memo[i][j]
-	}
-	return dp(0, 0)
 }
 
 // 1035.不相交的线
@@ -138,7 +166,42 @@ func minDistance1(word1 string, word2 string) int {
 // 解释: 在 "sea" 中删除 "s" 并将 "s" 的值(115)加入总和。
 // 在 "eat" 中删除 "t" 并将 116 加入总和。
 // 结束时，两个字符串相等，115 + 116 = 231 就是符合条件的最小和。
+// 思路1: 自顶向下递归解法
 func minimumDeleteSum(s1 string, s2 string) int {
+	m, n := len(s1), len(s2)
+	memo := make([][]int, m)
+	for i := 0; i < m; i++ {
+		memo[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			memo[i][j] = -1
+		}
+	}
+	var dp func(i, j int) int
+
+	dp = func(i, j int) int {
+		if i == -1 && j == -1 {
+			return 0
+		} else if i == -1 {
+			return dp(i, j-1) + int(s2[j])
+		} else if j == -1 {
+			return dp(i-1, j) + int(s1[i])
+		}
+		if memo[i][j] != -1 {
+			return memo[i][j]
+		}
+		if s1[i] == s2[j] {
+			memo[i][j] = dp(i-1, j-1)
+		} else {
+			memo[i][j] = min(dp(i-1, j)+int(s1[i]), dp(i, j-1)+int(s2[j]))
+		}
+		return memo[i][j]
+	}
+
+	return dp(m-1, n-1)
+}
+
+// 思路2: 自底向上迭代解法
+func minimumDeleteSum2(s1 string, s2 string) int {
 	m, n := len(s1), len(s2)
 	dp := make([][]int, m+1)
 	for i := 0; i <= m; i++ {

@@ -11,8 +11,34 @@ import (
 // 输入：nums = [-2,1,-3,4,-1,2,1,-5,4]
 // 输出：6
 // 解释：连续子数组 [4,-1,2,1] 的和最大，为 6 。
-// 思路1: dp
+// 思路1: 自顶向下的递归解法
 func maxSubArray(nums []int) int {
+	res := math.MinInt
+	n := len(nums)
+	memo := make([]int, n)
+	for i := 0; i < n; i++ {
+		memo[i] = math.MinInt
+	}
+	var dp func(i int) int
+
+	dp = func(i int) int {
+		if i == -1 {
+			return 0
+		}
+		if memo[i] != math.MinInt {
+			return memo[i]
+		}
+		memo[i] = max(nums[i], dp(i-1)+nums[i])
+		res = max(res, memo[i])
+		return memo[i]
+	}
+
+	dp(len(nums) - 1)
+	return res
+}
+
+// 思路1: 自底向上的迭代解法
+func maxSubArray2(nums []int) int {
 	n := len(nums)
 	res := nums[0]
 	dp := make([]int, n) // dp[i]定义：以nums[i]结尾的最大子数组和
