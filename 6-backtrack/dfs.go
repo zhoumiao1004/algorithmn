@@ -115,10 +115,11 @@ func exist(board [][]byte, word string) bool {
 }
 
 func exist2(board [][]byte, word string) bool {
+	m, n := len(board), len(board[0])
 	found := false
-	var dfs func(board [][]byte, i, j, p int)
+	var dfs func(i, j, p int)
 
-	dfs = func(board [][]byte, i, j, p int) {
+	dfs = func(i, j, p int) {
 		if p == len(word) {
 			found = true
 			return
@@ -126,7 +127,6 @@ func exist2(board [][]byte, word string) bool {
 		if found {
 			return
 		}
-		m, n := len(board), len(board[0])
 		if i < 0 || i >= m || j < 0 || j >= n {
 			return
 		}
@@ -135,20 +135,19 @@ func exist2(board [][]byte, word string) bool {
 		}
 		// 做选择
 		original := board[i][j]
-		board[i][j] = '-'       // 技巧：起到了visted数组的作用，标记已走过，不走回头路
-		dfs(board, i-1, j, p+1) // 可以改写为for循环，p+1隐藏了回溯过程：可以改为全局变量进入节点时++，出节点时--
-		dfs(board, i+1, j, p+1)
-		dfs(board, i, j-1, p+1)
-		dfs(board, i, j+1, p+1)
+		board[i][j] = '-' // 技巧：起到了visted数组的作用，标记已走过，不走回头路
+		dfs(i-1, j, p+1)  // 可以改写为for循环，p+1隐藏了回溯过程：可以改为全局变量进入节点时++，出节点时--
+		dfs(i+1, j, p+1)
+		dfs(i, j-1, p+1)
+		dfs(i, j+1, p+1)
 		// 撤销选择
 		board[i][j] = original
 	}
 
-	m, n := len(board), len(board[0])
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
 			found = false
-			dfs(board, i, j, 0)
+			dfs(i, j, 0)
 			if found {
 				return true
 			}
@@ -178,9 +177,9 @@ func getMaximumGold(grid [][]int) int {
 	m, n := len(grid), len(grid[0])
 	res := 0
 	s := 0
-	var dfs func(grid [][]int, i, j int)
+	var dfs func(i, j int)
 
-	dfs = func(grid [][]int, i, j int) {
+	dfs = func(i, j int) {
 		if i < 0 || i >= m || j < 0 || j >= n {
 			return
 		}
@@ -192,7 +191,7 @@ func getMaximumGold(grid [][]int) int {
 		grid[i][j] = 0
 		res = max(res, s)
 		for _, dir := range dirs {
-			dfs(grid, i+dir[0], j+dir[1])
+			dfs(i+dir[0], j+dir[1])
 		}
 		grid[i][j] = tmp
 		s -= grid[i][j]
@@ -201,7 +200,7 @@ func getMaximumGold(grid [][]int) int {
 	// 穷举从所有可能起点出发
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
-			dfs(grid, i, j)
+			dfs(i, j)
 		}
 	}
 	return res

@@ -281,6 +281,8 @@ func maxProduct(root *TreeNode) int {
 // 重复第二步和第三步，直到你在树中无法继续移动。
 // 交错路径的长度定义为：访问过的节点数目 - 1（单个节点的路径长度为 0 ）。
 // 请你返回给定树中最长 交错路径 的长度。
+// 输入：root = [1,null,1,1,1,null,null,1,1,null,1,null,null,null,1,null,1]
+// 输出：3
 func longestZigZag(root *TreeNode) int {
 	res := 0
 	var getPathLen func(root *TreeNode) []int
@@ -311,6 +313,9 @@ func longestZigZag(root *TreeNode) int {
 // https://leetcode.cn/problems/construct-string-from-binary-tree/description/
 // 给你二叉树的根节点 root ，请你采用前序遍历的方式，将二叉树转化为一个由括号和整数组成的字符串，返回构造出的字符串。
 // 空节点使用一对空括号对 "()" 表示，转化后需要省略所有不影响字符串与原始二叉树之间的一对一映射关系的空括号对。
+// 输入：root = [1,2,3,4]
+// 输出："1(2(4))(3)"
+// 解释：初步转化后得到 "1(2(4)())(3()())" ，但省略所有不必要的空括号对后，字符串应该是"1(2(4))(3)" 。
 func tree2str(root *TreeNode) string {
 	if root == nil {
 		return ""
@@ -345,6 +350,8 @@ func tree2str2(root *TreeNode) string {
 // 1443. 收集树上所有苹果的最少时间
 // https://leetcode.cn/problems/minimum-time-to-collect-all-apples-in-a-tree/description/
 // 给你一棵有 n 个节点的无向树，节点编号为 0 到 n-1 ，它们中有一些节点有苹果。通过树上的一条边，需要花费 1 秒钟。你从 节点 0 出发，请你返回最少需要多少秒，可以收集到所有苹果，并回到节点 0 。
+// 输入：n = 7, edges = [[0,1],[0,2],[1,4],[1,5],[2,3],[2,6]], hasApple = [false,false,true,false,true,true,false]
+// 输出：8
 func minTime(n int, edges [][]int, hasApple []bool) int {
 	graph := make(map[int][]int)
 	visited := make(map[int]bool)
@@ -419,6 +426,8 @@ func distributeCoins(root *TreeNode) int {
 // 给你二叉树的根节点 root 和一个整数 limit ，请你同时删除树中所有 不足节点 ，并返回最终二叉树的根节点。
 // 假如通过节点 node 的每种可能的 “根-叶” 路径上值的总和全都小于给定的 limit，则该节点被称之为 不足节点 ，需要被删除。
 // 叶子节点，就是没有子节点的节点。
+// 输入：root = [1,2,3,4,-99,-99,7,8,9,-99,-99,12,13,-99,14], limit = 1
+// 输出：[1,2,3,4,null,null,7,8,9,null,14]
 func sufficientSubset(root *TreeNode, limit int) *TreeNode {
 	if root == nil {
 		return nil
@@ -444,6 +453,15 @@ func sufficientSubset(root *TreeNode, limit int) *TreeNode {
 // 给你一棵根节点为 0 的 二叉树 ，它总共有 n 个节点，节点编号为 0 到 n - 1 。同时给你一个下标从 0 开始的整数数组 parents 表示这棵树，其中 parents[i] 是节点 i 的父节点。由于节点 0 是根，所以 parents[0] == -1 。
 // 一个子树的 大小 为这个子树内节点的数目。每个节点都有一个与之关联的 分数 。求出某个节点分数的方法是，将这个节点和与它相连的边全部 删除 ，剩余部分是若干个 非空 子树，这个节点的 分数 为所有这些子树 大小的乘积 。
 // 请你返回有 最高得分 节点的 数目 。
+// 输入：parents = [-1,2,0,2,0]
+// 输出：3
+// 解释：
+// - 节点 0 的分数为：3 * 1 = 3
+// - 节点 1 的分数为：4 = 4
+// - 节点 2 的分数为：1 * 1 * 2 = 2
+// - 节点 3 的分数为：4 = 4
+// - 节点 4 的分数为：4 = 4
+// 最高得分为 4 ，有三个节点得分为 4 （分别是节点 1，3 和 4 ）。
 func countHighestScoreNodes(parents []int) int {
 	scoreToCount := make(map[int]int)
 	maxScore := 0

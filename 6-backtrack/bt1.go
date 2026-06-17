@@ -19,7 +19,7 @@ func findItinerary(tickets [][]string) []string {
 // 输出：["((()))","(()())","(())()","()(())","()()()"]
 func generateParenthesis(n int) []string {
 	var res []string
-	var path []byte
+	var path string
 	var backtrack func(i, j int)
 
 	backtrack = func(i, j int) {
@@ -30,13 +30,13 @@ func generateParenthesis(n int) []string {
 			return
 		}
 		if i == 0 && j == 0 {
-			res = append(res, string(path))
+			res = append(res, path)
 			return
 		}
 
-		for _, c := range []byte{'(', ')'} {
-			path = append(path, c)
-			if c == '(' {
+		for _, s := range []string{"(", ")"} {
+			path += s
+			if s == "(" {
 				backtrack(i-1, j)
 			} else {
 				backtrack(i, j-1)

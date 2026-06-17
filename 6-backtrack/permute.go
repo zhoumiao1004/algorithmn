@@ -183,7 +183,7 @@ func numsSameConsecDiff(n int, k int) []int {
 // 输入："AAB"
 // 输出：8
 // 解释：可能的序列为 "A", "B", "AA", "AB", "BA", "AAB", "ABA", "BAA"。
-// 思路: 元素可重不可复选的排列，普通排列，即并非每个元素都要参与到排列中。
+// 思路1: 元素可重不可复选的排列，普通排列，即并非每个元素都要参与到排列中。
 func numTilePossibilities(tiles string) int {
 	n := len(tiles)
 	bs := []byte(tiles)
