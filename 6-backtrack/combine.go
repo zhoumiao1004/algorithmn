@@ -248,6 +248,6 @@ func main() {
 	candidates := []int{2, 3, 6, 7}
 	target := 7
 	fmt.Println(combinationSum(candidates, target))
-	fmt.Println(combinationSum2([]int{10, 1, 2, 7, 6, 1, 5}, 8))
+	fmt.Println(combinationSumII([]int{10, 1, 2, 7, 6, 1, 5}, 8))
 	fmt.Println(findSubsequences([]int{4, 6, 7, 7}))
 }

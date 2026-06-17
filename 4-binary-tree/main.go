@@ -52,9 +52,7 @@ func (this *FindElements) Find(target int) bool {
 // 请找出在树 cloned 中，与 target 相同 的节点，并返回对该节点的引用（在 C/C++ 等有指针的语言中返回 节点指针，其他语言返回节点本身）。
 // 遍历的思路
 func getTargetCopy(original *TreeNode, cloned *TreeNode, target *TreeNode) *TreeNode {
-	// 定义：找到 original 中 target 节点在 cloned 树中对应的节点
 	var res *TreeNode
-	// 二叉树遍历函数
 	var traverse func(o *TreeNode, c *TreeNode)
 	traverse = func(o *TreeNode, c *TreeNode) {
 		if o == nil || res != nil {
@@ -64,7 +62,6 @@ func getTargetCopy(original *TreeNode, cloned *TreeNode, target *TreeNode) *Tree
 			res = c
 			return
 		}
-		// 二叉树遍历框架
 		traverse(o.Left, c.Left)
 		traverse(o.Right, c.Right)
 	}
@@ -75,11 +72,9 @@ func getTargetCopy(original *TreeNode, cloned *TreeNode, target *TreeNode) *Tree
 
 // 分解问题的思路
 func getTargetCopy2(original *TreeNode, cloned *TreeNode, target *TreeNode) *TreeNode {
-	// 定义：找到 original 中 target 节点在 cloned 树中对应的节点
 	if original == nil {
 		return nil
 	}
-	// 找到目标节点
 	if target == original {
 		return cloned
 	}
