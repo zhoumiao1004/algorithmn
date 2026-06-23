@@ -10,12 +10,14 @@ import (
 // 相邻不能偷。dp[i]两种情况：1.偷，dp[i-2]+nums[i] 2.不偷dp[i-1]
 // 输入：[1,2,3,1] 输出：4
 // 解释：偷窃 1 号房屋 (金额 = 1) ，然后偷窃 3 号房屋 (金额 = 3)。偷窃到的最高金额 = 1 + 3 = 4 。
+// 思路1: 自顶向下的递归解法
 func rob(nums []int) int {
 	memo := make([]int, len(nums))
 	for i := 0; i < len(nums); i++ {
 		memo[i] = -1
 	}
 	var dp func(start int) int
+
 	dp = func(start int) int {
 		if start >= len(nums) {
 			return 0
@@ -33,6 +35,7 @@ func rob(nums []int) int {
 	return dp(0)
 }
 
+// 思路2: 自底向上的迭代解法，从后往前
 func rob2(nums []int) int {
 	n := len(nums)
 	dp := make([]int, n+2)
@@ -42,6 +45,7 @@ func rob2(nums []int) int {
 	return dp[0]
 }
 
+// 思路2: 自底向上的迭代解法，从前往后
 func rob3(nums []int) int {
 	n := len(nums)
 	dp := make([]int, n+2)
@@ -51,6 +55,7 @@ func rob3(nums []int) int {
 	return dp[n+1]
 }
 
+// 思路2: 自底向上的迭代解法，从前往后
 func rob4(nums []int) int {
 	n := len(nums)
 	if n == 0 {

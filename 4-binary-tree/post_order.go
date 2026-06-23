@@ -21,8 +21,8 @@ import (
 // 思路1: 后序
 func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
 	var res []*TreeNode
-	memo := make(map[string]int)
 	var serialize func(node *TreeNode) string
+	memo := make(map[string]int)
 
 	serialize = func(node *TreeNode) string {
 		if node == nil {
@@ -46,9 +46,9 @@ func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
 // 思路2: 遍历
 func findDuplicateSubtrees3(root *TreeNode) []*TreeNode {
 	var res []*TreeNode
-	subMap := make(map[string]int)
 	var serialize func(node *TreeNode) string
 	var traverse func(node *TreeNode)
+	memo := make(map[string]int)
 
 	serialize = func(node *TreeNode) string {
 		if node == nil {
@@ -67,10 +67,10 @@ func findDuplicateSubtrees3(root *TreeNode) []*TreeNode {
 		traverse(node.Right)
 		// 后序位置
 		s := serialize(node)
-		if subMap[s] == 1 {
+		if memo[s] == 1 {
 			res = append(res, node)
 		}
-		subMap[s]++
+		memo[s]++
 	}
 
 	traverse(root)
