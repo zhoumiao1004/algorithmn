@@ -77,6 +77,28 @@ func sumNumbers(root *TreeNode) int {
 	return res
 }
 
+func sumNumbers2(root *TreeNode) int {
+	res := 0
+	s := 0
+	var traverse func(root *TreeNode)
+
+	traverse = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+		s = 10*s + root.Val
+		if root.Left == nil && root.Right == nil {
+			res += s
+		}
+		traverse(root.Left)
+		traverse(root.Right)
+		s /= 10
+	}
+
+	traverse(root)
+	return res
+}
+
 // 199. 二叉树的右视图
 // https://leetcode.cn/problems/binary-tree-right-side-view/
 // 输入：root = [1,2,3,null,5,null,4]
@@ -243,6 +265,27 @@ func sumRootToLeaf(root *TreeNode) int {
 	return res
 }
 
+func sumRootToLeaf2(root *TreeNode) int {
+	res := 0
+	s := 0
+	var traverse func(root *TreeNode)
+	traverse = func(root *TreeNode) {
+		if root == nil {
+			return
+		}
+		s = 2*s + root.Val
+		if root.Left == nil && root.Right == nil {
+			res += s
+		}
+		traverse(root.Left)
+		traverse(root.Right)
+		s /= 2
+	}
+
+	traverse(root)
+	return res
+}
+
 // 1457. 二叉树中的伪回文路径
 // https://leetcode.cn/problems/pseudo-palindromic-paths-in-a-binary-tree/
 // 给你一棵二叉树，每个节点的值为 1 到 9 。我们称二叉树中的一条路径是 「伪回文」的，当它满足：路径经过的所有节点值的排列中，存在一个回文序列。
@@ -250,7 +293,7 @@ func sumRootToLeaf(root *TreeNode) int {
 // 输入：root = [2,3,1,3,1,null,1]
 // 输出：2
 func pseudoPalindromicPaths(root *TreeNode) int {
-	var path []int
+	// var path []int
 	res := 0
 	var hash [10]int
 	var traverse func(node *TreeNode)
@@ -259,7 +302,7 @@ func pseudoPalindromicPaths(root *TreeNode) int {
 		if node == nil {
 			return
 		}
-		path = append(path, node.Val)
+		// path = append(path, node.Val)
 		hash[node.Val]++
 		if node.Left == nil && node.Right == nil {
 			cnt := 0
@@ -274,7 +317,7 @@ func pseudoPalindromicPaths(root *TreeNode) int {
 		}
 		traverse(node.Left)
 		traverse(node.Right)
-		path = path[:len(path)-1]
+		// path = path[:len(path)-1]
 		hash[node.Val]--
 	}
 

@@ -116,8 +116,42 @@ func checkInclusion(s1 string, s2 string) bool {
 	return false
 }
 
-// 思路2:hash table
 func checkInclusion2(s1 string, s2 string) bool {
+	need := make(map[byte]int)
+	window := make(map[byte]int)
+	valid := 0
+	for i := 0; i < len(s1); i++ {
+		need[s1[i]]++
+	}
+	left, right := 0, 0
+	for right < len(s2) {
+		c := s2[right]
+		right++
+		if cnt, ok := need[c]; ok {
+			window[c]++
+			if window[c] == cnt {
+				valid++
+			}
+		}
+		for valid == len(need) {
+			if right-left == len(s1) {
+				return true
+			}
+			d := s2[left]
+			left++
+			if cnt, ok := need[d]; ok {
+				if window[d] == cnt {
+					valid--
+				}
+				window[d]--
+			}
+		}
+	}
+	return false
+}
+
+// 思路2:hash table
+func checkInclusion3(s1 string, s2 string) bool {
 	len1, len2 := len(s1), len(s2)
 	if len1 > len2 {
 		return false
@@ -184,6 +218,41 @@ func findAnagrams(s string, p string) []int {
 		// 更新结果
 		if valid == len(need) {
 			res = append(res, left)
+		}
+	}
+	return res
+}
+
+func findAnagrams2(s string, p string) []int {
+	var res []int
+	need := make(map[byte]int)
+	window := make(map[byte]int)
+	valid := 0
+	for i := 0; i < len(p); i++ {
+		need[p[i]]++
+	}
+	left, right := 0, 0
+	for right < len(s) {
+		c := s[right]
+		right++
+		if cnt, ok := need[c]; ok {
+			window[c]++
+			if window[c] == cnt {
+				valid++
+			}
+		}
+		for right-left == len(p) {
+			if valid == len(need) {
+				res = append(res, left)
+			}
+			d := s[left]
+			left++
+			if cnt, ok := need[d]; ok {
+				if window[d] == cnt {
+					valid--
+				}
+				window[d]--
+			}
 		}
 	}
 	return res

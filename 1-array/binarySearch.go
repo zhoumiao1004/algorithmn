@@ -120,6 +120,7 @@ func searchInsert(nums []int, target int) int {
 }
 
 // 875. 爱吃香蕉的珂珂
+// https://leetcode.cn/problems/koko-eating-bananas/description/
 // 珂珂喜欢吃香蕉。这里有 n 堆香蕉，第 i 堆中有 piles[i] 根香蕉。警卫已经离开了，将在 h 小时后回来。
 // 珂珂可以决定她吃香蕉的速度 k （单位：根/小时）。每个小时，她将会选择一堆香蕉，从中吃掉 k 根。如果这堆香蕉少于 k 根，她将吃掉这堆的所有香蕉，然后这一小时内不会再吃更多的香蕉。
 // 珂珂喜欢慢慢吃，但仍然想在警卫回来前吃掉所有的香蕉。
@@ -175,13 +176,13 @@ func shipWithinDays(weights []int, days int) int {
 	var leastDays func(weights []int, x int) int
 	leastDays = func(weights []int, x int) int {
 		days := 1
-		s := 0
+		s := 0 // 累计重量
 		for i := 0; i < len(weights); i++ {
 			if s+weights[i] > x {
 				days++
-				s = weights[i]
+				s = weights[i] // 超过上限，第i个包裹只能放到下一天
 			} else {
-				s += weights[i]
+				s += weights[i] // 没达到运载上限，还能装
 			}
 		}
 		return days
@@ -189,9 +190,7 @@ func shipWithinDays(weights []int, days int) int {
 	// left, right := 1, 500*5*10000+1
 	left, right := 0, 1
 	for _, w := range weights {
-		if left < w {
-			left = w
-		}
+		left = max(left, w)
 		right += w
 	}
 	for left <= right {

@@ -42,29 +42,6 @@ func rotate(matrix [][]int) {
 // 输出："blue is sky the"
 // 思路：1.删除多余的空格 2.整体反转 3.反转每个单词
 func reverseWords(s string) string {
-	var reverseString func(bs []byte)
-	reverseString = func(bs []byte) {
-		left, right := 0, len(bs)-1
-		for left < right {
-			bs[left], bs[right] = bs[right], bs[left]
-			left++
-			right--
-		}
-	}
-
-	s := removeExtraSpaces(s)
-	reverseString(s)
-	slow := 0
-	for fast := 0; fast <= len(bs); fast++ {
-		if fast == len(bs) || bs[fast] == ' ' {
-			reverseString(bs[slow:fast])
-			slow = fast + 1
-		}
-	}
-	return string(bs)
-}
-
-func removeExtraSpaces(s string) string {
 	bs := []byte(s)
 	slow, fast := 0, 0
 	for ; fast < len(s); fast++ {
@@ -77,26 +54,24 @@ func removeExtraSpaces(s string) string {
 			slow++
 		}
 	}
-	return string(bs[:slow])
-}
-
-func removeExtraSpaces2(s string) string {
-	bs := []byte(s)
-	slow := 0
-	for fast := 0; fast < len(bs); fast++ {
-		if bs[fast] != ' ' {
-			if slow > 0 { // 单词之间补空格
-				bs[slow] = ' '
-				slow++
-			}
-			for fast < len(bs) && bs[fast] != ' ' {
-				bs[slow] = bs[fast]
-				slow++
-				fast++
-			}
+	reverse(bs)
+	slow = 0
+	for fast := 0; fast <= len(bs); fast++ {
+		if fast == len(bs) || bs[fast] == ' ' {
+			reverse(bs[slow:fast])
+			slow = fast + 1
 		}
 	}
-	return string(bs[:slow])
+	return string(bs)
+}
+
+func reverse(bs []byte) {
+	left, right := 0, len(bs)-1
+	for left < right {
+		bs[left], bs[right] = bs[right], bs[left]
+		left++
+		right--
+	}
 }
 
 // 61. 旋转链表
