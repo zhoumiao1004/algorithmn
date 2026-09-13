@@ -122,7 +122,7 @@ func levelOrderNTree(root *NTreeNode) [][]int {
 }
 
 // 103. 二叉树的锯齿形层序遍历
-// https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/submissions/
+// https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/description/
 // 给你二叉树的根节点 root ，返回其节点值的 锯齿形层序遍历 。（即先从左往右，再从右往左进行下一层遍历，以此类推，层与层之间交替进行）。
 // 输入：root = [3,9,20,null,null,15,7]
 // 输出：[[3],[20,9],[15,7]]
@@ -162,6 +162,7 @@ func zigzagLevelOrder(root *TreeNode) [][]int {
 }
 
 // 515. 在每个树行中找最大值
+// https://leetcode.cn/problems/find-largest-value-in-each-tree-row/description
 // 给定一棵二叉树的根节点 root ，请找出该二叉树中每一层的最大值。
 // 输入: root = [1,3,2,5,3,null,9]
 // 输出: [1,3,9]
@@ -339,65 +340,25 @@ func isEvenOddTree(root *TreeNode) bool {
 	if root == nil {
 		return false
 	}
-	flag := true
 	q := []*TreeNode{root}
+	levelOdd := true
 	for len(q) > 0 {
+		levelOdd = !levelOdd
+		var prev *TreeNode
 		sz := len(q)
 		for i := 0; i < sz; i++ {
 			node := q[0]
-			q = q[1:]
-			if flag && node.Val%2 == 0 {
-				return false
-			}
-			if !flag && node.Val%2 == 1 {
-				return false
-			}
-			if i < sz-1 {
-				if flag && node.Val >= q[0].Val {
-					return false
-				}
-				if !flag && node.Val <= q[0].Val {
-					return false
-				}
-			}
-			if node.Left != nil {
-				q = append(q, node.Left)
-			}
-			if node.Right != nil {
-				q = append(q, node.Right)
-			}
-		}
-		flag = !flag
-	}
-	return true
-}
-
-func isEvenOddTree2(root *TreeNode) bool {
-	if root == nil {
-		return false
-	}
-	q := []*TreeNode{root}
-	level := 0
-	for len(q) > 0 {
-		sz := len(q)
-		for i := 0; i < sz; i++ {
-			node := q[0]
-			q = q[1:]
-			if level%2 == 0 {
-				if node.Val%2 == 0 {
-					return false
-				}
-				if i != sz-1 && node.Val >= q[0].Val {
+			if levelOdd {
+				if node.Val%2 != 0 || (prev != nil && node.Val >= prev.Val) {
 					return false
 				}
 			} else {
-				if node.Val%2 == 1 {
-					return false
-				}
-				if i != sz-1 && node.Val <= q[0].Val {
+				if node.Val%2 == 0 || (prev != nil && node.Val <= prev.Val) {
 					return false
 				}
 			}
+			prev = node
+			q = q[1:]
 			if node.Left != nil {
 				q = append(q, node.Left)
 			}
@@ -405,7 +366,6 @@ func isEvenOddTree2(root *TreeNode) bool {
 				q = append(q, node.Right)
 			}
 		}
-		level++
 	}
 	return true
 }
@@ -622,6 +582,48 @@ func distanceK2(root *TreeNode, target *TreeNode, k int) []int {
 	return res
 }
 
+// 思路2: dfs
+func distanceK3(root *TreeNode, target *TreeNode, k int) []int {
+	var res []int
+	var traverse func(root, parent *TreeNode)
+	var dfs func(root *TreeNode, dis int)
+	var node *TreeNode
+	parentMap := make(map[*TreeNode]*TreeNode)
+
+	traverse = func(root, parent *TreeNode) {
+		if root == nil {
+			return
+		}
+		parentMap[root] = parent
+		if root == target {
+			node = root
+		}
+		traverse(root.Left, root)
+		traverse(root.Right, root)
+	}
+
+	visited := make(map[int]bool)
+	dfs = func(root *TreeNode, dis int) {
+		if root == nil || visited[root.Val] {
+			return
+		}
+		visited[root.Val] = true
+		if dis == k {
+			res = append(res, root.Val)
+			return
+		}
+		parent := parentMap[root]
+		dfs(parent, dis+1)
+		dfs(root.Left, dis+1)
+		dfs(root.Right, dis+1)
+		dis++
+	}
+
+	traverse(root, nil)
+	dfs(node, 0)
+	return res
+}
+
 // 662. 二叉树最大宽度
 // https://leetcode.cn/problems/maximum-width-of-binary-tree/description/
 // 给你一棵二叉树的根节点 root ，返回树的 最大宽度 。
@@ -633,6 +635,7 @@ func widthOfBinaryTree(root *TreeNode) int {
 		Node *TreeNode
 		Id   int
 	}
+	
 	res := 0
 	q := []*Pair{{Node: root, Id: 1}}
 	for len(q) > 0 {

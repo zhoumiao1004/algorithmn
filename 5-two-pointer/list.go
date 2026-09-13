@@ -29,6 +29,7 @@ func partition(head *ListNode, x int) *ListNode {
 	cur := head
 	for cur != nil {
 		next := cur.Next
+		cur.Next = nil
 		if cur.Val < x {
 			p.Next = cur
 			p = p.Next
@@ -36,7 +37,6 @@ func partition(head *ListNode, x int) *ListNode {
 			q.Next = cur
 			q = q.Next
 		}
-		cur.Next = nil
 		cur = next
 	}
 	p.Next = dummy2.Next

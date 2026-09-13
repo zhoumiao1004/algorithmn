@@ -23,6 +23,14 @@ func sortedArrayToBST(nums []int) *TreeNode {
 // 输出: [0,-3,9,-10,null,5]
 // 解释: 一个可能的答案是[0，-3,9，-10,null,5]，它表示所示的高度平衡的二叉搜索树。
 // 思路1：分解问题，列表转换成数组，再转换成bst
+func sortedListToBST0(head *ListNode) *TreeNode {
+	var nums []int
+	for cur := head; cur != nil; cur = cur.Next {
+		nums = append(nums, cur.Val)
+	}
+	return sortedArrayToBST(nums)
+}
+
 // 思路2：分解问题，链表双指针
 func sortedListToBST(head *ListNode) *TreeNode {
 	var getMid func(begin, end *ListNode) *ListNode
@@ -203,8 +211,7 @@ func generateTrees(n int) []*TreeNode {
 	build = func(low, high int) []*TreeNode {
 		var res []*TreeNode
 		if low > high {
-			res = append(res, nil)
-			return res
+			return []*TreeNode{nil}
 		}
 		// 1.穷举 root 节点的所有可能
 		for i := low; i <= high; i++ {

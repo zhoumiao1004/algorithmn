@@ -81,14 +81,14 @@ func reverse(bs []byte) {
 // 输出：[4,5,1,2,3]
 // 思路1: 将链表的后 k 个节点移动到链表的头部
 func rotateRight(head *ListNode, k int) *ListNode {
-	if head == nil {
-		return nil
-	}
 	length := 0
 	for cur := head; cur != nil; cur = cur.Next {
 		length++
 	}
 	k = k % length
+	if k == 0 || length == 0 {
+		return head
+	}
 	// 寻找倒数第 k+1 个节点，倒数第k个节点作为头结点
 	slow, fast := head, head
 	for i := 0; i < k; i++ {
@@ -318,6 +318,7 @@ func searchMatrixII(matrix [][]int, target int) bool {
 
 /*
 566. 重塑矩阵
+https://leetcode.cn/problems/reshape-the-matrix/description/
 在 MATLAB 中，有一个非常有用的函数 reshape ，它可以将一个 m x n 矩阵重塑为另一个大小不同（r x c）的新矩阵，但保留其原始数据。
 给你一个由二维数组 mat 表示的 m x n 矩阵，以及两个正整数 r 和 c ，分别表示想要的重构的矩阵的行数和列数。
 重构后的矩阵需要将原始矩阵的所有元素以相同的 行遍历顺序 填充。
@@ -385,6 +386,29 @@ func diagonalSort(mat [][]int) [][]int {
 // 这道题是同样的思路：你可以写一个 get 方法和 set 方法把二维数组抽象成一维数组，然后题目就变成了让你将一个一维的数组平移 k 位，相当于把前 mn - k 个元素的位置和后 k 个元素的位置对调，
 // 也可以分别翻转前 mn - k 个元素和后 k 个元素，最后反转所有元素，得到的结果就是题目想要的。
 func shiftGrid(grid [][]int, k int) [][]int {
+	var reverse func(grid [][]int, i, j int)
+	reverse = func(grid [][]int, i, j int) {
+		n := len(grid[0])
+		for i < j {
+			grid[i/n][i%n], grid[j/n][j%n] = grid[j/n][j%n], grid[i/n][i%n]
+			i++
+			j--
+		}
+	}
+
+	m, n := len(grid), len(grid[0])
+	mn := m * n
+	k %= mn
+	// 先把最后 k 个数翻转
+	reverse(grid, mn-k, mn-1)
+	// 然后把前 mn - k 个数翻转
+	reverse(grid, 0, mn-k-1)
+	// 最后把整体翻转
+	reverse(grid, 0, mn-1)
+	return grid
+}
+
+func shiftGrid2(grid [][]int, k int) [][]int {
 	m, n := len(grid), len(grid[0])
 	k = k % (m * n)
 	var res []int
@@ -427,8 +451,8 @@ func transpose(matrix [][]int) [][]int {
 	res := make([][]int, n)
 	for i := 0; i < n; i++ {
 		res[i] = make([]int, m)
-		for j := 0; j < n; j++ {
-			res[j][i] = matrix[i][j]
+		for j := 0; j < m; j++ {
+			res[i][j] = matrix[j][i]
 		}
 	}
 	return res

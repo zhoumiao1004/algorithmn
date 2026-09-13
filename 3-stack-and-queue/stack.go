@@ -86,6 +86,27 @@ func isValid(s string) bool {
 	return len(st) == 0
 }
 
+func isValid2(s string) bool {
+    pair := map[byte]byte{
+        ')': '(',
+        '}': '{',
+        ']': '[',
+    }
+    var st []byte
+    for i := 0; i<len(s); i++ {
+        c, ok := pair[s[i]]
+        if !ok {
+            st = append(st, s[i])
+        } else {
+            if len(st) == 0 || st[len(st)-1] != c {
+                return false
+            }
+            st = st[:len(st)-1]
+        }
+    }
+    return len(st) == 0
+}
+
 // 150. 逆波兰表达式求值
 // https://leetcode.cn/problems/evaluate-reverse-polish-notation/
 // 有效的算符为 '+'、'-'、'*' 和 '/' 。

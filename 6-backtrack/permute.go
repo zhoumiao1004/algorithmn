@@ -163,7 +163,7 @@ func numsSameConsecDiff(n int, k int) []int {
 			if len(path) == 0 && i == 0 {
 				continue // 不能前导0
 			}
-			if len(path) > 0 && int(math.Abs(float64(path[len(path)-1])-float64(i))) != k {
+			if len(path) > 0 && int(math.Abs(float64(path[len(path)-1]-i))) != k {
 				continue // 相差不为k
 			}
 			path = append(path, i)
