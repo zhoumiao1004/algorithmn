@@ -45,14 +45,11 @@ func increasingBST(root *TreeNode) *TreeNode {
 		return nil
 	}
 	left := increasingBST(root.Left)
-	root.Left = nil
 	root.Right = increasingBST(root.Right)
-
-	// 后序位置
 	if left == nil {
 		return root
 	}
-	// 把 root 接到左子树最右边的节点上
+	root.Left = nil
 	cur := left
 	for cur.Right != nil {
 		cur = cur.Right

@@ -244,8 +244,7 @@ func allPossibleFBT(n int) []*TreeNode {
 	build = func(n int) []*TreeNode {
 		var res []*TreeNode
 		if n == 1 {
-			res = append(res, &TreeNode{})
-			return res
+			return []*TreeNode{&TreeNode{}}
 		}
 		if res, ok := memo[n]; ok {
 			return res

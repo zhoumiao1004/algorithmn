@@ -19,8 +19,6 @@ func constructMaximumBinaryTree(nums []int) *TreeNode {
 	n := len(nums)
 	if n == 0 {
 		return nil
-	} else if n == 1 {
-		return &TreeNode{Val: nums[0]}
 	}
 	maxIndex := 0
 	for i := 1; i < n; i++ {
@@ -60,17 +58,9 @@ func insertIntoMaxTree(root *TreeNode, val int) *TreeNode {
 func buildTreeFromPreInOrder(preorder []int, inorder []int) *TreeNode {
 	if len(preorder) == 0 {
 		return nil
-	} else if len(preorder) == 1 {
-		return &TreeNode{Val: preorder[0]}
 	}
-	// 中
 	root := &TreeNode{Val: preorder[0]}
 	i := 0
-	/*for ; i<len(inorder); i++ {
-	    if inorder[i] == preorder[0] {
-	        break
-	    }
-	}*/
 	for inorder[i] != preorder[0] {
 		i++
 	}
@@ -85,19 +75,18 @@ func buildTreeFromPreInOrder(preorder []int, inorder []int) *TreeNode {
 // 输出：[3,9,20,null,null,15,7]
 // 分析：分解+后序，先构造左子树和右子树，再构造根节点
 func buildTree(inorder []int, postorder []int) *TreeNode {
-	if len(postorder) == 0 {
+	n := len(inorder)
+	if n == 0 {
 		return nil
-	} else if len(postorder) == 1 {
-		return &TreeNode{Val: postorder[0]}
 	}
-	root := &TreeNode{Val: postorder[len(postorder)-1]}
+	root := &TreeNode{Val: postorder[n-1]}
 	// 找到根节点在中序列表中的位置
 	i := 0
 	for inorder[i] != root.Val {
 		i++
 	}
 	root.Left = buildTree(inorder[:i], postorder[:i])
-	root.Right = buildTree(inorder[i+1:], postorder[i:len(postorder)-1])
+	root.Right = buildTree(inorder[i+1:], postorder[i:n-1])
 	return root
 }
 

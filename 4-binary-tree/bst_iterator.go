@@ -18,9 +18,9 @@ type BSTIterator struct {
 }
 
 func Constructor(root *TreeNode) BSTIterator {
-	iterator := BSTIterator{st: []*TreeNode{}}
-	iterator.pushLeftBranch(root)
-	return iterator
+	it := BSTIterator{st: []*TreeNode{}}
+	it.pushLeftBranch(root)
+	return it
 }
 
 func (this *BSTIterator) pushLeftBranch(p *TreeNode) {
