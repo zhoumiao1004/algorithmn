@@ -219,9 +219,9 @@ func generateTrees(n int) []*TreeNode {
 			left := build(low, i-1)
 			right := build(i+1, high)
 			// 3.给 root 穷举所有左右子树的组合
-			for _, left := range left {
-				for _, right := range right {
-					res = append(res, &TreeNode{Val: i, Left: left, Right: right})
+			for _, l := range left {
+				for _, r := range right {
+					res = append(res, &TreeNode{Val: i, Left: l, Right: r})
 				}
 			}
 		}
@@ -253,9 +253,9 @@ func allPossibleFBT(n int) []*TreeNode {
 			j := n - i - 1
 			leftSubTree := build(i)
 			rightSubTree := build(j)
-			for _, left := range leftSubTree {
-				for _, right := range rightSubTree {
-					root := &TreeNode{Left: left, Right: right}
+			for _, l := range leftSubTree {
+				for _, r := range rightSubTree {
+					root := &TreeNode{Left: l, Right: r}
 					res = append(res, root)
 				}
 			}
