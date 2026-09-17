@@ -42,18 +42,14 @@ func minDepth(root *TreeNode) int {
 	if root == nil {
 		return 0
 	}
-	leftDepth := minDepth(root.Right)
-	rightDepth := minDepth(root.Left)
-
-	// 后序位置
-	if root.Left == nil && root.Right != nil {
-		return 1 + rightDepth
+	left := minDepth(root.Left)
+	right := minDepth(root.Right)
+	if left == 0 {
+		return right + 1
+	} else if right == 0 {
+		return left + 1
 	}
-	if root.Right == nil && root.Left != nil {
-		return 1 + leftDepth
-	}
-
-	return 1 + min(leftDepth, rightDepth)
+	return min(left, right) + 1
 }
 
 // 思路2: 层序遍历BFS。遍历到的第一个叶子节点的深度

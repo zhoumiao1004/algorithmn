@@ -7,23 +7,23 @@ package main
 // 输出：32
 // 对比 669. 修剪二叉搜索树 https://leetcode.cn/problems/trim-a-binary-search-tree/description/
 // 思路1: 分解问题，利用bst的特性（推荐）
-func rangeSumBST2(root *TreeNode, low int, high int) int {
+func rangeSumBST(root *TreeNode, low int, high int) int {
 	if root == nil {
 		return 0
 	}
 	if root.Val < low {
-		return rangeSumBST2(root.Right, low, high)
+		return rangeSumBST(root.Right, low, high)
 	} else if root.Val > high {
-		return rangeSumBST2(root.Left, low, high)
+		return rangeSumBST(root.Left, low, high)
 	} else {
-		left := rangeSumBST2(root.Left, low, root.Val)
-		right := rangeSumBST2(root.Right, root.Val, high)
+		left := rangeSumBST(root.Left, low, root.Val)
+		right := rangeSumBST(root.Right, root.Val, high)
 		return root.Val + left + right
 	}
 }
 
 // 思路2: 遍历，利用bst的特性
-func rangeSumBST(root *TreeNode, low int, high int) int {
+func rangeSumBST2(root *TreeNode, low int, high int) int {
 	res := 0
 	var traverse func(node *TreeNode, low, high int)
 

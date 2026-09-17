@@ -235,6 +235,26 @@ func maxAncestorDiff(root *TreeNode) int {
 	return res
 }
 
+func maxAncestorDiff2(root *TreeNode) int {
+	res := 0
+	var getMinMax func(root *TreeNode) []int
+
+	getMinMax = func(root *TreeNode) []int {
+		if root == nil {
+			return []int{math.MaxInt, math.MinInt}
+		}
+		left := getMinMax(root.Left)
+		right := getMinMax(root.Right)
+		minVal := min(left[0], right[0], root.Val)
+		maxVal := max(left[1], right[1], root.Val)
+		res = max(res, maxVal-root.Val, root.Val-minVal)
+		return []int{minVal, maxVal}
+	}
+
+	getMinMax(root)
+	return res
+}
+
 // 1339. 分裂二叉树的最大乘积
 // https://leetcode.cn/problems/maximum-product-of-splitted-binary-tree/description/
 // 给你一棵二叉树，它的根为 root 。请你删除 1 条边，使二叉树分裂成两棵子树，且它们子树和的乘积尽可能大。
@@ -304,6 +324,24 @@ func longestZigZag(root *TreeNode) int {
 	return res
 }
 
+func longestZigZag2(root *TreeNode) int {
+	res := 0
+	var getLen func(root *TreeNode) []int
+
+	getLen = func(root *TreeNode) []int {
+		if root == nil {
+			return []int{0, 0}
+		}
+		left := getLen(root.Left)
+		right := getLen(root.Right)
+		res = max(res, left[1], right[0])
+		return []int{left[1] + 1, right[0] + 1}
+	}
+
+	getLen(root)
+	return res
+}
+
 // 606. 根据二叉树创建字符串
 // https://leetcode.cn/problems/construct-string-from-binary-tree/description/
 // 给你二叉树的根节点 root ，请你采用前序遍历的方式，将二叉树转化为一个由括号和整数组成的字符串，返回构造出的字符串。
@@ -350,9 +388,6 @@ func tree2str2(root *TreeNode) string {
 func minTime(n int, edges [][]int, hasApple []bool) int {
 	graph := make(map[int][]int)
 	visited := make(map[int]bool)
-	for i := 0; i < n; i++ {
-		graph[i] = []int{}
-	}
 	for _, edge := range edges {
 		a, b := edge[0], edge[1]
 		graph[a] = append(graph[a], b)
